@@ -159,6 +159,66 @@
     }
 }
 
+/*
+ * Shop page list view — reshapes product cards when the grid carries
+ * data-product-view="list". Kept outside @layer so it wins over utilities.
+ */
+[data-product-view='list'] {
+    grid-template-columns: 1fr;
+}
+
+[data-product-view='list'] > article {
+    flex-direction: row;
+}
+
+[data-product-view='list'] > article > div:first-child {
+    width: 38%;
+    max-width: 20rem;
+    flex-shrink: 0;
+    aspect-ratio: 4 / 3;
+}
+
+[data-product-view='list'] > article > div:last-child {
+    justify-content: center;
+    padding: 1.5rem 2rem;
+}
+
+@layer components {
+    /* Dual-thumb price range slider */
+    .price-range-input {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        appearance: none;
+        background: transparent;
+        pointer-events: none;
+        height: 100%;
+    }
+
+    .price-range-input::-webkit-slider-thumb {
+        appearance: none;
+        width: 1.25rem;
+        height: 1.25rem;
+        border-radius: 9999px;
+        background: var(--color-surface);
+        border: 2px solid var(--color-navy-900);
+        box-shadow: var(--shadow-soft);
+        cursor: grab;
+        pointer-events: auto;
+    }
+
+    .price-range-input::-moz-range-thumb {
+        width: 1.25rem;
+        height: 1.25rem;
+        border-radius: 9999px;
+        background: var(--color-surface);
+        border: 2px solid var(--color-navy-900);
+        box-shadow: var(--shadow-soft);
+        cursor: grab;
+        pointer-events: auto;
+    }
+}
+
 /* Frosted-glass surface for sticky nav, overlays, and floating panels */
 @utility glass {
     background-color: rgb(255 255 255 / 0.75);

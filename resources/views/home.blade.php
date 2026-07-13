@@ -106,7 +106,7 @@
                 ['name' => 'Accessories', 'count' => 45, 'icon' => 'M12 8a4 4 0 0 1 4 4v0a4 4 0 0 1-8 0v0a4 4 0 0 1 4-4Zm-2-5h4l1 5H9l1-5Zm0 18h4l1-5H9l1 5Z'],
                 ['name' => 'Home Decor', 'count' => 30, 'icon' => 'M3 11 12 3l9 8M6 10v10h12V10'],
             ] as $category)
-                <a href="#" class="group flex flex-col items-start gap-4 rounded-card bg-surface p-6 shadow-card transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-card-hover sm:p-8">
+                <a href="{{ route('shop') }}" class="group flex flex-col items-start gap-4 rounded-card bg-surface p-6 shadow-card transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-card-hover sm:p-8">
                     <span class="flex size-14 items-center justify-center rounded-2xl bg-olive-100 text-olive-700 transition-all duration-300 group-hover:scale-110 group-hover:bg-olive-600 group-hover:text-white">
                         <svg class="size-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="{{ $category['icon'] }}"/>
@@ -166,7 +166,7 @@
                 title="Trusted by the community"
                 subtitle="The gear our customers reorder, gift, and swear by."
             />
-            <x-ui.button href="#" variant="outline">View all products</x-ui.button>
+            <x-ui.button :href="route('shop')" variant="outline">View all products</x-ui.button>
         </div>
 
         <div class="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">

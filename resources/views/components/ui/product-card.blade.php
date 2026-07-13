@@ -14,7 +14,7 @@
 ])
 
 <article {{ $attributes->merge(['class' => 'group relative flex flex-col overflow-hidden rounded-card bg-surface shadow-card transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-card-hover']) }}>
-    <div class="relative aspect-[4/5] overflow-hidden bg-navy-100">
+    <div class="relative aspect-4/5 overflow-hidden bg-navy-100">
         @if ($image)
             <img src="{{ $image }}" alt="{{ $name }}" loading="lazy"
                  class="size-full object-cover transition-transform duration-500 ease-out group-hover:scale-105">
@@ -44,6 +44,12 @@
                     class="flex size-10 -translate-x-2 items-center justify-center rounded-full bg-white/90 text-navy-700 opacity-0 shadow-soft backdrop-blur-sm transition-all delay-75 duration-300 hover:bg-navy-900 hover:text-white focus-visible:translate-x-0 focus-visible:opacity-100 group-hover:translate-x-0 group-hover:opacity-100">
                 <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/>
+                </svg>
+            </button>
+            <button type="button" data-toggle-active aria-label="Add {{ $name }} to compare"
+                    class="flex size-10 -translate-x-2 items-center justify-center rounded-full bg-white/90 text-navy-700 opacity-0 shadow-soft backdrop-blur-sm transition-all delay-150 duration-300 hover:bg-navy-900 hover:text-white focus-visible:translate-x-0 focus-visible:opacity-100 group-hover:translate-x-0 group-hover:opacity-100 aria-pressed:text-olive-700">
+                <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/>
                 </svg>
             </button>
         </div>

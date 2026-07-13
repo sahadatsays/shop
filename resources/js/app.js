@@ -1,4 +1,5 @@
 import { initProductPage } from './product-page';
+import { initShopPage } from './shop-page';
 
 const initMobileNav = () => {
     const toggle = document.querySelector('[data-nav-toggle]');
@@ -131,3 +132,4 @@ initCarousels();
 initHeaderElevation();
 initRevealOnScroll();
 initProductPage();
+initShopPage();

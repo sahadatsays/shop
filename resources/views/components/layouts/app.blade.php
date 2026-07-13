@@ -57,7 +57,7 @@
                                         ['name' => 'Accessories', 'desc' => 'Wallets, watches & EDC', 'icon' => 'M12 8a4 4 0 0 1 4 4v0a4 4 0 0 1-8 0v0a4 4 0 0 1 4-4Zm-2-5h4l1 5H9l1-5Zm0 18h4l1-5H9l1 5Z'],
                                         ['name' => 'Home Decor', 'desc' => 'Prints, signs & barware', 'icon' => 'M3 11 12 3l9 8M6 10v10h12V10'],
                                     ] as $category)
-                                        <a href="#" class="group/item flex items-start gap-4 rounded-xl p-4 transition-colors duration-200 hover:bg-navy-50">
+                                        <a href="{{ route('shop') }}" class="group/item flex items-start gap-4 rounded-xl p-4 transition-colors duration-200 hover:bg-navy-50">
                                             <span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-olive-100 text-olive-700 transition-colors duration-200 group-hover/item:bg-olive-600 group-hover/item:text-white">
                                                 <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ $category['icon'] }}"/></svg>
                                             </span>
@@ -155,7 +155,7 @@
 
         {{-- Mobile navigation --}}
         <nav id="mobile-nav" data-mobile-nav hidden class="max-h-[70vh] overflow-y-auto border-t border-navy-900/5 px-4 pt-2 pb-4 lg:hidden" aria-label="Mobile navigation">
-            @foreach (['Shop' => '#', 'Collections' => '#', 'Our Story' => '#', 'Support' => '#', 'Wishlist' => '#', 'Compare' => '#', 'Account' => '#'] as $label => $href)
+            @foreach (['Shop' => route('shop'), 'Collections' => '#', 'Our Story' => '#', 'Support' => '#', 'Wishlist' => '#', 'Compare' => '#', 'Account' => '#'] as $label => $href)
                 <a href="{{ $href }}"
                    class="block rounded-xl px-4 py-3 text-base font-medium text-navy-800 transition-colors duration-200 hover:bg-navy-900/5">
                     {{ $label }}
