@@ -3,6 +3,7 @@ import { initShopPage } from './shop-page';
 import { initSearchPage } from './search-page';
 import { initCartPage } from './cart-page';
 import { initCheckoutPage } from './checkout-page';
+import { initWishlistPage } from './wishlist-page';
 
 const initMobileNav = () => {
     const toggle = document.querySelector('[data-nav-toggle]');
@@ -139,3 +140,4 @@ initShopPage();
 initSearchPage();
 initCartPage();
 initCheckoutPage();
+initWishlistPage();
