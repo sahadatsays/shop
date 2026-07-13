@@ -142,7 +142,7 @@
 
         {{-- Search panel --}}
         <div id="search-panel" data-search-panel hidden class="border-t border-navy-900/5">
-            <form action="#" method="get" class="mx-auto flex max-w-3xl items-center gap-3 px-4 py-4 sm:px-6">
+            <form action="{{ route('search') }}" method="get" class="mx-auto flex max-w-3xl items-center gap-3 px-4 py-4 sm:px-6">
                 <svg class="size-5 shrink-0 text-navy-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
                     <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
                 </svg>
