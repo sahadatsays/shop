@@ -13,6 +13,34 @@
         Skip to content
     </a>
 
+    @if ($minimal ?? false)
+        {{-- Distraction-free header for checkout --}}
+        <header class="glass sticky top-0 z-50 border-b border-navy-900/5">
+            <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:h-[4.5rem] lg:px-8">
+                <a href="{{ route('home') }}" class="flex shrink-0 items-center gap-2.5" aria-label="{{ config('app.name') }} — Home">
+                    <span class="flex size-9 items-center justify-center rounded-xl bg-navy-900 text-bronze-400">
+                        <svg class="size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3Zm0 4.2 1.4 2.84 3.13.46-2.26 2.2.53 3.12L12 13.35l-2.8 1.47.53-3.12-2.26-2.2 3.13-.46L12 6.2Z"/>
+                        </svg>
+                    </span>
+                    <span class="font-display text-lg font-bold tracking-tight text-navy-900">{{ config('app.name') }}</span>
+                </a>
+
+                <p class="hidden items-center gap-2 text-sm font-medium text-olive-700 sm:flex">
+                    <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                    </svg>
+                    Secure checkout
+                </p>
+
+                <a href="{{ route('cart') }}"
+                   class="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900">
+                    <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+                    Back to cart
+                </a>
+            </div>
+        </header>
+    @else
     {{-- Utility bar --}}
     <div class="bg-navy-950 text-center text-xs font-medium tracking-wide text-navy-200">
         <p class="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
@@ -163,11 +191,31 @@
             @endforeach
         </nav>
     </header>
+    @endif
 
     <main id="main-content">
         {{ $slot }}
     </main>
 
+    @if ($minimal ?? false)
+        {{-- Slim distraction-free footer for checkout --}}
+        <footer class="mt-20 border-t border-navy-100 bg-surface">
+            <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 sm:px-6 lg:flex-row lg:px-8">
+                <p class="text-sm text-navy-500">&copy; {{ date('Y') }} {{ config('app.name') }} All rights reserved.</p>
+                <ul class="flex flex-wrap justify-center gap-x-6 gap-y-2">
+                    @foreach (['Privacy Policy', 'Terms of Service', 'Refund Policy', 'Help'] as $link)
+                        <li><a href="#" class="text-sm text-navy-500 transition-colors duration-200 hover:text-navy-900">{{ $link }}</a></li>
+                    @endforeach
+                </ul>
+                <p class="flex items-center gap-2 text-sm text-navy-500">
+                    <svg class="size-4 text-bronze-500" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3Z"/>
+                    </svg>
+                    Proudly veteran owned &amp; operated
+                </p>
+            </div>
+        </footer>
+    @else
     <footer class="mt-24 bg-navy-950 text-navy-200">
         <div class="mx-auto max-w-7xl px-4 pt-20 pb-10 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 gap-12 lg:grid-cols-6">
@@ -238,5 +286,6 @@
             </div>
         </div>
     </footer>
+    @endif
 </body>
 </html>
