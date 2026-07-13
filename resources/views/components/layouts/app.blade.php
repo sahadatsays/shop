@@ -83,7 +83,7 @@
                     </div>
                 </div>
 
-                @foreach (['Collections' => '#', 'Our Story' => '#', 'Support' => '#'] as $label => $href)
+                @foreach (['Categories' => route('categories'), 'Our Story' => '#', 'Support' => '#'] as $label => $href)
                     <a href="{{ $href }}"
                        class="rounded-xl px-4 py-2 text-sm font-medium text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900">
                         {{ $label }}
@@ -155,7 +155,7 @@
 
         {{-- Mobile navigation --}}
         <nav id="mobile-nav" data-mobile-nav hidden class="max-h-[70vh] overflow-y-auto border-t border-navy-900/5 px-4 pt-2 pb-4 lg:hidden" aria-label="Mobile navigation">
-            @foreach (['Shop' => route('shop'), 'Collections' => '#', 'Our Story' => '#', 'Support' => '#', 'Wishlist' => '#', 'Compare' => '#', 'Account' => '#'] as $label => $href)
+            @foreach (['Shop' => route('shop'), 'Categories' => route('categories'), 'Our Story' => '#', 'Support' => '#', 'Wishlist' => '#', 'Compare' => '#', 'Account' => '#'] as $label => $href)
                 <a href="{{ $href }}"
                    class="block rounded-xl px-4 py-3 text-base font-medium text-navy-800 transition-colors duration-200 hover:bg-navy-900/5">
                     {{ $label }}
