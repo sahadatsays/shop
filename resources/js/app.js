@@ -29,6 +29,61 @@ const initMobileNav = () => {
     });
 };
 
+const initSearchPanel = () => {
+    const toggle = document.querySelector('[data-search-toggle]');
+    const panel = document.querySelector('[data-search-panel]');
+    const input = document.querySelector('[data-search-input]');
+
+    if (!toggle || !panel) {
+        return;
+    }
+
+    const setOpen = (open) => {
+        panel.hidden = !open;
+        toggle.setAttribute('aria-expanded', String(open));
+
+        if (open) {
+            input?.focus();
+        }
+    };
+
+    toggle.addEventListener('click', () => setOpen(panel.hidden));
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !panel.hidden) {
+            setOpen(false);
+            toggle.focus();
+        }
+    });
+};
+
+const initCarousels = () => {
+    document.querySelectorAll('[data-carousel]').forEach((track) => {
+        const section = track.closest('section') ?? document;
+        const prev = section.querySelector('[data-carousel-prev]');
+        const next = section.querySelector('[data-carousel-next]');
+
+        if (!prev || !next) {
+            return;
+        }
+
+        const step = () => {
+            const card = track.querySelector(':scope > *');
+            return card ? card.getBoundingClientRect().width + 24 : track.clientWidth;
+        };
+
+        const updateButtons = () => {
+            prev.disabled = track.scrollLeft <= 4;
+            next.disabled = track.scrollLeft >= track.scrollWidth - track.clientWidth - 4;
+        };
+
+        prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
+        next.addEventListener('click', () => track.scrollBy({ left: step(), behavior: 'smooth' }));
+        track.addEventListener('scroll', updateButtons, { passive: true });
+        updateButtons();
+    });
+};
+
 const initHeaderElevation = () => {
     const header = document.querySelector('[data-site-header]');
 
@@ -71,6 +126,8 @@ const initRevealOnScroll = () => {
 };
 
 initMobileNav();
+initSearchPanel();
+initCarousels();
 initHeaderElevation();
 initRevealOnScroll();
 initProductPage();
