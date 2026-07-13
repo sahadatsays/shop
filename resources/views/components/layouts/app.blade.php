@@ -134,12 +134,12 @@
                     </svg>
                     <span class="absolute -top-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-bronze-500 text-[0.65rem] font-bold text-white">6</span>
                 </a>
-                <a href="#" aria-label="Compare products, 2 items"
+                <a href="{{ route('compare') }}" aria-label="Compare products, 3 items"
                    class="relative hidden size-10 items-center justify-center rounded-xl text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900 lg:flex">
                     <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/>
                     </svg>
-                    <span class="absolute -top-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-olive-600 text-[0.65rem] font-bold text-white">2</span>
+                    <span class="absolute -top-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-olive-600 text-[0.65rem] font-bold text-white">3</span>
                 </a>
                 <a href="#" aria-label="Account"
                    class="hidden size-10 items-center justify-center rounded-xl text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900 sm:flex">
@@ -183,7 +183,7 @@
 
         {{-- Mobile navigation --}}
         <nav id="mobile-nav" data-mobile-nav hidden class="max-h-[70vh] overflow-y-auto border-t border-navy-900/5 px-4 pt-2 pb-4 lg:hidden" aria-label="Mobile navigation">
-            @foreach (['Shop' => route('shop'), 'Categories' => route('categories'), 'Our Story' => '#', 'Support' => '#', 'Wishlist' => route('wishlist'), 'Compare' => '#', 'Account' => '#'] as $label => $href)
+            @foreach (['Shop' => route('shop'), 'Categories' => route('categories'), 'Our Story' => '#', 'Support' => '#', 'Wishlist' => route('wishlist'), 'Compare' => route('compare'), 'Account' => '#'] as $label => $href)
                 <a href="{{ $href }}"
                    class="block rounded-xl px-4 py-3 text-base font-medium text-navy-800 transition-colors duration-200 hover:bg-navy-900/5">
                     {{ $label }}
