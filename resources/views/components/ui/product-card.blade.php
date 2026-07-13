@@ -14,7 +14,7 @@
             <img src="{{ $image }}" alt="{{ $name }}" loading="lazy"
                  class="size-full object-cover transition-transform duration-500 ease-out group-hover:scale-105">
         @else
-            <div class="flex size-full items-center justify-center bg-gradient-to-br from-navy-100 via-navy-50 to-bronze-100 transition-transform duration-500 ease-out group-hover:scale-105">
+            <div class="flex size-full items-center justify-center bg-linear-to-br from-navy-100 via-navy-50 to-bronze-100 transition-transform duration-500 ease-out group-hover:scale-105">
                 <svg class="size-14 text-navy-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-4.5-4.5L7 20"/>
                 </svg>

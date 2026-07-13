@@ -74,8 +74,8 @@
                 ['name' => 'Everyday Carry', 'count' => '24 products', 'gradient' => 'from-bronze-800 to-bronze-600'],
                 ['name' => 'Home & Office', 'count' => '19 products', 'gradient' => 'from-navy-700 to-olive-700'],
             ] as $category)
-                <a href="#" class="group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-card bg-gradient-to-br {{ $category['gradient'] }} p-6 shadow-card transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-card-hover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-navy-950/60 to-transparent" aria-hidden="true"></div>
+                <a href="#" class="group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-card bg-linear-to-br {{ $category['gradient'] }} p-6 shadow-card transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-card-hover">
+                    <div class="absolute inset-0 bg-linear-to-t from-navy-950/60 to-transparent" aria-hidden="true"></div>
                     <div class="relative">
                         <h3 class="font-display text-xl font-bold text-white">{{ $category['name'] }}</h3>
                         <p class="mt-1 text-sm text-white/70">{{ $category['count'] }}</p>
@@ -104,10 +104,10 @@
             </div>
 
             <div class="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <x-ui.product-card name="Ranger Field Jacket" category="Apparel" price="$189.00" badge="Best seller" />
-                <x-ui.product-card name="Patriot Canvas Rucksack" category="Outdoor Gear" price="$149.00" badge="New" badge-variant="olive" />
-                <x-ui.product-card name="Honor Leather Wallet" category="Everyday Carry" price="$79.00" />
-                <x-ui.product-card name="Service Insulated Bottle" category="Outdoor Gear" price="$42.00" badge="Limited" badge-variant="navy" />
+                <x-ui.product-card name="Ranger Field Jacket" category="Apparel" price="$189.00" badge="Best seller" :href="route('product.show')" />
+                <x-ui.product-card name="Patriot Canvas Rucksack" category="Outdoor Gear" price="$149.00" badge="New" badge-variant="olive" :href="route('product.show')" />
+                <x-ui.product-card name="Honor Leather Wallet" category="Everyday Carry" price="$79.00" :href="route('product.show')" />
+                <x-ui.product-card name="Service Insulated Bottle" category="Outdoor Gear" price="$42.00" badge="Limited" badge-variant="navy" :href="route('product.show')" />
             </div>
         </div>
     </section>
@@ -152,7 +152,7 @@
 
     {{-- Newsletter CTA --}}
     <section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" data-reveal>
-        <div class="relative overflow-hidden rounded-card bg-gradient-to-br from-olive-800 to-olive-600 px-6 py-16 shadow-card sm:px-12 lg:px-16">
+        <div class="relative overflow-hidden rounded-card bg-linear-to-br from-olive-800 to-olive-600 px-6 py-16 shadow-card sm:px-12 lg:px-16">
             <div class="absolute -top-24 -right-24 size-72 rounded-full bg-bronze-400/20 blur-3xl" aria-hidden="true"></div>
             <div class="relative mx-auto max-w-xl text-center">
                 <h2 class="font-display text-3xl font-bold text-white sm:text-4xl">Join the ranks</h2>

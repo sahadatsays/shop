@@ -1,3 +1,5 @@
+import { initProductPage } from './product-page';
+
 const initMobileNav = () => {
     const toggle = document.querySelector('[data-nav-toggle]');
     const nav = document.querySelector('[data-mobile-nav]');
@@ -71,3 +73,4 @@ const initRevealOnScroll = () => {
 initMobileNav();
 initHeaderElevation();
 initRevealOnScroll();
+initProductPage();
