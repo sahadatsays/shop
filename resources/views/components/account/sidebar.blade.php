@@ -7,7 +7,7 @@
         ['label' => 'Dashboard', 'route' => 'account', 'badge' => null, 'icon' => 'M3 11 12 3l9 8M6 10v10h12V10'],
         ['label' => 'Orders', 'route' => 'account.orders', 'badge' => null, 'icon' => 'M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7ZM9 10V6a3 3 0 0 1 6 0v4'],
         ['label' => 'Wishlist', 'route' => 'wishlist', 'badge' => '6', 'icon' => 'M12 21s-7.5-4.7-9.5-9A5.5 5.5 0 0 1 12 6.5 5.5 5.5 0 0 1 21.5 12c-2 4.3-9.5 9-9.5 9Z'],
-        ['label' => 'Addresses', 'route' => null, 'badge' => null, 'icon' => 'M12 21s-6-5.5-6-10a6 6 0 0 1 12 0c0 4.5-6 10-6 10Zm0-7.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z'],
+        ['label' => 'Addresses', 'route' => 'account.addresses', 'badge' => null, 'icon' => 'M12 21s-6-5.5-6-10a6 6 0 0 1 12 0c0 4.5-6 10-6 10Zm0-7.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z'],
         ['label' => 'Reviews', 'route' => null, 'badge' => null, 'icon' => 'M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.3l-5.8 3.1 1.1-6.5L2.6 9.3l6.5-.9L12 2.5Z'],
         ['label' => 'Downloads', 'route' => null, 'badge' => null, 'icon' => 'M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2'],
         ['label' => 'Rewards', 'route' => null, 'badge' => null, 'icon' => 'M12 15a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 0 2.5 6.5L12 20l-2.5 1.5L12 15Z'],
