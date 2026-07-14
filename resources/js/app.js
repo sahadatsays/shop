@@ -12,6 +12,7 @@ import { initAddressesPage } from './addresses-page';
 import { initReviewsPage } from './reviews-page';
 import { initLoginPage } from './login-page';
 import { initRegisterPage } from './register-page';
+import { initForgotPasswordPage } from './forgot-password-page';
 
 const initMobileNav = () => {
     const toggle = document.querySelector('[data-nav-toggle]');
@@ -157,3 +158,4 @@ initAddressesPage();
 initReviewsPage();
 initLoginPage();
 initRegisterPage();
+initForgotPasswordPage();

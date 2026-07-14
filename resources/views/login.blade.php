@@ -84,7 +84,7 @@
                                        class="size-4.5 rounded border-navy-300 accent-olive-600 focus:outline-2 focus:outline-offset-2 focus:outline-bronze-500">
                                 <span class="text-sm text-navy-700">Remember me</span>
                             </label>
-                            <a href="#" class="text-sm font-medium text-bronze-600 underline-offset-4 transition-colors duration-200 hover:text-bronze-700 hover:underline">
+                            <a href="{{ route('password.forgot') }}" class="text-sm font-medium text-bronze-600 underline-offset-4 transition-colors duration-200 hover:text-bronze-700 hover:underline">
                                 Forgot password?
                             </a>
                         </div>
