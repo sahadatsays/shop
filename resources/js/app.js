@@ -14,6 +14,7 @@ import { initLoginPage } from './login-page';
 import { initRegisterPage } from './register-page';
 import { initForgotPasswordPage } from './forgot-password-page';
 import { initNotificationsPage } from './notifications-page';
+import { initSupportPage } from './support-page';
 
 const initMobileNav = () => {
     const toggle = document.querySelector('[data-nav-toggle]');
@@ -161,3 +162,4 @@ initLoginPage();
 initRegisterPage();
 initForgotPasswordPage();
 initNotificationsPage();
+initSupportPage();
