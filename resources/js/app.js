@@ -7,6 +7,7 @@ import { initWishlistPage } from './wishlist-page';
 import { initComparePage } from './compare-page';
 import { initOrdersPage } from './orders-page';
 import { initTrackPage } from './track-page';
+import { initProfilePage } from './profile-page';
 
 const initMobileNav = () => {
     const toggle = document.querySelector('[data-nav-toggle]');
@@ -147,3 +148,4 @@ initWishlistPage();
 initComparePage();
 initOrdersPage();
 initTrackPage();
+initProfilePage();
