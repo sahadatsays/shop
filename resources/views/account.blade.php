@@ -1,16 +1,4 @@
 @php
-    $navItems = [
-        ['label' => 'Dashboard', 'active' => true, 'badge' => null, 'href' => null, 'icon' => 'M3 11 12 3l9 8M6 10v10h12V10'],
-        ['label' => 'Orders', 'active' => false, 'badge' => null, 'icon' => 'M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7ZM9 10V6a3 3 0 0 1 6 0v4'],
-        ['label' => 'Wishlist', 'active' => false, 'badge' => '6', 'href' => 'wishlist', 'icon' => 'M12 21s-7.5-4.7-9.5-9A5.5 5.5 0 0 1 12 6.5 5.5 5.5 0 0 1 21.5 12c-2 4.3-9.5 9-9.5 9Z'],
-        ['label' => 'Addresses', 'active' => false, 'badge' => null, 'icon' => 'M12 21s-6-5.5-6-10a6 6 0 0 1 12 0c0 4.5-6 10-6 10Zm0-7.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z'],
-        ['label' => 'Reviews', 'active' => false, 'badge' => null, 'icon' => 'M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.3l-5.8 3.1 1.1-6.5L2.6 9.3l6.5-.9L12 2.5Z'],
-        ['label' => 'Downloads', 'active' => false, 'badge' => null, 'icon' => 'M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2'],
-        ['label' => 'Rewards', 'active' => false, 'badge' => null, 'icon' => 'M12 15a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 0 2.5 6.5L12 20l-2.5 1.5L12 15Z'],
-        ['label' => 'Notifications', 'active' => false, 'badge' => '3', 'icon' => 'M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6M10 19a2 2 0 0 0 4 0'],
-        ['label' => 'Settings', 'active' => false, 'badge' => null, 'icon' => 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7.5-3a7.5 7.5 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-2-1.2L14.6 3h-4l-.4 2.6a7.6 7.6 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7.7 7.7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7.6 7.6 0 0 0 2 1.2l.4 2.6h4l.4-2.6a7.6 7.6 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.06-.4.1-.8.1-1.2Z'],
-    ];
-
     $stats = [
         ['label' => 'Total orders', 'value' => '24', 'trend' => '+3 this quarter', 'up' => true, 'icon' => 'M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7ZM9 10V6a3 3 0 0 1 6 0v4', 'tone' => 'bg-navy-900 text-bronze-400'],
         ['label' => 'In transit', 'value' => '2', 'trend' => 'Arriving this week', 'up' => null, 'icon' => 'M3 7h11v8H3zM14 10h4l3 3v2h-7zM7 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm11 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z', 'tone' => 'bg-olive-600 text-white'],
@@ -56,50 +44,7 @@
         <div class="grid grid-cols-1 gap-10 lg:grid-cols-4">
 
             {{-- ============ Sidebar ============ --}}
-            <aside class="lg:sticky lg:top-24 lg:self-start">
-                {{-- Profile --}}
-                <div class="flex items-center gap-4 rounded-card bg-navy-900 p-5 text-white">
-                    <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-bronze-500 font-display text-lg font-bold" aria-hidden="true">JM</span>
-                    <div class="min-w-0">
-                        <p class="truncate font-display font-bold">James Mitchell</p>
-                        <p class="flex items-center gap-1.5 text-xs text-navy-200">
-                            <svg class="size-3.5 text-bronze-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path d="M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3Z"/>
-                            </svg>
-                            Gold member · Army veteran
-                        </p>
-                    </div>
-                </div>
-
-                {{-- Navigation --}}
-                <nav aria-label="Account navigation" class="mt-4 rounded-card bg-surface p-3 shadow-soft">
-                    <ul class="flex gap-1 overflow-x-auto scrollbar-none lg:flex-col lg:overflow-visible">
-                        @foreach ($navItems as $item)
-                            <li class="shrink-0 lg:shrink">
-                                <a href="{{ isset($item['href']) && $item['href'] ? route($item['href']) : ($item['active'] ? route('account') : '#') }}" @if ($item['active']) aria-current="page" @endif
-                                   class="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors duration-200
-                                       {{ $item['active'] ? 'bg-navy-900 text-white shadow-soft' : 'text-navy-700 hover:bg-navy-900/5 hover:text-navy-900' }}">
-                                    <svg class="size-4.5 shrink-0 {{ $item['active'] ? 'text-bronze-400' : 'text-navy-400' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                        <path d="{{ $item['icon'] }}"/>
-                                    </svg>
-                                    {{ $item['label'] }}
-                                    @if ($item['badge'])
-                                        <span class="ml-auto flex size-5 items-center justify-center rounded-full bg-bronze-500 text-[0.65rem] font-bold text-white">{{ $item['badge'] }}</span>
-                                    @endif
-                                </a>
-                            </li>
-                        @endforeach
-                        <li class="shrink-0 border-navy-100 lg:mt-2 lg:shrink lg:border-t lg:pt-2">
-                            <a href="#" class="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium whitespace-nowrap text-red-600 transition-colors duration-200 hover:bg-red-50">
-                                <svg class="size-4.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3M16 17l5-5-5-5M21 12H9"/>
-                                </svg>
-                                Sign out
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-            </aside>
+            <x-account.sidebar active="Dashboard" />
 
             {{-- ============ Main ============ --}}
             <div class="space-y-8 lg:col-span-3">
@@ -150,7 +95,7 @@
                     <section class="rounded-card bg-surface p-7 shadow-soft xl:col-span-3" aria-labelledby="orders-heading">
                         <div class="flex items-center justify-between gap-4">
                             <h2 id="orders-heading" class="font-display text-lg font-bold text-navy-900">Recent orders</h2>
-                            <a href="#" class="text-sm font-medium text-olive-700 underline-offset-4 hover:underline">View all</a>
+                            <a href="{{ route('account.orders') }}" class="text-sm font-medium text-olive-700 underline-offset-4 hover:underline">View all</a>
                         </div>
                         <ul class="mt-5 divide-y divide-navy-100">
                             @foreach ($recentOrders as $order)
