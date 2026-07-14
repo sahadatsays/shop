@@ -11,6 +11,7 @@ import { initProfilePage } from './profile-page';
 import { initAddressesPage } from './addresses-page';
 import { initReviewsPage } from './reviews-page';
 import { initLoginPage } from './login-page';
+import { initRegisterPage } from './register-page';
 
 const initMobileNav = () => {
     const toggle = document.querySelector('[data-nav-toggle]');
@@ -155,3 +156,4 @@ initProfilePage();
 initAddressesPage();
 initReviewsPage();
 initLoginPage();
+initRegisterPage();
