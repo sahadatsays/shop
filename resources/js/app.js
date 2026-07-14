@@ -9,6 +9,7 @@ import { initOrdersPage } from './orders-page';
 import { initTrackPage } from './track-page';
 import { initProfilePage } from './profile-page';
 import { initAddressesPage } from './addresses-page';
+import { initReviewsPage } from './reviews-page';
 
 const initMobileNav = () => {
     const toggle = document.querySelector('[data-nav-toggle]');
@@ -151,3 +152,4 @@ initOrdersPage();
 initTrackPage();
 initProfilePage();
 initAddressesPage();
+initReviewsPage();
