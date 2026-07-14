@@ -273,7 +273,7 @@
                 <p class="mx-auto mt-4 max-w-lg text-navy-200">Explore our collections or reach out — we’re always glad to hear from the community we serve.</p>
                 <div class="mt-8 flex flex-wrap justify-center gap-4">
                     <x-ui.button :href="route('shop')" variant="accent" size="lg">Shop collections</x-ui.button>
-                    <x-ui.button :href="route('support')" variant="outline" size="lg" class="border-white/20 bg-white/10 text-white hover:bg-white/20">Contact support</x-ui.button>
+                    <x-ui.button :href="route('contact')" variant="outline" size="lg" class="border-white/20 bg-white/10 text-white hover:bg-white/20">Contact us</x-ui.button>
                 </div>
             </div>
         </section>

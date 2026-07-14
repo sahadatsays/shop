@@ -261,8 +261,18 @@
                         <h3 class="font-display text-sm font-semibold tracking-wide text-white uppercase">{{ $heading }}</h3>
                         <ul class="mt-5 space-y-3">
                             @foreach ($links as $link)
+                                @php
+                                    $href = match (true) {
+                                        $link === 'Contact Us' => route('contact'),
+                                        $link === 'Our Story' => route('about'),
+                                        $link === 'Order Tracking' => route('track'),
+                                        $link === 'FAQ' => route('support').'#faq',
+                                        $link === 'All Products' => route('shop'),
+                                        default => '#',
+                                    };
+                                @endphp
                                 <li>
-                                    <a href="#" class="text-sm text-navy-300 transition-colors duration-200 hover:text-bronze-400">{{ $link }}</a>
+                                    <a href="{{ $href }}" class="text-sm text-navy-300 transition-colors duration-200 hover:text-bronze-400">{{ $link }}</a>
                                 </li>
                             @endforeach
                         </ul>
