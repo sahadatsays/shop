@@ -21,7 +21,7 @@
     ];
 
     $quickActions = [
-        ['label' => 'Track order', 'icon' => 'M12 21s-6-5.5-6-10a6 6 0 0 1 12 0c0 4.5-6 10-6 10Zm0-7.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z'],
+        ['label' => 'Track order', 'href' => route('track'), 'icon' => 'M12 21s-6-5.5-6-10a6 6 0 0 1 12 0c0 4.5-6 10-6 10Zm0-7.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z'],
         ['label' => 'Start a return', 'icon' => 'M3 12a9 9 0 1 0 3-6.7M3 4v4h4'],
         ['label' => 'Reorder favorites', 'icon' => 'M17 2v4H7a4 4 0 0 0 0 8h1m-1 8v-4h10a4 4 0 0 0 0-8h-1'],
         ['label' => 'Contact support', 'icon' => 'M21 12a9 9 0 1 0-3.5 7.1L21 21l-1-3.4A8.96 8.96 0 0 0 21 12ZM8 10h8M8 14h5'],
@@ -61,7 +61,7 @@
                             <strong class="font-semibold text-bronze-400">550 points</strong> away from Platinum.
                         </p>
                         <div class="mt-6 flex flex-wrap gap-3">
-                            <x-ui.button variant="accent" size="sm">Track my order</x-ui.button>
+                            <x-ui.button :href="route('track')" variant="accent" size="sm">Track my order</x-ui.button>
                             <x-ui.button href="{{ route('shop') }}" size="sm" class="bg-white/10! text-white! hover:bg-white/20!">Shop new arrivals</x-ui.button>
                         </div>
                     </div>
@@ -181,7 +181,7 @@
                     <h2 id="actions-heading" class="font-display text-lg font-bold text-navy-900">Quick actions</h2>
                     <div class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
                         @foreach ($quickActions as $action)
-                            <a href="#"
+                            <a href="{{ $action['href'] ?? '#' }}"
                                class="group flex flex-col items-center gap-3 rounded-card bg-surface p-5 text-center shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card">
                                 <span class="flex size-11 items-center justify-center rounded-xl bg-olive-100 text-olive-700 transition-colors duration-200 group-hover:bg-olive-600 group-hover:text-white">
                                     <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

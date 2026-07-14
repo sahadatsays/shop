@@ -12,4 +12,5 @@ Route::view('/wishlist', 'wishlist')->name('wishlist');
 Route::view('/compare', 'compare')->name('compare');
 Route::view('/account', 'account')->name('account');
 Route::view('/account/orders', 'account-orders')->name('account.orders');
+Route::view('/track', 'track')->name('track');
 Route::view('/products/ranger-field-jacket', 'products.show')->name('product.show');
