@@ -21,4 +21,5 @@ Route::view('/login', 'login')->name('login');
 Route::view('/register', 'register')->name('register');
 Route::view('/forgot-password', 'forgot-password')->name('password.forgot');
 Route::view('/support', 'support')->name('support');
+Route::view('/about', 'about')->name('about');
 Route::view('/products/ranger-field-jacket', 'products.show')->name('product.show');

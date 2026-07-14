@@ -68,7 +68,7 @@
                             <path d="M5 12h14m-6-6 6 6-6 6"/>
                         </svg>
                     </x-ui.button>
-                    <x-ui.button href="#veteran-story" size="lg" class="border border-white/20 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20">
+                    <x-ui.button href="{{ route('about') }}" size="lg" class="border border-white/20 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20">
                         Our story
                     </x-ui.button>
                 </div>
@@ -250,8 +250,8 @@
                     <footer class="mt-4 text-sm text-navy-500">James Callahan — Founder, U.S. Army Ret.</footer>
                 </blockquote>
                 <div class="mt-10 flex flex-wrap gap-4">
-                    <x-ui.button href="#" variant="secondary">Read the full story</x-ui.button>
-                    <x-ui.button href="#" variant="ghost">
+                    <x-ui.button :href="route('about')" variant="secondary">Read the full story</x-ui.button>
+                    <x-ui.button :href="route('about') . '#team'" variant="ghost">
                         Meet the team
                         <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
                     </x-ui.button>
