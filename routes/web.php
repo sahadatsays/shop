@@ -16,4 +16,6 @@ Route::view('/account/settings', 'account-settings')->name('account.settings');
 Route::view('/account/addresses', 'account-addresses')->name('account.addresses');
 Route::view('/account/reviews', 'account-reviews')->name('account.reviews');
 Route::view('/track', 'track')->name('track');
+Route::view('/login', 'login')->name('login');
+Route::view('/register', 'register')->name('register');
 Route::view('/products/ranger-field-jacket', 'products.show')->name('product.show');
