@@ -141,7 +141,7 @@
                     </svg>
                     <span class="absolute -top-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-olive-600 text-[0.65rem] font-bold text-white">3</span>
                 </a>
-                <a href="#" aria-label="Account"
+                <a href="{{ route('account') }}" aria-label="Account"
                    class="hidden size-10 items-center justify-center rounded-xl text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900 sm:flex">
                     <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
                         <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/>
@@ -183,7 +183,7 @@
 
         {{-- Mobile navigation --}}
         <nav id="mobile-nav" data-mobile-nav hidden class="max-h-[70vh] overflow-y-auto border-t border-navy-900/5 px-4 pt-2 pb-4 lg:hidden" aria-label="Mobile navigation">
-            @foreach (['Shop' => route('shop'), 'Categories' => route('categories'), 'Our Story' => '#', 'Support' => '#', 'Wishlist' => route('wishlist'), 'Compare' => route('compare'), 'Account' => '#'] as $label => $href)
+            @foreach (['Shop' => route('shop'), 'Categories' => route('categories'), 'Our Story' => '#', 'Support' => '#', 'Wishlist' => route('wishlist'), 'Compare' => route('compare'), 'Account' => route('account')] as $label => $href)
                 <a href="{{ $href }}"
                    class="block rounded-xl px-4 py-3 text-base font-medium text-navy-800 transition-colors duration-200 hover:bg-navy-900/5">
                     {{ $label }}
