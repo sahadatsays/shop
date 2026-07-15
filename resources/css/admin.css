@@ -316,4 +316,8 @@
         scrollbar-width: thin;
         scrollbar-color: var(--color-admin-border) transparent;
     }
+
+    [x-cloak] {
+        display: none !important;
+    }
 }

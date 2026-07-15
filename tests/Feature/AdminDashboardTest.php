@@ -1,18 +1,31 @@
 <?php
 
 use App\Support\Admin\Navigation\NavRegistry;
+use Database\Seeders\CommerceSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-test('admin dashboard renders successfully', function () {
+uses(RefreshDatabase::class);
+
+beforeEach(function (): void {
+    $this->seed(CommerceSeeder::class);
+});
+
+test('admin dashboard renders successfully with live data', function (): void {
     $response = $this->get('/admin');
 
     $response->assertSuccessful();
     $response->assertSee('Dashboard');
-    $response->assertSee('Recent orders');
-    $response->assertSee('Skip to main content');
+    $response->assertSee('Recent Orders');
+    $response->assertSee('Latest Customers');
+    $response->assertSee('Top Products');
+    $response->assertSee('Low Stock Alerts');
+    $response->assertSee('Quick Actions');
+    $response->assertSee('Sales by Month');
     $response->assertSee('data-admin-shell', false);
+    $response->assertSee('dashboardCharts', false);
 });
 
-test('nav registry exposes dashboard navigation', function () {
+test('nav registry exposes dashboard navigation', function (): void {
     $items = NavRegistry::sidebar();
 
     expect($items)->not->toBeEmpty();
@@ -20,6 +33,6 @@ test('nav registry exposes dashboard navigation', function () {
     expect($items[0]->route)->toBe('admin.dashboard');
 });
 
-test('admin dashboard route is named correctly', function () {
+test('admin dashboard route is named correctly', function (): void {
     expect(route('admin.dashboard'))->toBe(url('/admin'));
 });

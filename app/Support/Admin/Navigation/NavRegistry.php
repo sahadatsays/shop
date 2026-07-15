@@ -108,10 +108,10 @@ class NavRegistry
     public static function quickActions(): array
     {
         return [
-            ['label' => 'Create product', 'href' => null, 'icon' => 'M12 5v14M5 12h14'],
-            ['label' => 'View orders', 'href' => null, 'icon' => 'M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7Z'],
-            ['label' => 'Support queue', 'href' => null, 'icon' => 'M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.4-4 8-9 8a9.8 9.8 0 0 1-4-.8L3 21l1.8-4.2A8.8 8.8 0 0 1 3 12c0-4.4 4-8 9-8s9 3.6 9 8Z'],
-            ['label' => 'Export data', 'href' => null, 'icon' => 'M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2'],
+            ['label' => 'Add Product', 'href' => null, 'icon' => 'M12 5v14M5 12h14'],
+            ['label' => 'Create Order', 'href' => null, 'icon' => 'M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7Z'],
+            ['label' => 'Manage Customers', 'href' => null, 'icon' => 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z'],
+            ['label' => 'View Reports', 'href' => null, 'icon' => 'M3 3v18h18M7 16l4-4 4 4 5-6'],
         ];
     }
 }
