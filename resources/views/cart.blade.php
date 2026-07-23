@@ -5,7 +5,7 @@
     $flatShipping = config('cart.flat_shipping_cents', 900) / 100;
 @endphp
 
-<x-layouts.app title="Shopping Cart" description="Review your Valor Supply Co. order — free express shipping over ${{ number_format($freeShippingThreshold, 0) }} and a lifetime craftsmanship warranty on everything.">
+<x-layouts.app title="Shopping Cart" description="Review your Valor Supply Co. order — free express shipping over {{ \App\Support\MoneyFormatter::format((int) config('cart.free_shipping_threshold_cents', 7500)) }} and a lifetime craftsmanship warranty on everything.">
 
     <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14"
          data-cart

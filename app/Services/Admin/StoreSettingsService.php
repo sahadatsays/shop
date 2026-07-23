@@ -24,15 +24,25 @@ class StoreSettingsService
         return [
             'currencies' => [
                 'USD' => 'USD — US Dollar',
-                'CAD' => 'CAD — Canadian Dollar',
-                'GBP' => 'GBP — British Pound',
                 'EUR' => 'EUR — Euro',
+                'GBP' => 'GBP — British Pound',
+                'CAD' => 'CAD — Canadian Dollar',
                 'AUD' => 'AUD — Australian Dollar',
+                'BDT' => 'BDT — Bangladeshi Taka',
+                'INR' => 'INR — Indian Rupee',
+                'PKR' => 'PKR — Pakistani Rupee',
             ],
-            'timezones' => collect(timezone_identifiers_list())
-                ->filter(fn (string $timezone): bool => str_starts_with($timezone, 'America/') || str_starts_with($timezone, 'UTC'))
-                ->values()
-                ->all(),
+            // Provide a curated list of common primary timezones for quick selection.
+            'timezones' => [
+                'Asia/Dhaka',
+                'Asia/Kolkata',     // India
+                'Europe/London',    // UK
+                'UTC',
+                'America/New_York', // USA - Eastern
+                'America/Chicago',  // USA - Central
+                'America/Denver',   // USA - Mountain
+                'America/Los_Angeles', // USA - Pacific
+            ],
             'themeColorFields' => [
                 'header_bg' => 'Header background',
                 'header_text' => 'Header text',
