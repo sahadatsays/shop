@@ -24,4 +24,23 @@ export default defineConfig({
             ignored: ['**/storage/framework/views/**'],
         },
     },
+    build: {
+        // Increase warning limit slightly and add manual chunking to avoid large single bundles.
+        chunkSizeWarningLimit: 1000,
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (id.includes('node_modules')) {
+                        return 'vendor';
+                    }
+                    if (id.includes('resources/js/admin')) {
+                        return 'admin';
+                    }
+                    if (id.includes('resources/js') || id.includes('resources/css')) {
+                        return 'app';
+                    }
+                },
+            },
+        },
+    },
 });
