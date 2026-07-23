@@ -28,6 +28,8 @@ interface CartRepositoryInterface
 
     public function removeItem(CartItem $item): void;
 
+    public function clearItems(Cart $cart): void;
+
     public function markSaved(Cart $cart): Cart;
 
     public function delete(Cart $cart): void;

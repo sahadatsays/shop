@@ -40,6 +40,8 @@ Route::post('/cart/save', [CartController::class, 'save'])->name('cart.save');
 Route::post('/cart/validate', [CartController::class, 'validateCart'])->name('cart.validate');
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::get('/checkout/confirmation/{order:order_number}', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
 
 Route::middleware('customer.guest')->group(function (): void {
     Route::view('/login', 'login')->name('login');

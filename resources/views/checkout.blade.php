@@ -1,23 +1,35 @@
 @php
     /** @var \App\DTOs\Cart\CartSummary $summary */
-    $taxRate = config('cart.tax_rate', 0.08);
+    $taxRate = $taxRate ?? config('cart.tax_rate', 0.08);
+    $currencySymbol = $currencySymbol ?? \App\Support\MoneyFormatter::symbol();
 
     $addressFields = function (string $prefix): array {
-        return [
-            ['name' => $prefix.'-first-name', 'label' => 'First name', 'autocomplete' => 'given-name', 'span' => false],
-            ['name' => $prefix.'-last-name', 'label' => 'Last name', 'autocomplete' => 'family-name', 'span' => false],
-            ['name' => $prefix.'-address', 'label' => 'Street address', 'autocomplete' => 'address-line1', 'span' => true],
-            ['name' => $prefix.'-address-2', 'label' => 'Apartment, suite, unit (optional)', 'autocomplete' => 'address-line2', 'span' => true],
-            ['name' => $prefix.'-city', 'label' => 'City', 'autocomplete' => 'address-level2', 'span' => false],
-            ['name' => $prefix.'-state', 'label' => 'State', 'autocomplete' => 'address-level1', 'span' => false],
-            ['name' => $prefix.'-zip', 'label' => 'ZIP code', 'autocomplete' => 'postal-code', 'span' => false],
+        $fields = [
+            ['key' => 'first_name', 'label' => 'First name', 'autocomplete' => 'given-name', 'span' => false],
+            ['key' => 'last_name', 'label' => 'Last name', 'autocomplete' => 'family-name', 'span' => false],
+            ['key' => 'line1', 'label' => 'Street address', 'autocomplete' => 'address-line1', 'span' => true],
+            ['key' => 'line2', 'label' => 'Apartment, suite, unit (optional)', 'autocomplete' => 'address-line2', 'span' => true],
+            ['key' => 'city', 'label' => 'City', 'autocomplete' => 'address-level2', 'span' => false],
+            ['key' => 'state', 'label' => 'State', 'autocomplete' => 'address-level1', 'span' => false],
+            ['key' => 'postal_code', 'label' => 'ZIP code', 'autocomplete' => 'postal-code', 'span' => false],
         ];
+
+        return array_map(function (array $field) use ($prefix): array {
+            $field['name'] = "{$prefix}[{$field['key']}]";
+            $field['old_key'] = "{$prefix}.{$field['key']}";
+
+            return $field;
+        }, $fields);
     };
 @endphp
 
 <x-layouts.app title="Checkout" description="Complete your Valor Supply Co. order with our fast, secure one-page checkout." :minimal="true">
 
-    <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8" data-checkout data-tax-rate="0.08">
+    <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8"
+         data-checkout
+         data-tax-rate="{{ $taxRate }}"
+         data-currency-symbol="{{ $currencySymbol }}"
+         data-subtotal="{{ $summary->subtotalCents / 100 }}">
 
         {{-- Progress indicator --}}
         <nav aria-label="Checkout progress" class="mx-auto max-w-xl">
@@ -60,7 +72,8 @@
         <h1 class="mt-10 font-display text-3xl font-bold text-navy-900 sm:text-4xl">Checkout</h1>
         <p class="mt-2 text-navy-600">Almost there. Complete the details below to place your order.</p>
 
-        <form class="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-5" novalidate>
+        <form method="POST" action="{{ route('checkout.store') }}" class="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-5">
+            @csrf
 
             <div class="space-y-6 lg:col-span-3">
 
@@ -73,22 +86,21 @@
 
                     <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div class="sm:col-span-2">
-                            <x-ui.input name="email" type="email" label="Email address" autocomplete="email" placeholder="you@example.com" hint="Order updates and your receipt go here." />
+                            <x-ui.input name="email" type="email" label="Email address" autocomplete="email" placeholder="you@example.com" hint="Order updates and your receipt go here." :value="old('email', session('customer_id') ? \App\Models\Customer::find(session('customer_id'))?->email : null)" required />
                         </div>
                         @foreach ($addressFields('shipping') as $field)
                             <div @class(['sm:col-span-2' => $field['span']])>
-                                <x-ui.input :name="$field['name']" :label="$field['label']" :autocomplete="$field['autocomplete']" />
+                                <x-ui.input :name="$field['name']" :label="$field['label']" :autocomplete="$field['autocomplete']" :value="old($field['old_key'])" required />
                             </div>
                         @endforeach
-                        <x-ui.input name="shipping-phone" type="tel" label="Phone (optional)" autocomplete="tel" hint="Only used for delivery questions." />
+                        <x-ui.input name="shipping[phone]" type="tel" label="Phone (optional)" autocomplete="tel" hint="Only used for delivery questions." :value="old('shipping.phone')" />
                         <div class="space-y-1.5">
                             <label for="shipping-country" class="block text-sm font-medium text-navy-900">Country</label>
-                            <select id="shipping-country" name="shipping-country" autocomplete="country-name"
+                            <select id="shipping-country" name="shipping[country]" autocomplete="country-name" required
                                     class="block w-full rounded-field border border-navy-200 bg-surface px-4 py-3 text-sm text-ink shadow-soft transition-colors duration-200 hover:border-navy-300 focus:outline-2 focus:outline-offset-2 focus:outline-bronze-500">
-                                <option>United States</option>
-                                <option>Canada</option>
-                                <option>United Kingdom</option>
-                                <option>Australia</option>
+                                @foreach (['United States', 'Canada', 'United Kingdom', 'Australia', 'Bangladesh', 'India'] as $country)
+                                    <option @selected(old('shipping.country', 'United States') === $country)>{{ $country }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -102,17 +114,26 @@
                     </h2>
 
                     <label class="mt-6 flex cursor-pointer items-center gap-3">
-                        <input type="checkbox" data-billing-same checked
+                        <input type="checkbox" name="billing_same_as_shipping" value="1" data-billing-same @checked(old('billing_same_as_shipping', true))
                                class="size-4.5 rounded border-navy-300 text-olive-600 accent-olive-600 focus:outline-2 focus:outline-offset-2 focus:outline-bronze-500">
                         <span class="text-sm font-medium text-navy-800">Same as shipping address</span>
                     </label>
 
-                    <div data-billing-fields hidden class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div data-billing-fields @class(['mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2', 'hidden' => old('billing_same_as_shipping', '1') === '1'])>
                         @foreach ($addressFields('billing') as $field)
                             <div @class(['sm:col-span-2' => $field['span']])>
-                                <x-ui.input :name="$field['name']" :label="$field['label']" :autocomplete="'billing '.$field['autocomplete']" />
+                                <x-ui.input :name="$field['name']" :label="$field['label']" :autocomplete="'billing '.$field['autocomplete']" :value="old($field['old_key'])" />
                             </div>
                         @endforeach
+                        <div class="space-y-1.5 sm:col-span-2">
+                            <label for="billing-country" class="block text-sm font-medium text-navy-900">Country</label>
+                            <select id="billing-country" name="billing[country]" autocomplete="billing country-name"
+                                    class="block w-full rounded-field border border-navy-200 bg-surface px-4 py-3 text-sm text-ink shadow-soft transition-colors duration-200 hover:border-navy-300 focus:outline-2 focus:outline-offset-2 focus:outline-bronze-500">
+                                @foreach (['United States', 'Canada', 'United Kingdom', 'Australia', 'Bangladesh', 'India'] as $country)
+                                    <option @selected(old('billing.country') === $country)>{{ $country }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                 </section>
 
@@ -124,18 +145,14 @@
                     </h2>
 
                     <div class="mt-6 space-y-3">
-                        @foreach ([
-                            ['value' => 'standard', 'cost' => 0, 'label' => 'Standard shipping', 'eta' => 'Arrives in 5–7 business days', 'price' => 'Free', 'checked' => true],
-                            ['value' => 'express', 'cost' => 12, 'label' => 'Express shipping', 'eta' => 'Arrives in 2–3 business days', 'price' => '$12.00', 'checked' => false],
-                            ['value' => 'overnight', 'cost' => 24, 'label' => 'Overnight shipping', 'eta' => 'Next business day by 5 PM', 'price' => '$24.00', 'checked' => false],
-                        ] as $method)
+                        @foreach ($shippingMethods as $index => $method)
                             <label class="group flex cursor-pointer items-center gap-4 rounded-field border border-navy-200 p-5 transition-all duration-200 hover:border-navy-300 has-checked:border-navy-900 has-checked:bg-navy-50/60 has-checked:shadow-soft">
-                                <input type="radio" name="delivery-method" value="{{ $method['value'] }}" data-delivery-option data-cost="{{ $method['cost'] }}"
-                                       @checked($method['checked'])
+                                <input type="radio" name="delivery_method" value="{{ $method['value'] }}" data-delivery-option data-cost="{{ $method['cost_cents'] / 100 }}"
+                                       @checked(old('delivery_method', $index === 0 ? $method['value'] : null) === $method['value'])
                                        class="size-4.5 border-navy-300 accent-navy-900 focus:outline-2 focus:outline-offset-2 focus:outline-bronze-500">
                                 <span class="flex-1">
                                     <span class="block text-sm font-semibold text-navy-900">{{ $method['label'] }}</span>
-                                    <span class="mt-0.5 block text-sm text-navy-500">{{ $method['eta'] }}</span>
+                                    <span class="mt-0.5 block text-sm text-navy-500">{{ $method['description'] }}</span>
                                 </span>
                                 <span class="text-sm font-bold text-navy-900">{{ $method['price'] }}</span>
                             </label>
@@ -165,7 +182,7 @@
                             ['value' => 'applepay', 'label' => 'Apple Pay', 'checked' => false, 'icon' => 'M16 5c-.8 1-2 1.7-3.1 1.6-.2-1.2.4-2.5 1-3.3.8-1 2.1-1.7 3.2-1.7.1 1.2-.3 2.4-1.1 3.4Zm1 2.2c-1.7-.1-3.2 1-4 1-.9 0-2.1-1-3.5-.9-1.8 0-3.5 1-4.4 2.7-1.9 3.3-.5 8.1 1.3 10.8.9 1.3 2 2.8 3.4 2.7 1.3-.1 1.9-.9 3.5-.9s2.1.9 3.5.9c1.5 0 2.4-1.3 3.3-2.6.7-1 1.3-2.2 1.6-3.4-2.2-.9-3.2-3.3-2.6-5.4.4-1.5 1.4-2.6 2.4-3.2-1-1.4-2.5-1.7-3.5-1.7Z'],
                         ] as $payment)
                             <label class="flex cursor-pointer items-center justify-center gap-2.5 rounded-field border border-navy-200 px-4 py-4 transition-all duration-200 hover:border-navy-300 has-checked:border-navy-900 has-checked:bg-navy-900 has-checked:text-white">
-                                <input type="radio" name="payment-method" value="{{ $payment['value'] }}" data-payment-option @checked($payment['checked']) class="sr-only">
+                                <input type="radio" name="payment_method" value="{{ $payment['value'] }}" data-payment-option @checked(old('payment_method', 'card') === $payment['value']) class="sr-only">
                                 <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ $payment['icon'] }}"/></svg>
                                 <span class="text-sm font-semibold">{{ $payment['label'] }}</span>
                             </label>
@@ -273,29 +290,35 @@
                     <dl class="mt-6 space-y-3 border-t border-navy-100 pt-6 text-sm">
                         <div class="flex items-center justify-between">
                             <dt class="text-navy-600">Subtotal</dt>
-                            <dd class="font-semibold text-navy-900 tabular-nums" data-total-subtotal>$530.00</dd>
-                        </div>
-                        <div class="flex items-center justify-between" data-total-discount-row hidden>
-                            <dt class="text-navy-600">Promo discount (10%)</dt>
-                            <dd class="font-semibold text-green-700 tabular-nums" data-total-discount>−$0.00</dd>
+                            <dd class="font-semibold text-navy-900 tabular-nums" data-total-subtotal>{{ $summary->formattedSubtotal() }}</dd>
                         </div>
                         <div class="flex items-center justify-between">
                             <dt class="text-navy-600">Shipping</dt>
-                            <dd class="font-semibold text-navy-900 tabular-nums" data-total-shipping>Free</dd>
+                            <dd class="font-semibold text-navy-900 tabular-nums" data-total-shipping>{{ $summary->formattedShipping() }}</dd>
                         </div>
                         <div class="flex items-center justify-between">
-                            <dt class="text-navy-600">Estimated tax (8%)</dt>
-                            <dd class="font-semibold text-navy-900 tabular-nums" data-total-tax>$42.40</dd>
+                            <dt class="text-navy-600">Estimated tax ({{ number_format($taxRate * 100, 0) }}%)</dt>
+                            <dd class="font-semibold text-navy-900 tabular-nums" data-total-tax>{{ $summary->formattedTax() }}</dd>
                         </div>
                         <div class="flex items-center justify-between border-t border-navy-100 pt-3 text-base">
                             <dt class="font-display font-bold text-navy-900">Total</dt>
-                            <dd class="font-display text-xl font-extrabold text-navy-900 tabular-nums" data-total-grand>$572.40</dd>
+                            <dd class="font-display text-xl font-extrabold text-navy-900 tabular-nums" data-total-grand>{{ $summary->formattedTotal() }}</dd>
                         </div>
                     </dl>
 
+                    @if ($errors->any())
+                        <div class="mt-6 rounded-field border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                            <ul class="list-disc space-y-1 pl-5">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     {{-- Terms + place order --}}
                     <label class="mt-6 flex cursor-pointer items-start gap-3">
-                        <input type="checkbox" data-terms-checkbox
+                        <input type="checkbox" name="terms_accepted" value="1" data-terms-checkbox @checked(old('terms_accepted'))
                                class="mt-0.5 size-4.5 rounded border-navy-300 accent-olive-600 focus:outline-2 focus:outline-offset-2 focus:outline-bronze-500">
                         <span class="text-sm text-navy-600">
                             I agree to the <a href="#" class="font-medium text-navy-900 underline underline-offset-4 hover:text-olive-700">Terms of Service</a>,
@@ -304,12 +327,21 @@
                         </span>
                     </label>
 
-                    <x-ui.button type="submit" variant="accent" size="lg" class="mt-5 w-full" data-place-order disabled>
-                        <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>
-                        </svg>
-                        <span data-place-order-label>Pay $572.40 securely</span>
-                    </x-ui.button>
+                    @if (old('terms_accepted'))
+                        <x-ui.button type="submit" variant="accent" size="lg" class="mt-5 w-full" data-place-order>
+                            <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                            </svg>
+                            <span data-place-order-label>Place order · {{ $summary->formattedTotal() }}</span>
+                        </x-ui.button>
+                    @else
+                        <x-ui.button type="submit" variant="accent" size="lg" class="mt-5 w-full" data-place-order disabled>
+                            <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                            </svg>
+                            <span data-place-order-label>Place order · {{ $summary->formattedTotal() }}</span>
+                        </x-ui.button>
+                    @endif
                     <p class="mt-3 text-center text-xs text-navy-500">You won't be charged until you review and confirm.</p>
 
                     <ul class="mt-6 grid grid-cols-3 gap-2 border-t border-navy-100 pt-6 text-center">

@@ -3,7 +3,6 @@
 namespace App\Support;
 
 use NumberFormatter;
-use App\Support\StoreSettings;
 
 class MoneyFormatter
 {
@@ -33,7 +32,8 @@ class MoneyFormatter
 
         // Fallback: simple symbol + number_format (USD symbol used as default)
         $symbol = self::symbolForCurrency($currency);
-        return $symbol . number_format($amount, 2);
+
+        return $symbol.number_format($amount, 2);
     }
 
     public static function formatCompact(int $cents, ?string $currency = null): string
@@ -42,9 +42,10 @@ class MoneyFormatter
 
         if ($amount >= 1000) {
             // Use compact notation and include currency symbol
-            $compact = number_format($amount / 1000, 1) . 'k';
+            $compact = number_format($amount / 1000, 1).'k';
             $symbol = self::symbolForCurrency($currency ?? StoreSettings::current()->currency ?? 'USD');
-            return $symbol . $compact;
+
+            return $symbol.$compact;
         }
 
         return self::format($cents, $currency);
@@ -62,6 +63,11 @@ class MoneyFormatter
             'AUD' => 'en_AU',
             default => 'en_US',
         };
+    }
+
+    public static function symbol(?string $currency = null): string
+    {
+        return self::symbolForCurrency($currency ?? StoreSettings::current()->currency ?? 'USD');
     }
 
     private static function symbolForCurrency(string $currency): string
