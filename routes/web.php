@@ -5,6 +5,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
@@ -26,7 +27,13 @@ Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
 Route::post('/login', [CustomerAuthController::class, 'login'])->name('login.store');
 Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
 
-Route::view('/wishlist', 'wishlist')->name('wishlist');
+Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
+Route::post('/wishlist/items', [WishlistController::class, 'store'])->name('wishlist.items.store');
+Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+Route::delete('/wishlist/items/{wishlistItem}', [WishlistController::class, 'destroy'])->name('wishlist.items.destroy');
+Route::post('/wishlist/items/{wishlistItem}/move-to-cart', [WishlistController::class, 'moveToCart'])->name('wishlist.items.move-to-cart');
+Route::post('/wishlist/move-all-to-cart', [WishlistController::class, 'moveAllToCart'])->name('wishlist.move-all-to-cart');
+Route::delete('/wishlist', [WishlistController::class, 'clear'])->name('wishlist.clear');
 Route::view('/compare', 'compare')->name('compare');
 Route::view('/account', 'account')->name('account');
 Route::view('/account/orders', 'account-orders')->name('account.orders');

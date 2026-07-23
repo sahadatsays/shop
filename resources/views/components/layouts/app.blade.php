@@ -14,6 +14,8 @@
         Skip to content
     </a>
 
+    <script type="application/json" data-wishlist-product-ids>@json($wishlistProductIds ?? [])</script>
+
     @if ($minimal ?? false)
         {{-- Distraction-free header for checkout --}}
         <header class="glass sticky top-0 z-50 border-b border-navy-900/5">
@@ -128,12 +130,12 @@
                         <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
                     </svg>
                 </button>
-                <a href="{{ route('wishlist') }}" aria-label="Wishlist, 6 items"
+                <a href="{{ route('wishlist') }}" data-wishlist-link aria-label="Wishlist, {{ $wishlistItemCount ?? 0 }} {{ ($wishlistItemCount ?? 0) === 1 ? 'item' : 'items' }}"
                    class="relative hidden size-10 items-center justify-center rounded-xl text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900 sm:flex">
                     <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M12 21s-7.5-4.7-9.5-9A5.5 5.5 0 0 1 12 6.5 5.5 5.5 0 0 1 21.5 12c-2 4.3-9.5 9-9.5 9Z"/>
                     </svg>
-                    <span class="absolute -top-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-bronze-500 text-[0.65rem] font-bold text-white">6</span>
+                    <span data-wishlist-count @class(['absolute -top-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-bronze-500 text-[0.65rem] font-bold text-white', 'hidden' => ($wishlistItemCount ?? 0) <= 0])>{{ $wishlistItemCount ?? 0 }}</span>
                 </a>
                 <a href="{{ route('compare') }}" aria-label="Compare products, 3 items"
                    class="relative hidden size-10 items-center justify-center rounded-xl text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900 lg:flex">

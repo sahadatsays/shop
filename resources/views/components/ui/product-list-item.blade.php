@@ -90,12 +90,22 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-                <button type="button" data-toggle-active aria-label="Add {{ $name }} to wishlist"
-                        class="flex size-10 items-center justify-center rounded-xl border border-navy-200 text-navy-600 transition-colors duration-200 hover:border-navy-900 hover:bg-navy-900 hover:text-white">
-                    <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
-                        <path d="M12 21s-7.5-4.7-9.5-9A5.5 5.5 0 0 1 12 6.5 5.5 5.5 0 0 1 21.5 12c-2 4.3-9.5 9-9.5 9Z"/>
-                    </svg>
-                </button>
+                @if ($productId)
+                    @php($listInWishlist = in_array($productId, $wishlistProductIds ?? [], true))
+                    <button type="button"
+                            data-wishlist-toggle
+                            data-product-id="{{ $productId }}"
+                            aria-pressed="{{ $listInWishlist ? 'true' : 'false' }}"
+                            aria-label="{{ $listInWishlist ? 'Remove' : 'Add' }} {{ $name }} {{ $listInWishlist ? 'from' : 'to' }} wishlist"
+                            @class([
+                                'flex size-10 items-center justify-center rounded-xl border border-navy-200 text-navy-600 transition-colors duration-200 hover:border-navy-900 hover:bg-navy-900 hover:text-white',
+                                'border-bronze-500 bg-bronze-50 text-bronze-700' => $listInWishlist,
+                            ])>
+                        <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                            <path d="M12 21s-7.5-4.7-9.5-9A5.5 5.5 0 0 1 12 6.5 5.5 5.5 0 0 1 21.5 12c-2 4.3-9.5 9-9.5 9Z"/>
+                        </svg>
+                    </button>
+                @endif
                 <button type="button" aria-label="Quick view {{ $name }}"
                         class="flex size-10 items-center justify-center rounded-xl border border-navy-200 text-navy-600 transition-colors duration-200 hover:border-navy-900 hover:bg-navy-900 hover:text-white">
                     <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">

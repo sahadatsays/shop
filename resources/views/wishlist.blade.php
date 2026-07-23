@@ -1,13 +1,5 @@
 @php
-    $wishlistItems = [
-        ['name' => 'Ranger Field Jacket', 'category' => 'Apparel', 'price' => '$189.00', 'oldPrice' => '$249.00', 'availability' => 'in-stock', 'rating' => 4.9, 'reviews' => 132, 'image' => 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&q=70&auto=format&fit=crop'],
-        ['name' => 'Sentinel Field Watch', 'category' => 'Accessories', 'price' => '$229.00', 'oldPrice' => '$279.00', 'availability' => 'low-stock', 'rating' => 4.7, 'reviews' => 64, 'image' => 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&q=70&auto=format&fit=crop'],
-        ['name' => 'Patriot Canvas Rucksack', 'category' => 'Outdoor Gear', 'price' => '$149.00', 'oldPrice' => null, 'availability' => 'in-stock', 'rating' => 4.8, 'reviews' => 87, 'image' => 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=70&auto=format&fit=crop'],
-        ['name' => 'Anniversary Stitched Flag', 'category' => 'Flags', 'price' => '$120.00', 'oldPrice' => null, 'availability' => 'out-of-stock', 'rating' => 5.0, 'reviews' => 28, 'image' => 'https://images.unsplash.com/photo-1520095972714-909e91b038e5?w=800&q=70&auto=format&fit=crop'],
-        ['name' => 'Everyday Leather Wallet', 'category' => 'Everyday Carry', 'price' => '$79.00', 'oldPrice' => null, 'availability' => 'in-stock', 'rating' => 4.8, 'reviews' => 96, 'image' => 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=800&q=70&auto=format&fit=crop'],
-        ['name' => 'Garrison Heritage Tee', 'category' => 'Apparel', 'price' => '$38.00', 'oldPrice' => null, 'availability' => 'low-stock', 'rating' => 4.6, 'reviews' => 53, 'image' => 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=70&auto=format&fit=crop'],
-    ];
-
+    /** @var \App\DTOs\Wishlist\WishlistSummary $summary */
     $availabilityMeta = [
         'in-stock' => ['label' => 'In stock', 'dot' => 'bg-green-500', 'text' => 'text-green-700'],
         'low-stock' => ['label' => 'Low stock — order soon', 'dot' => 'bg-bronze-500', 'text' => 'text-bronze-700'],
@@ -32,11 +24,11 @@
             <div>
                 <div class="flex flex-wrap items-baseline gap-3">
                     <h1 class="font-display text-3xl font-bold text-navy-900 sm:text-4xl">Your wishlist</h1>
-                    <p class="text-navy-500" data-wishlist-count-label>6 saved items</p>
+                    <p class="text-navy-500" data-wishlist-count-label>{{ $summary->itemCount }} saved {{ $summary->itemCount === 1 ? 'item' : 'items' }}</p>
                 </div>
                 <p class="mt-2 max-w-xl text-navy-600">Saved gear stays here so you never lose sight of it. We'll flag anything running low.</p>
             </div>
-            <div class="flex flex-wrap gap-3" data-wishlist-actions>
+            <div class="flex flex-wrap gap-3" data-wishlist-actions @if($summary->isEmpty()) hidden @endif>
                 <x-ui.button variant="outline" size="sm" data-wishlist-clear>
                     <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/>
@@ -53,28 +45,43 @@
         </div>
 
         {{-- Grid --}}
-        <ul data-wishlist-grid class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            @foreach ($wishlistItems as $item)
-                @php $meta = $availabilityMeta[$item['availability']]; @endphp
-                <li data-wishlist-item data-availability="{{ $item['availability'] }}"
+        <ul data-wishlist-grid class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" @if($summary->isEmpty()) hidden @endif>
+            @foreach ($summary->items as $line)
+                @php
+                    $product = $line->product;
+                    $availability = $line->availability();
+                    $meta = $availabilityMeta[$availability];
+                @endphp
+                <li data-wishlist-item
+                    data-wishlist-item-id="{{ $line->wishlistItem->id }}"
+                    data-product-id="{{ $product->id }}"
+                    data-availability="{{ $availability }}"
                     class="group flex flex-col overflow-hidden rounded-card bg-surface shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover">
 
-                    {{-- Image --}}
                     <div class="relative aspect-4/3 overflow-hidden bg-navy-100">
-                        <a href="{{ route('product.show') }}" class="block size-full">
-                            <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" loading="lazy"
-                                 class="size-full object-cover transition-transform duration-500 group-hover:scale-105 {{ $item['availability'] === 'out-of-stock' ? 'opacity-60 saturate-50' : '' }}">
+                        <a href="{{ route('product.show', $product) }}" class="block size-full">
+                            @if ($product->primaryImageUrl())
+                                <img src="{{ $product->primaryImageUrl() }}" alt="{{ $product->name }}" loading="lazy"
+                                     class="size-full object-cover transition-transform duration-500 group-hover:scale-105 {{ $availability === 'out-of-stock' ? 'opacity-60 saturate-50' : '' }}">
+                            @else
+                                <div class="flex size-full items-center justify-center bg-linear-to-br from-navy-100 via-navy-50 to-bronze-100">
+                                    <svg class="size-14 text-navy-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-4.5-4.5L7 20"/>
+                                    </svg>
+                                </div>
+                            @endif
                         </a>
 
-                        @if ($item['oldPrice'])
+                        @if ($product->isOnSale())
                             <x-ui.badge variant="danger" class="absolute top-4 left-4">Sale</x-ui.badge>
-                        @endif
-                        @if ($item['availability'] === 'out-of-stock')
+                        @elseif ($availability === 'out-of-stock')
                             <x-ui.badge variant="navy" class="absolute top-4 left-4">Out of stock</x-ui.badge>
                         @endif
 
-                        {{-- Remove --}}
-                        <button type="button" data-wishlist-remove aria-label="Remove {{ $item['name'] }} from wishlist"
+                        <button type="button"
+                                data-wishlist-remove
+                                data-wishlist-item-id="{{ $line->wishlistItem->id }}"
+                                aria-label="Remove {{ $product->name }} from wishlist"
                                 class="absolute top-4 right-4 flex size-10 items-center justify-center rounded-full bg-white/90 text-navy-600 shadow-soft backdrop-blur-sm transition-colors duration-200 hover:bg-red-600 hover:text-white">
                             <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
                                 <path d="m6 6 12 12M18 6 6 18"/>
@@ -82,29 +89,29 @@
                         </button>
                     </div>
 
-                    {{-- Details --}}
                     <div class="flex flex-1 flex-col p-6">
-                        <p class="text-xs font-semibold tracking-wide text-bronze-600 uppercase">{{ $item['category'] }}</p>
+                        @if ($product->category)
+                            <p class="text-xs font-semibold tracking-wide text-bronze-600 uppercase">{{ $product->category->name }}</p>
+                        @endif
                         <h2 class="mt-1.5 font-display text-lg font-bold text-navy-900">
-                            <a href="{{ route('product.show') }}" class="transition-colors duration-200 hover:text-olive-700">{{ $item['name'] }}</a>
+                            <a href="{{ route('product.show', $product) }}" class="transition-colors duration-200 hover:text-olive-700">{{ $product->name }}</a>
                         </h2>
 
                         <div class="mt-2 flex items-center gap-2">
-                            <x-ui.rating :value="$item['rating']" size="sm" />
-                            <span class="text-xs text-navy-500">{{ $item['rating'] }} ({{ $item['reviews'] }})</span>
+                            <x-ui.rating :value="$product->placeholderRating()" size="sm" />
+                            <span class="text-xs text-navy-500">{{ $product->placeholderRating() }} ({{ $product->placeholderReviewCount() }})</span>
                         </div>
 
                         <p class="mt-3 flex items-baseline gap-2">
-                            <span class="font-display text-xl font-extrabold text-navy-900">{{ $item['price'] }}</span>
-                            @if ($item['oldPrice'])
-                                <span class="text-sm text-navy-400 line-through">{{ $item['oldPrice'] }}</span>
+                            <span class="font-display text-xl font-extrabold text-navy-900">{{ $product->formattedPrice() }}</span>
+                            @if ($product->isOnSale())
+                                <span class="text-sm text-navy-400 line-through">{{ $product->formattedCompareAtPrice() }}</span>
                             @endif
                         </p>
 
-                        {{-- Availability --}}
                         <p class="mt-2 flex items-center gap-2 text-sm font-medium {{ $meta['text'] }}">
                             <span class="relative flex size-2" aria-hidden="true">
-                                @if ($item['availability'] !== 'out-of-stock')
+                                @if ($availability !== 'out-of-stock')
                                     <span class="absolute inline-flex size-full animate-ping rounded-full {{ $meta['dot'] }} opacity-60"></span>
                                 @endif
                                 <span class="relative inline-flex size-2 rounded-full {{ $meta['dot'] }}"></span>
@@ -112,9 +119,8 @@
                             {{ $meta['label'] }}
                         </p>
 
-                        {{-- Actions --}}
                         <div class="mt-5 flex gap-2 pt-1">
-                            @if ($item['availability'] === 'out-of-stock')
+                            @if ($availability === 'out-of-stock')
                                 <x-ui.button variant="outline" class="flex-1" data-notify-me>
                                     <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                         <path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 19a2 2 0 0 0 4 0"/>
@@ -122,14 +128,17 @@
                                     <span data-action-label>Notify me</span>
                                 </x-ui.button>
                             @else
-                                <x-ui.button class="flex-1" data-add-to-cart>
+                                <x-ui.button class="flex-1"
+                                             data-wishlist-move-to-cart
+                                             data-wishlist-item-id="{{ $line->wishlistItem->id }}"
+                                             data-product-id="{{ $product->id }}">
                                     <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                         <path d="M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/>
                                     </svg>
-                                    <span data-action-label>Add to cart</span>
+                                    <span data-action-label>Move to cart</span>
                                 </x-ui.button>
                             @endif
-                            <button type="button" data-toggle-active aria-label="Add {{ $item['name'] }} to compare"
+                            <button type="button" data-toggle-active aria-label="Add {{ $product->name }} to compare"
                                     class="flex size-11.5 shrink-0 items-center justify-center rounded-xl border border-navy-200 text-navy-600 transition-colors duration-200 hover:border-navy-300 hover:bg-navy-50 hover:text-navy-900 aria-pressed:border-bronze-500 aria-pressed:bg-bronze-50 aria-pressed:text-bronze-700">
                                 <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                     <path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/>
@@ -142,7 +151,7 @@
         </ul>
 
         {{-- Empty state --}}
-        <div data-wishlist-empty hidden class="mx-auto max-w-md py-20 text-center">
+        <div data-wishlist-empty @class(['mx-auto max-w-md py-20 text-center', 'hidden' => ! $summary->isEmpty()])>
             <svg class="mx-auto h-44 w-auto" viewBox="0 0 220 160" fill="none" aria-hidden="true">
                 <circle cx="110" cy="78" r="58" class="fill-navy-100"/>
                 <path d="M110 112s-30-19-38-36a22 22 0 0 1 38-22 22 22 0 0 1 38 22c-8 17-38 36-38 36Z"

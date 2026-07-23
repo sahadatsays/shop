@@ -37,12 +37,22 @@
 
         {{-- Hover actions: wishlist + quick view --}}
         <div class="absolute top-3 right-3 z-10 flex flex-col gap-2">
-            <button type="button" data-toggle-active aria-label="Add {{ $name }} to wishlist"
-                    class="flex size-10 -translate-x-2 items-center justify-center rounded-full bg-white/90 text-navy-700 opacity-0 shadow-soft backdrop-blur-sm transition-all duration-300 hover:bg-navy-900 hover:text-white focus-visible:translate-x-0 focus-visible:opacity-100 group-hover:translate-x-0 group-hover:opacity-100 aria-pressed:text-red-600">
-                <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M12 21s-7.5-4.7-9.5-9A5.5 5.5 0 0 1 12 6.5 5.5 5.5 0 0 1 21.5 12c-2 4.3-9.5 9-9.5 9Z"/>
-                </svg>
-            </button>
+            @if ($productId)
+                @php($inWishlist = in_array($productId, $wishlistProductIds ?? [], true))
+                <button type="button"
+                        data-wishlist-toggle
+                        data-product-id="{{ $productId }}"
+                        aria-pressed="{{ $inWishlist ? 'true' : 'false' }}"
+                        aria-label="{{ $inWishlist ? 'Remove' : 'Add' }} {{ $name }} {{ $inWishlist ? 'from' : 'to' }} wishlist"
+                        @class([
+                            'flex size-10 -translate-x-2 items-center justify-center rounded-full bg-white/90 text-navy-700 opacity-0 shadow-soft backdrop-blur-sm transition-all duration-300 hover:bg-navy-900 hover:text-white focus-visible:translate-x-0 focus-visible:opacity-100 group-hover:translate-x-0 group-hover:opacity-100',
+                            'text-red-600 aria-pressed:text-red-600' => $inWishlist,
+                        ])>
+                    <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 21s-7.5-4.7-9.5-9A5.5 5.5 0 0 1 12 6.5 5.5 5.5 0 0 1 21.5 12c-2 4.3-9.5 9-9.5 9Z"/>
+                    </svg>
+                </button>
+            @endif
             <button type="button" aria-label="Quick view {{ $name }}"
                     class="flex size-10 -translate-x-2 items-center justify-center rounded-full bg-white/90 text-navy-700 opacity-0 shadow-soft backdrop-blur-sm transition-all delay-75 duration-300 hover:bg-navy-900 hover:text-white focus-visible:translate-x-0 focus-visible:opacity-100 group-hover:translate-x-0 group-hover:opacity-100">
                 <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

@@ -46,11 +46,11 @@ class Customer extends Model
     }
 
     /**
-     * @return HasOne<Cart, $this>
+     * @return HasOne<Wishlist, $this>
      */
-    public function cart(): HasOne
+    public function wishlist(): HasOne
     {
-        return $this->hasOne(Cart::class);
+        return $this->hasOne(Wishlist::class);
     }
 
     /**

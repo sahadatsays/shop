@@ -144,6 +144,7 @@ const initRevealOnScroll = () => {
 };
 
 import { addToCart, updateCartBadge } from './cart-api';
+import { syncWishlistButtons, toggleWishlist } from './wishlist-api';
 
 const initAddToCart = () => {
     document.addEventListener('click', async (event) => {
@@ -192,6 +193,43 @@ const initAddToCart = () => {
 };
 
 initAddToCart();
+
+const initWishlistToggle = () => {
+    const productIds = [...document.querySelectorAll('[data-wishlist-product-ids]')].flatMap(
+        (element) => JSON.parse(element.textContent || '[]'),
+    );
+
+    if (productIds.length > 0) {
+        syncWishlistButtons(productIds);
+    }
+
+    document.addEventListener('click', async (event) => {
+        const button = event.target.closest('[data-wishlist-toggle]');
+
+        if (!button || button.disabled) {
+            return;
+        }
+
+        const productId = button.dataset.productId;
+
+        if (!productId) {
+            return;
+        }
+
+        event.preventDefault();
+        button.disabled = true;
+
+        try {
+            await toggleWishlist(Number(productId));
+        } catch (error) {
+            alert(error.message);
+        } finally {
+            button.disabled = false;
+        }
+    });
+};
+
+initWishlistToggle();
 initSearchPanel();
 initCarousels();
 initHeaderElevation();

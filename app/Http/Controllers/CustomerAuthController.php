@@ -6,6 +6,7 @@ use App\Enums\CustomerStatus;
 use App\Http\Requests\CustomerLoginRequest;
 use App\Models\Customer;
 use App\Services\CartService;
+use App\Services\WishlistService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 
@@ -13,6 +14,7 @@ class CustomerAuthController extends Controller
 {
     public function __construct(
         private CartService $cart,
+        private WishlistService $wishlist,
     ) {}
 
     public function login(CustomerLoginRequest $request): JsonResponse|RedirectResponse
@@ -35,6 +37,7 @@ class CustomerAuthController extends Controller
         session(['customer_id' => $customer->id]);
 
         $this->cart->mergeGuestIntoCustomer($customer);
+        $this->wishlist->mergeGuestIntoCustomer($customer);
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -46,6 +49,9 @@ class CustomerAuthController extends Controller
                 ],
                 'cart' => [
                     'item_count' => $this->cart->itemCount(),
+                ],
+                'wishlist' => [
+                    'item_count' => $this->wishlist->itemCount(),
                 ],
             ]);
         }

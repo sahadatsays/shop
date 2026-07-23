@@ -12,6 +12,7 @@ use App\Contracts\Repositories\CategoryRepositoryInterface;
 use App\Contracts\Repositories\CustomerRepositoryInterface;
 use App\Contracts\Repositories\OrderRepositoryInterface;
 use App\Contracts\Repositories\ProductRepositoryInterface;
+use App\Contracts\Repositories\WishlistRepositoryInterface;
 use App\Repositories\Eloquent\AdminBrandRepository;
 use App\Repositories\Eloquent\AdminCategoryRepository;
 use App\Repositories\Eloquent\AdminCustomerRepository;
@@ -22,7 +23,9 @@ use App\Repositories\Eloquent\CategoryRepository;
 use App\Repositories\Eloquent\CustomerRepository;
 use App\Repositories\Eloquent\OrderRepository;
 use App\Repositories\Eloquent\ProductRepository;
+use App\Repositories\Eloquent\WishlistRepository;
 use App\View\Composers\CartComposer;
+use App\View\Composers\WishlistComposer;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -43,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AdminInventoryRepositoryInterface::class, AdminInventoryRepository::class);
         $this->app->bind(AdminCustomerRepositoryInterface::class, AdminCustomerRepository::class);
         $this->app->bind(CartRepositoryInterface::class, CartRepository::class);
+        $this->app->bind(WishlistRepositoryInterface::class, WishlistRepository::class);
     }
 
     /**
@@ -51,5 +55,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         View::composer('components.layouts.app', CartComposer::class);
+        View::composer('components.layouts.app', WishlistComposer::class);
     }
 }
