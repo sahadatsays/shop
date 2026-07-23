@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
 class Product extends Model
 {
@@ -205,6 +206,91 @@ class Product extends Model
         }
 
         return (int) round((1 - ($this->price_cents / $this->compare_at_price_cents)) * 100);
+    }
+
+    public function savingsCents(): ?int
+    {
+        if (! $this->isOnSale()) {
+            return null;
+        }
+
+        return $this->compare_at_price_cents - $this->price_cents;
+    }
+
+    public function formattedSavings(): ?string
+    {
+        $savings = $this->savingsCents();
+
+        return $savings !== null ? MoneyFormatter::format($savings) : null;
+    }
+
+    /**
+     * @return Collection<int, ProductAttribute>
+     */
+    public function attributesNamed(string ...$names): Collection
+    {
+        $normalized = collect($names)->map(fn (string $name): string => strtolower($name));
+
+        $attributes = $this->relationLoaded('attributes')
+            ? $this->getRelation('attributes')
+            : $this->attributes()->get();
+
+        return $attributes->filter(
+            fn (ProductAttribute $attribute): bool => $normalized->contains(strtolower($attribute->name)),
+        )->values();
+    }
+
+    /**
+     * @return Collection<int, ProductAttribute>
+     */
+    public function colorAttributes(): Collection
+    {
+        return $this->attributesNamed(...config('product.attribute_groups.colors', ['Color']));
+    }
+
+    /**
+     * @return Collection<int, ProductAttribute>
+     */
+    public function sizeAttributes(): Collection
+    {
+        return $this->attributesNamed(...config('product.attribute_groups.sizes', ['Size']));
+    }
+
+    /**
+     * @return Collection<int, ProductAttribute>
+     */
+    public function materialAttributes(): Collection
+    {
+        return $this->attributesNamed(...config('product.attribute_groups.materials', ['Material', 'Materials']));
+    }
+
+    /**
+     * @return Collection<int, ProductAttribute>
+     */
+    public function careAttributes(): Collection
+    {
+        return $this->attributesNamed(...config('product.attribute_groups.care', ['Care', 'Care Instructions']));
+    }
+
+    public function colorSwatchClass(string $colorName): string
+    {
+        /** @var array<string, string> $swatches */
+        $swatches = config('product.color_swatches', []);
+
+        return $swatches[$colorName] ?? config('product.default_color_swatch', 'bg-gray-400');
+    }
+
+    public function detailStockLabel(): string
+    {
+        if ($this->isOutOfStock()) {
+            return 'Out of stock';
+        }
+
+        if ($this->isLowStock()) {
+            return 'In stock — only '.$this->stock_quantity.' left';
+        }
+
+        return 'In stock';
     }
 
     /**

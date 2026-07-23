@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
 class Category extends Model
@@ -58,6 +59,26 @@ class Category extends Model
     public function children(): HasMany
     {
         return $this->hasMany(Category::class, 'parent_id')->orderBy('sort_order');
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function breadcrumbTrail(): Collection
+    {
+        /** @var Collection<int, Category> $trail */
+        $trail = collect();
+
+        $current = $this->parent;
+
+        while ($current !== null) {
+            $trail->prepend($current);
+            $current = $current->parent;
+        }
+
+        $trail->push($this);
+
+        return $trail;
     }
 
     /**
