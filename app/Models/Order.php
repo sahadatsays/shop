@@ -57,6 +57,22 @@ class Order extends Model
     }
 
     /**
+     * @return HasMany<OrderTimelineEvent, $this>
+     */
+    public function timelineEvents(): HasMany
+    {
+        return $this->hasMany(OrderTimelineEvent::class);
+    }
+
+    /**
+     * @return HasMany<OrderNote, $this>
+     */
+    public function notes(): HasMany
+    {
+        return $this->hasMany(OrderNote::class)->latest();
+    }
+
+    /**
      * @param  Builder<Order>  $query
      * @return Builder<Order>
      */

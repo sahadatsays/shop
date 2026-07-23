@@ -81,10 +81,6 @@ class OrderRepository implements OrderRepositoryInterface
 
     private static function statusVariant(OrderStatus $status): string
     {
-        return match ($status) {
-            OrderStatus::Delivered, OrderStatus::Shipped => 'success',
-            OrderStatus::Processing, OrderStatus::Pending => 'warning',
-            OrderStatus::Cancelled => 'danger',
-        };
+        return $status->badgeVariant();
     }
 }

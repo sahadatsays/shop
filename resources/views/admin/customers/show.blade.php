@@ -75,7 +75,9 @@
                             <tbody class="divide-y divide-admin-border/60">
                                 @foreach ($customer->orders as $order)
                                     <tr>
-                                        <td class="px-4 py-3 font-medium admin-text">{{ $order->order_number }}</td>
+                                        <td class="px-4 py-3 font-medium admin-text">
+                                            <a href="{{ route('admin.orders.show', $order) }}" class="hover:text-admin-brand">{{ $order->order_number }}</a>
+                                        </td>
                                         <td class="px-4 py-3 admin-text-secondary">{{ $order->placed_at?->format('M j, Y') }}</td>
                                         <td class="px-4 py-3 tabular-nums admin-text-secondary">{{ MoneyFormatter::format($order->total_cents) }}</td>
                                         <td class="px-4 py-3">

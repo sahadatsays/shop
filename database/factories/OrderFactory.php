@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Enums\OrderStatus;
 use App\Models\Customer;
 use App\Models\Order;
+use App\Support\OrderNumberGenerator;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,7 +24,7 @@ class OrderFactory extends Factory
 
         return [
             'customer_id' => Customer::factory(),
-            'order_number' => 'ORD-'.fake()->unique()->numerify('######'),
+            'order_number' => OrderNumberGenerator::generate(),
             'status' => fake()->randomElement(OrderStatus::cases()),
             'subtotal_cents' => $subtotal,
             'total_cents' => $subtotal,

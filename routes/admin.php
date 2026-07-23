@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -37,3 +38,8 @@ Route::post('customers/{customer}/restore', [CustomerController::class, 'restore
     ->withTrashed();
 Route::post('customers/{customer}/notes', [CustomerController::class, 'storeNote'])
     ->name('customers.notes.store');
+
+Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status.update');
+Route::post('orders/{order}/notes', [OrderController::class, 'storeNote'])->name('orders.notes.store');

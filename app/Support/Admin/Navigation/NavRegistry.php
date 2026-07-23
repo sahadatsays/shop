@@ -29,9 +29,8 @@ class NavRegistry
             new NavItem(
                 label: 'Commerce',
                 icon: 'M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7ZM9 10V6a3 3 0 0 1 6 0v4',
-                disabled: true,
                 children: [
-                    new NavItem(label: 'Orders', disabled: true),
+                    new NavItem(label: 'Orders', route: 'admin.orders.index', routePrefix: 'admin.orders.'),
                     new NavItem(label: 'Refunds', disabled: true),
                     new NavItem(label: 'Coupons', disabled: true),
                     new NavItem(label: 'Shipping', disabled: true),
@@ -91,6 +90,7 @@ class NavRegistry
                     ['label' => 'Inventory', 'href' => route('admin.inventory.index'), 'keywords' => 'stock warehouse movement'],
                     ['label' => 'Stock history', 'href' => route('admin.inventory.movements'), 'keywords' => 'inventory log movement audit'],
                     ['label' => 'Customers', 'href' => route('admin.customers.index'), 'keywords' => 'users accounts profiles'],
+                    ['label' => 'Orders', 'href' => route('admin.orders.index'), 'keywords' => 'commerce sales fulfillment'],
                     ['label' => 'Categories', 'href' => route('admin.categories.index'), 'keywords' => 'catalog organize'],
                     ['label' => 'Brands', 'href' => route('admin.brands.index'), 'keywords' => 'catalog brand logo'],
                 ],
@@ -102,7 +102,7 @@ class NavRegistry
                     ['label' => 'Create category', 'href' => route('admin.categories.create'), 'keywords' => 'new catalog category'],
                     ['label' => 'Create brand', 'href' => route('admin.brands.create'), 'keywords' => 'new catalog brand'],
                     ['label' => 'Create customer', 'href' => route('admin.customers.create'), 'keywords' => 'new user account'],
-                    ['label' => 'View orders', 'href' => null, 'keywords' => 'commerce sales'],
+                    ['label' => 'View orders', 'href' => route('admin.orders.index'), 'keywords' => 'commerce sales'],
                     ['label' => 'Export report', 'href' => null, 'keywords' => 'download csv'],
                 ],
             ],

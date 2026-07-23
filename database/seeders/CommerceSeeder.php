@@ -11,6 +11,7 @@ use App\Models\CustomerAddress;
 use App\Models\CustomerNote;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrderTimelineEvent;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\Warehouse;
@@ -192,6 +193,8 @@ class CommerceSeeder extends Seeder
                         'subtotal_cents' => $subtotal,
                         'total_cents' => $subtotal,
                     ]);
+
+                    $this->seedOrderTimeline($order);
                 });
         }
 
@@ -217,6 +220,8 @@ class CommerceSeeder extends Seeder
                     'total_cents' => $lineTotal,
                     'status' => fake()->randomElement(OrderStatus::cases()),
                 ]);
+
+                $this->seedOrderTimeline($order);
             });
 
         Order::factory()
@@ -242,8 +247,35 @@ class CommerceSeeder extends Seeder
                     'subtotal_cents' => $lineTotal,
                     'total_cents' => $lineTotal,
                 ]);
+
+                $this->seedOrderTimeline($order);
             });
 
         $this->call(StorefrontDemoSeeder::class);
+    }
+
+    private function seedOrderTimeline(Order $order): void
+    {
+        OrderTimelineEvent::query()->create([
+            'order_id' => $order->id,
+            'status' => OrderStatus::Pending->value,
+            'message' => 'Order placed.',
+            'author_name' => 'System',
+            'created_at' => $order->placed_at,
+            'updated_at' => $order->placed_at,
+        ]);
+
+        if ($order->status === OrderStatus::Pending) {
+            return;
+        }
+
+        OrderTimelineEvent::query()->create([
+            'order_id' => $order->id,
+            'status' => $order->status->value,
+            'message' => 'Status updated to '.$order->status->label().'.',
+            'author_name' => 'Admin',
+            'created_at' => $order->placed_at?->copy()->addHours(fake()->numberBetween(1, 72)),
+            'updated_at' => $order->placed_at?->copy()->addHours(fake()->numberBetween(1, 72)),
+        ]);
     }
 }
