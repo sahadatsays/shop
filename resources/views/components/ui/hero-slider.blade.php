@@ -7,7 +7,7 @@
     $fallbackImage = 'https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=2000&q=75&auto=format&fit=crop';
 @endphp
 
-<section class="relative overflow-hidden bg-navy-950" data-hero-slider aria-roledescription="carousel" aria-label="Hero banners">
+<section class="relative -mt-[var(--site-header-stack,6.5rem)] overflow-hidden bg-navy-950 pt-[var(--site-header-stack,6.5rem)]" data-hero-slider aria-roledescription="carousel" aria-label="Hero banners">
     @if ($slides->isEmpty())
         <div class="relative flex min-h-[85vh] items-center">
             <div class="absolute inset-0" aria-hidden="true">

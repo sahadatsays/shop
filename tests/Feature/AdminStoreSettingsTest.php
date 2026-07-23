@@ -64,6 +64,21 @@ test('store settings can be updated', function (): void {
         ->and($settings->free_shipping_threshold_cents)->toBe(9900);
 });
 
+test('theme css variables enforce readable header text on dark backgrounds', function (): void {
+    $settings = StoreSetting::query()->firstOrFail();
+    $settings->update([
+        'theme_colors' => array_merge(StoreSetting::defaultThemeColors(), [
+            'header_bg' => '#090f1d',
+            'header_text' => '#0f172a',
+        ]),
+    ]);
+
+    $variables = $settings->fresh()->themeCssVariables();
+
+    expect($variables['--store-header-text'])->toBe('#e2e8f0')
+        ->and(StoreSetting::contrastRatio('#090f1d', $variables['--store-header-text']))->toBeGreaterThan(4.5);
+});
+
 test('storefront layout uses configured store settings', function (): void {
     StoreSetting::query()->first()?->update([
         'store_name' => 'Configured Store Name',

@@ -160,18 +160,38 @@ const initCarousels = () => {
 };
 
 const initHeaderElevation = () => {
+    const shell = document.querySelector('[data-site-header-shell]');
     const header = document.querySelector('[data-site-header]');
+    const hero = document.querySelector('[data-hero-slider]');
 
-    if (!header) {
+    if (!shell || !header) {
         return;
     }
 
-    const update = () => {
-        header.classList.toggle('shadow-glass', window.scrollY > 8);
+    const syncHeaderMetrics = () => {
+        document.documentElement.style.setProperty('--site-header-stack', `${shell.offsetHeight}px`);
     };
 
+    const update = () => {
+        const scrollY = window.scrollY;
+        const scrolled = scrollY > 8;
+        const overHero = hero
+            ? scrollY < Math.max(hero.offsetHeight - shell.offsetHeight, shell.offsetHeight)
+            : false;
+
+        shell.classList.toggle('is-scrolled', scrolled);
+        shell.classList.toggle('is-over-hero', overHero);
+        header.classList.toggle('shadow-glass', scrolled && ! overHero);
+    };
+
+    syncHeaderMetrics();
     update();
+
     window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', () => {
+        syncHeaderMetrics();
+        update();
+    });
 };
 
 const initRevealOnScroll = () => {

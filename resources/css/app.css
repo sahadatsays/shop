@@ -227,6 +227,42 @@
     box-shadow: var(--shadow-glass);
 }
 
+/* Sticky storefront header shell */
+[data-site-header-shell] {
+    isolation: isolate;
+}
+
+[data-site-header-shell] [data-site-header] {
+    color: var(--store-header-text, #e2e8f0);
+    background-color: color-mix(in srgb, var(--store-header-bg, #090f1d) 92%, transparent);
+}
+
+[data-site-header-shell] .site-header-brand,
+[data-site-header-shell] .site-header-link,
+[data-site-header-shell] .site-header-icon {
+    color: var(--store-header-text, #e2e8f0);
+}
+
+[data-site-header-shell] .site-header-link:hover,
+[data-site-header-shell] .site-header-icon:hover,
+[data-site-header-shell] .site-header-link:focus-visible,
+[data-site-header-shell] .site-header-icon:focus-visible {
+    color: #ffffff;
+    background-color: rgb(255 255 255 / 0.1);
+}
+
+[data-site-header-shell].is-over-hero [data-site-header] {
+    border-bottom-color: transparent;
+    background-color: color-mix(in srgb, var(--store-header-bg, #090f1d) 28%, transparent);
+    box-shadow: none;
+}
+
+[data-site-header-shell].is-scrolled [data-site-header] {
+    border-bottom-color: rgb(15 23 42 / 0.08);
+    background-color: color-mix(in srgb, var(--store-header-bg, #090f1d) 94%, transparent);
+    box-shadow: var(--shadow-glass);
+}
+
 @utility scrollbar-none {
     scrollbar-width: none;
     &::-webkit-scrollbar {

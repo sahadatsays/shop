@@ -61,7 +61,7 @@
                             </svg>
                         </span>
                     @endif
-                    <span class="font-display text-lg font-bold tracking-tight text-[var(--store-header-text,var(--color-navy-900))]">{{ $storeName }}</span>
+                    <span class="site-header-brand font-display text-lg font-bold tracking-tight">{{ $storeName }}</span>
                 </a>
 
                 <p class="hidden items-center gap-2 text-sm font-medium text-olive-700 sm:flex">
@@ -80,15 +80,15 @@
         </header>
     @else
     {{-- Utility bar --}}
-    <div class="bg-[var(--store-utility-bg,var(--color-navy-950))] text-center text-xs font-medium tracking-wide text-[var(--store-utility-text,var(--color-navy-200))]">
-        <p class="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
-            {{ $storeSettings->utility_bar_message ?? 'Free express shipping on orders over $75 • 5% of profits support veteran programs' }}
-        </p>
-    </div>
+    <div data-site-header-shell class="sticky top-0 z-50">
+        <div class="bg-[var(--store-utility-bg,var(--color-navy-950))] text-center text-xs font-medium tracking-wide text-[var(--store-utility-text,var(--color-navy-200))]">
+            <p class="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
+                {{ $storeSettings->utility_bar_message ?? 'Free express shipping on orders over $75 • 5% of profits support veteran programs' }}
+            </p>
+        </div>
 
-    <header data-site-header
-            class="glass sticky top-0 z-50 border-b border-navy-900/5 transition-shadow duration-300"
-            style="background-color: color-mix(in srgb, var(--store-header-bg, #ffffff) 92%, transparent);">
+        <header data-site-header
+                class="border-b border-navy-900/5 backdrop-blur-xl backdrop-saturate-150 transition-[background-color,box-shadow,border-color] duration-300">
         <div class="relative mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:h-[4.5rem] lg:px-8">
             {{-- Brand --}}
             <a href="{{ route('home') }}" class="flex shrink-0 items-center gap-2.5" aria-label="{{ $storeName }} — Home">
@@ -101,7 +101,7 @@
                         </svg>
                     </span>
                 @endif
-                <span class="font-display text-lg font-bold tracking-tight text-[var(--store-header-text,var(--color-navy-900))]">{{ $storeName }}</span>
+                <span class="site-header-brand font-display text-lg font-bold tracking-tight">{{ $storeName }}</span>
             </a>
 
             {{-- Desktop navigation --}}
@@ -110,7 +110,7 @@
                     @if ($menuItem->children->isNotEmpty())
                         <div class="group/mega">
                             <button type="button" aria-haspopup="true" aria-expanded="false"
-                                    class="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-medium transition-colors duration-200 group-focus-within/mega:bg-navy-900/5 group-hover/mega:bg-navy-900/5 group-hover/mega:text-navy-900 hover:bg-navy-900/5 hover:text-navy-900 {{ $menuItem->isActiveRoute() ? 'bg-navy-900/5 text-navy-900' : 'text-navy-700' }}">
+                                    class="site-header-link flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-medium transition-colors duration-200 group-focus-within/mega:bg-white/10 group-hover/mega:bg-white/10 group-hover/mega:text-white hover:bg-white/10 hover:text-white {{ $menuItem->isActiveRoute() ? 'bg-white/10 text-white' : '' }}">
                                 {{ $menuItem->label }}
                                 <svg class="size-3.5 transition-transform duration-200 group-hover/mega:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
                             </button>
@@ -151,47 +151,47 @@
                         <a href="{{ $menuItem->resolvedUrl() }}"
                            @if ($menuItem->open_in_new_tab) target="_blank" rel="noopener noreferrer" @endif
                            @if ($menuItem->isActiveRoute()) aria-current="page" @endif
-                           class="rounded-xl px-4 py-2 text-sm font-medium transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900 {{ $menuItem->isActiveRoute() ? 'bg-navy-900/5 text-navy-900' : 'text-navy-700' }}">
+                           class="site-header-link rounded-xl px-4 py-2 text-sm font-medium transition-colors duration-200 hover:bg-white/10 hover:text-white {{ $menuItem->isActiveRoute() ? 'bg-white/10 text-white' : '' }}">
                             {{ $menuItem->label }}
                         </a>
                     @endif
                 @empty
-                    <a href="{{ route('shop') }}" class="rounded-xl px-4 py-2 text-sm font-medium text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900">Shop</a>
-                    <a href="{{ route('about') }}" class="rounded-xl px-4 py-2 text-sm font-medium text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900">Our Story</a>
-                    <a href="{{ route('support') }}" class="rounded-xl px-4 py-2 text-sm font-medium text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900">Support</a>
+                    <a href="{{ route('shop') }}" class="site-header-link rounded-xl px-4 py-2 text-sm font-medium transition-colors duration-200 hover:bg-white/10 hover:text-white">Shop</a>
+                    <a href="{{ route('about') }}" class="site-header-link rounded-xl px-4 py-2 text-sm font-medium transition-colors duration-200 hover:bg-white/10 hover:text-white">Our Story</a>
+                    <a href="{{ route('support') }}" class="site-header-link rounded-xl px-4 py-2 text-sm font-medium transition-colors duration-200 hover:bg-white/10 hover:text-white">Support</a>
                 @endforelse
             </nav>
 
             {{-- Actions --}}
             <div class="flex items-center gap-0.5 sm:gap-1">
                 <button type="button" data-search-toggle aria-expanded="false" aria-controls="search-panel" aria-label="Search products"
-                        class="flex size-10 items-center justify-center rounded-xl text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900">
+                        class="site-header-icon flex size-10 items-center justify-center rounded-xl transition-colors duration-200 hover:bg-white/10 hover:text-white">
                     <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
                         <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
                     </svg>
                 </button>
                 <a href="{{ route('wishlist') }}" data-wishlist-link aria-label="Wishlist, {{ $wishlistItemCount ?? 0 }} {{ ($wishlistItemCount ?? 0) === 1 ? 'item' : 'items' }}"
-                   class="relative hidden size-10 items-center justify-center rounded-xl text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900 sm:flex">
+                   class="site-header-icon relative hidden size-10 items-center justify-center rounded-xl transition-colors duration-200 hover:bg-white/10 hover:text-white sm:flex">
                     <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M12 21s-7.5-4.7-9.5-9A5.5 5.5 0 0 1 12 6.5 5.5 5.5 0 0 1 21.5 12c-2 4.3-9.5 9-9.5 9Z"/>
                     </svg>
                     <span data-wishlist-count @class(['absolute -top-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-bronze-500 text-[0.65rem] font-bold text-white', 'hidden' => ($wishlistItemCount ?? 0) <= 0])>{{ $wishlistItemCount ?? 0 }}</span>
                 </a>
                 <a href="{{ route('compare') }}" aria-label="Compare products, 3 items"
-                   class="relative hidden size-10 items-center justify-center rounded-xl text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900 lg:flex">
+                   class="site-header-icon relative hidden size-10 items-center justify-center rounded-xl transition-colors duration-200 hover:bg-white/10 hover:text-white lg:flex">
                     <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/>
                     </svg>
                     <span class="absolute -top-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-olive-600 text-[0.65rem] font-bold text-white">3</span>
                 </a>
                 <a href="{{ session('customer_id') ? route('account') : route('login') }}" aria-label="{{ session('customer_id') ? 'Account' : 'Sign in' }}"
-                   class="hidden size-10 items-center justify-center rounded-xl text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900 sm:flex">
+                   class="site-header-icon hidden size-10 items-center justify-center rounded-xl transition-colors duration-200 hover:bg-white/10 hover:text-white sm:flex">
                     <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
                         <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/>
                     </svg>
                 </a>
                 <a href="{{ route('cart') }}" data-cart-link aria-label="Cart, {{ $cartItemCount ?? 0 }} {{ ($cartItemCount ?? 0) === 1 ? 'item' : 'items' }}"
-                   class="relative flex size-10 items-center justify-center rounded-xl text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900">
+                   class="site-header-icon relative flex size-10 items-center justify-center rounded-xl transition-colors duration-200 hover:bg-white/10 hover:text-white">
                     <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/>
                     </svg>
@@ -200,7 +200,7 @@
 
                 {{-- Mobile menu toggle --}}
                 <button type="button" data-nav-toggle aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu"
-                        class="flex size-10 items-center justify-center rounded-xl text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900 lg:hidden">
+                        class="site-header-icon flex size-10 items-center justify-center rounded-xl transition-colors duration-200 hover:bg-white/10 hover:text-white lg:hidden">
                     <svg data-icon-open class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
                         <path d="M4 7h16M4 12h16M4 17h16"/>
                     </svg>
@@ -247,6 +247,7 @@
             <a href="{{ session('customer_id') ? route('account') : route('login') }}" class="block rounded-xl px-4 py-3 text-base font-medium text-navy-800 transition-colors duration-200 hover:bg-navy-900/5">{{ session('customer_id') ? 'Account' : 'Sign in' }}</a>
         </nav>
     </header>
+    </div>
     @endif
 
     <main id="main-content">
