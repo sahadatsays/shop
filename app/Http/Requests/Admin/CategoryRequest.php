@@ -35,6 +35,7 @@ abstract class CategoryRequest extends FormRequest
             'meta_description' => ['nullable', 'string', 'max:500'],
             'meta_keywords' => ['nullable', 'string', 'max:255'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:9999'],
+            'is_featured' => ['nullable', 'boolean'],
             'image' => ['nullable', 'image', 'max:2048'],
             'banner' => ['nullable', 'image', 'max:4096'],
         ];

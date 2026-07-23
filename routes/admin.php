@@ -10,15 +10,23 @@ use App\Http\Controllers\Admin\CountdownPromotionController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiscountController;
+use App\Http\Controllers\Admin\HeroBannerController;
+use App\Http\Controllers\Admin\HomepageFeatureController;
+use App\Http\Controllers\Admin\HomepageReviewController;
+use App\Http\Controllers\Admin\HomepageSettingController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MediaFolderController;
+use App\Http\Controllers\Admin\MenuController;
+use App\Http\Controllers\Admin\MenuItemController;
+use App\Http\Controllers\Admin\NewsletterSubscriberController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\PermissionMatrixController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\PromoBannerController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SaleProductController;
 use App\Http\Controllers\Admin\StoreSettingsController;
@@ -102,6 +110,28 @@ Route::middleware('admin.permission:permissions.view')->group(function (): void 
 
 Route::middleware('admin.permission:discounts.view')->group(function (): void {
     Route::resource('discounts', DiscountController::class)->except(['show']);
+});
+
+Route::middleware('admin.permission:homepage.view')->prefix('homepage')->name('homepage.')->group(function (): void {
+    Route::get('settings', [HomepageSettingController::class, 'edit'])->name('settings.edit');
+    Route::put('settings', [HomepageSettingController::class, 'update'])
+        ->middleware('admin.permission:homepage.manage')
+        ->name('settings.update');
+
+    Route::resource('hero-banners', HeroBannerController::class)->except(['show']);
+    Route::resource('promo-banners', PromoBannerController::class)->except(['show']);
+    Route::resource('features', HomepageFeatureController::class)
+        ->parameters(['features' => 'feature'])
+        ->except(['show']);
+    Route::resource('reviews', HomepageReviewController::class)->except(['show']);
+
+    Route::resource('menus', MenuController::class)->only(['index', 'edit']);
+    Route::resource('menus.items', MenuItemController::class)
+        ->parameters(['menus' => 'menu', 'items' => 'menuItem'])
+        ->except(['show', 'index']);
+
+    Route::get('newsletter-subscribers', [NewsletterSubscriberController::class, 'index'])
+        ->name('newsletter-subscribers.index');
 });
 
 Route::middleware('admin.permission:offers.view')->group(function (): void {

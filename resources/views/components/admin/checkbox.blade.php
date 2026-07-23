@@ -1,6 +1,7 @@
 @props([
     'label',
     'name',
+    'value' => '1',
     'checked' => false,
     'help' => null,
 ])
@@ -14,8 +15,8 @@
         <input
             type="checkbox"
             name="{{ $name }}"
-            value="1"
-            @checked(old($name, $checked))
+            value="{{ $value }}"
+            @checked(is_array(old(str_replace('[]', '', $name))) ? in_array($value, old(str_replace('[]', '', $name), []), true) : old($name, $checked))
             class="mt-0.5 size-4 rounded border admin-border text-admin-accent admin-focus-ring"
         >
         <span>

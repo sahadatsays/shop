@@ -101,6 +101,7 @@ class CategoryService
             'meta_description' => $data['meta_description'] ?? null,
             'meta_keywords' => $data['meta_keywords'] ?? null,
             'sort_order' => (int) ($data['sort_order'] ?? 0),
+            'is_featured' => (bool) ($data['is_featured'] ?? false),
         ];
     }
 

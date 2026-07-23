@@ -60,6 +60,13 @@ class NavRegistry
                 label: 'Content',
                 icon: 'M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2Z',
                 children: [
+                    new NavItem(label: 'Homepage settings', route: 'admin.homepage.settings.edit', routePrefix: 'admin.homepage.settings.', permission: 'homepage.view'),
+                    new NavItem(label: 'Hero banners', route: 'admin.homepage.hero-banners.index', routePrefix: 'admin.homepage.hero-banners.', permission: 'homepage.view'),
+                    new NavItem(label: 'Promo banners', route: 'admin.homepage.promo-banners.index', routePrefix: 'admin.homepage.promo-banners.', permission: 'homepage.view'),
+                    new NavItem(label: 'Why shop features', route: 'admin.homepage.features.index', routePrefix: 'admin.homepage.features.', permission: 'homepage.view'),
+                    new NavItem(label: 'Menus', route: 'admin.homepage.menus.index', routePrefix: 'admin.homepage.menus.', permission: 'homepage.view'),
+                    new NavItem(label: 'Homepage reviews', route: 'admin.homepage.reviews.index', routePrefix: 'admin.homepage.reviews.', permission: 'homepage.view'),
+                    new NavItem(label: 'Newsletter subscribers', route: 'admin.homepage.newsletter-subscribers.index', routePrefix: 'admin.homepage.newsletter-subscribers.', permission: 'homepage.view'),
                     new NavItem(label: 'Media library', route: 'admin.media.index', routePrefix: 'admin.media.', permission: 'media.view'),
                 ],
             ),

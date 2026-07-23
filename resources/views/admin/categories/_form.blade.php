@@ -85,6 +85,14 @@
                         placeholder="0"
                         help="Lower numbers appear first."
                     />
+
+                    <x-admin.checkbox
+                        label="Featured category"
+                        name="is_featured"
+                        :checked="(bool) old('is_featured', $category?->is_featured)"
+                        help="Featured categories appear in the homepage Shop by Category section."
+                        class="sm:col-span-2"
+                    />
                 </div>
             </x-admin.form-card>
 
