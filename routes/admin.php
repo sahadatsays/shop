@@ -1,16 +1,22 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\BannerPromotionController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CollectionController;
+use App\Http\Controllers\Admin\CountdownPromotionController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\PermissionMatrixController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SaleProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('logout', [AuthController::class, 'destroy'])->name('logout');
@@ -87,4 +93,32 @@ Route::middleware('admin.permission:permissions.view')->group(function (): void 
     Route::delete('permissions/{permission}', [PermissionController::class, 'destroy'])
         ->middleware('admin.permission:permissions.manage')
         ->name('permissions.destroy');
+});
+
+Route::middleware('admin.permission:discounts.view')->group(function (): void {
+    Route::resource('discounts', DiscountController::class)->except(['show']);
+});
+
+Route::middleware('admin.permission:offers.view')->group(function (): void {
+    Route::resource('offers', OfferController::class);
+});
+
+Route::middleware('admin.permission:sale-products.view')->group(function (): void {
+    Route::get('sale-products', [SaleProductController::class, 'index'])->name('sale-products.index');
+    Route::patch('sale-products/{product}', [SaleProductController::class, 'update'])
+        ->middleware('admin.permission:sale-products.manage')
+        ->name('sale-products.update');
+});
+
+Route::middleware('admin.permission:collections.view')->group(function (): void {
+    Route::resource('collections', CollectionController::class);
+});
+
+Route::middleware('admin.permission:promotions.view')->group(function (): void {
+    Route::resource('banner-promotions', BannerPromotionController::class)
+        ->parameters(['banner-promotions' => 'promotion'])
+        ->except(['show']);
+    Route::resource('countdown-promotions', CountdownPromotionController::class)
+        ->parameters(['countdown-promotions' => 'promotion'])
+        ->except(['show']);
 });

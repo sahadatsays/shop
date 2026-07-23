@@ -25,7 +25,7 @@ class NavRegistry
                     new NavItem(label: 'Products', route: 'admin.products.index', routePrefix: 'admin.products.', permission: 'products.view'),
                     new NavItem(label: 'Categories', route: 'admin.categories.index', routePrefix: 'admin.categories.', permission: 'categories.view'),
                     new NavItem(label: 'Brands', route: 'admin.brands.index', routePrefix: 'admin.brands.', permission: 'brands.view'),
-                    new NavItem(label: 'Collections', disabled: true),
+                    new NavItem(label: 'Collections', route: 'admin.collections.index', routePrefix: 'admin.collections.', permission: 'collections.view'),
                     new NavItem(label: 'Inventory', route: 'admin.inventory.index', routePrefix: 'admin.inventory.', permission: 'inventory.view'),
                 ],
             ),
@@ -64,7 +64,14 @@ class NavRegistry
             new NavItem(
                 label: 'Engagement',
                 icon: 'M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6M10 19a2 2 0 0 0 4 0',
-                disabled: true,
+                children: [
+                    new NavItem(label: 'Offers', route: 'admin.offers.index', routePrefix: 'admin.offers.', permission: 'offers.view'),
+                    new NavItem(label: 'Discounts', route: 'admin.discounts.index', routePrefix: 'admin.discounts.', permission: 'discounts.view'),
+                    new NavItem(label: 'Sale products', route: 'admin.sale-products.index', routePrefix: 'admin.sale-products.', permission: 'sale-products.view'),
+                    new NavItem(label: 'Collections', route: 'admin.collections.index', routePrefix: 'admin.collections.', permission: 'collections.view'),
+                    new NavItem(label: 'Banner promotions', route: 'admin.banner-promotions.index', routePrefix: 'admin.banner-promotions.', permission: 'promotions.view'),
+                    new NavItem(label: 'Countdown promotions', route: 'admin.countdown-promotions.index', routePrefix: 'admin.countdown-promotions.', permission: 'promotions.view'),
+                ],
             ),
             new NavItem(
                 label: 'Insights',

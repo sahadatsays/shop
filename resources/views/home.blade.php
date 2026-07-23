@@ -1,10 +1,9 @@
 @php
-    $bestSellers = [
-        ['name' => 'Ranger Field Jacket', 'category' => 'Apparel', 'price' => '$189.00', 'oldPrice' => '$249.00', 'badge' => '-24%', 'badgeVariant' => 'danger', 'rating' => 4.8, 'reviews' => 132, 'stock' => 'Only 14 left — order soon', 'stockPercent' => 18, 'image' => 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&q=70&auto=format&fit=crop'],
-        ['name' => 'Patriot Canvas Rucksack', 'category' => 'Outdoor Gear', 'price' => '$149.00', 'oldPrice' => null, 'badge' => 'Best seller', 'badgeVariant' => 'bronze', 'rating' => 4.9, 'reviews' => 87, 'stock' => 'In stock', 'stockPercent' => null, 'image' => 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=70&auto=format&fit=crop'],
-        ['name' => 'Sentinel Field Watch', 'category' => 'Everyday Carry', 'price' => '$229.00', 'oldPrice' => '$279.00', 'badge' => '-18%', 'badgeVariant' => 'danger', 'rating' => 4.7, 'reviews' => 64, 'stock' => 'In stock', 'stockPercent' => null, 'image' => 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&q=70&auto=format&fit=crop'],
-        ['name' => 'Honor EDC Kit', 'category' => 'Everyday Carry', 'price' => '$96.00', 'oldPrice' => null, 'badge' => 'New', 'badgeVariant' => 'olive', 'rating' => 4.6, 'reviews' => 41, 'stock' => 'Only 9 left — order soon', 'stockPercent' => 12, 'image' => 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=800&q=70&auto=format&fit=crop'],
-    ];
+    $heroHeadline = $heroBanner?->headline ?? 'Honor in every stitch and seam.';
+    $heroSubheadline = $heroBanner?->subheadline ?? 'Premium apparel, collectibles, and field gear designed by veterans who hold their products to the same standard they held their service.';
+    $heroCtaLabel = $heroBanner?->cta_label ?? 'Shop best sellers';
+    $heroCtaUrl = $heroBanner?->cta_url ?? '#best-sellers';
+    $heroImage = $heroBanner?->imageUrl() ?? 'https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=2000&q=75&auto=format&fit=crop';
 
     $limitedEdition = [
         ['name' => "Founder's Challenge Coin — No. 001 Series", 'price' => '$65.00', 'made' => 'Individually numbered, 500 minted', 'image' => 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&q=70&auto=format&fit=crop'],
@@ -35,7 +34,7 @@
     {{-- ============ Hero ============ --}}
     <section class="relative flex min-h-[85vh] items-center overflow-hidden bg-navy-950">
         <div class="absolute inset-0" aria-hidden="true">
-            <img src="https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=2000&q=75&auto=format&fit=crop"
+            <img src="{{ $heroImage }}"
                  alt="" fetchpriority="high"
                  class="size-full animate-slow-zoom object-cover opacity-60 will-change-transform">
             <div class="absolute inset-0 bg-linear-to-r from-navy-950 via-navy-950/70 to-navy-950/20"></div>
@@ -52,18 +51,16 @@
                 </x-ui.badge>
 
                 <h1 class="font-display text-4xl font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl">
-                    Honor in every<br>
-                    <span class="text-bronze-400">stitch and seam.</span>
+                    {{ $heroHeadline }}
                 </h1>
 
                 <p class="mt-6 max-w-xl text-lg leading-relaxed text-navy-200">
-                    Premium apparel, collectibles, and field gear designed by veterans who
-                    hold their products to the same standard they held their service.
+                    {{ $heroSubheadline }}
                 </p>
 
                 <div class="mt-10 flex flex-wrap items-center gap-4">
-                    <x-ui.button href="#best-sellers" variant="accent" size="lg">
-                        Shop best sellers
+                    <x-ui.button :href="$heroCtaUrl" variant="accent" size="lg">
+                        {{ $heroCtaLabel }}
                         <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M5 12h14m-6-6 6 6-6 6"/>
                         </svg>
@@ -86,6 +83,30 @@
             </div>
         </div>
     </section>
+
+    @if ($countdownPromotion)
+        <section class="border-b border-bronze-500/20 bg-navy-900" data-reveal>
+            <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-4 py-8 sm:flex-row sm:px-6 lg:px-8">
+                <div class="text-center sm:text-left">
+                    <p class="text-sm font-semibold tracking-widest text-bronze-400 uppercase">Limited time</p>
+                    <h2 class="mt-1 font-display text-xl font-bold text-white sm:text-2xl">{{ $countdownPromotion->headline }}</h2>
+                    @if ($countdownPromotion->subheadline)
+                        <p class="mt-2 text-sm text-navy-300">{{ $countdownPromotion->subheadline }}</p>
+                    @endif
+                </div>
+
+                <div class="flex flex-col items-center gap-4 sm:flex-row">
+                    <x-ui.countdown :ends-at="$countdownPromotion->ends_at" />
+
+                    @if ($countdownPromotion->cta_label && $countdownPromotion->cta_url)
+                        <x-ui.button :href="$countdownPromotion->cta_url" variant="accent" size="sm">
+                            {{ $countdownPromotion->cta_label }}
+                        </x-ui.button>
+                    @endif
+                </div>
+            </div>
+        </section>
+    @endif
 
     {{-- ============ Shop by category ============ --}}
     <section class="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28" data-reveal>
@@ -134,25 +155,47 @@
             />
 
             <div class="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-3">
-                @foreach ([
-                    ['name' => 'The Expedition Collection', 'desc' => 'Packs, layers, and tools for the backcountry', 'cta' => 'Explore expedition', 'image' => 'https://images.unsplash.com/photo-1501554728187-ce583db33af7?w=900&q=70&auto=format&fit=crop', 'alt' => 'Hiker overlooking a mountain valley', 'tall' => true],
-                    ['name' => 'Heritage Apparel', 'desc' => 'Garment-dyed classics, built to break in', 'cta' => 'Shop apparel', 'image' => 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=900&q=70&auto=format&fit=crop', 'alt' => 'Neatly folded garment-dyed apparel', 'tall' => false],
-                    ['name' => 'Trail Ready', 'desc' => 'Boots and gear proven on hard miles', 'cta' => 'Gear up', 'image' => 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=900&q=70&auto=format&fit=crop', 'alt' => 'Well-worn hiking boots on a trail', 'tall' => false],
-                ] as $collection)
-                    <a href="#" class="group relative flex min-h-96 flex-col justify-end overflow-hidden rounded-card shadow-card transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-card-hover">
-                        <img src="{{ $collection['image'] }}" alt="{{ $collection['alt'] }}" loading="lazy"
+                @forelse ($featuredCollections as $index => $collection)
+                    @php
+                        $collectionImage = $collection->bannerUrl()
+                            ?? $collection->imageUrl()
+                            ?? 'https://images.unsplash.com/photo-1501554728187-ce583db33af7?w=900&q=70&auto=format&fit=crop';
+                    @endphp
+                    <a href="{{ route('collections.show', $collection) }}" @class([
+                        'group relative flex min-h-96 flex-col justify-end overflow-hidden rounded-card shadow-card transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-card-hover',
+                        'lg:row-span-2 lg:min-h-[42rem]' => $index === 0,
+                    ])>
+                        <img src="{{ $collectionImage }}" alt="{{ $collection->name }}" loading="lazy"
                              class="absolute inset-0 size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105">
                         <span class="absolute inset-0 bg-linear-to-t from-navy-950/85 via-navy-950/25 to-transparent" aria-hidden="true"></span>
                         <span class="relative p-8">
-                            <span class="block font-display text-2xl font-bold text-white">{{ $collection['name'] }}</span>
-                            <span class="mt-2 block text-sm text-navy-200">{{ $collection['desc'] }}</span>
+                            <span class="block font-display text-2xl font-bold text-white">{{ $collection->name }}</span>
+                            @if ($collection->description)
+                                <span class="mt-2 block text-sm text-navy-200">{{ $collection->description }}</span>
+                            @endif
                             <span class="mt-5 inline-flex items-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-colors duration-300 group-hover:bg-bronze-500">
-                                {{ $collection['cta'] }}
+                                Explore collection
                                 <svg class="size-4 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
                             </span>
                         </span>
                     </a>
-                @endforeach
+                @empty
+                    @foreach ([
+                        ['name' => 'The Expedition Collection', 'desc' => 'Packs, layers, and tools for the backcountry', 'image' => 'https://images.unsplash.com/photo-1501554728187-ce583db33af7?w=900&q=70&auto=format&fit=crop'],
+                        ['name' => 'Heritage Apparel', 'desc' => 'Garment-dyed classics, built to break in', 'image' => 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=900&q=70&auto=format&fit=crop'],
+                        ['name' => 'Trail Ready', 'desc' => 'Boots and gear proven on hard miles', 'image' => 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=900&q=70&auto=format&fit=crop'],
+                    ] as $collection)
+                        <a href="{{ route('shop') }}" class="group relative flex min-h-96 flex-col justify-end overflow-hidden rounded-card shadow-card transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-card-hover">
+                            <img src="{{ $collection['image'] }}" alt="{{ $collection['name'] }}" loading="lazy"
+                                 class="absolute inset-0 size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105">
+                            <span class="absolute inset-0 bg-linear-to-t from-navy-950/85 via-navy-950/25 to-transparent" aria-hidden="true"></span>
+                            <span class="relative p-8">
+                                <span class="block font-display text-2xl font-bold text-white">{{ $collection['name'] }}</span>
+                                <span class="mt-2 block text-sm text-navy-200">{{ $collection['desc'] }}</span>
+                            </span>
+                        </a>
+                    @endforeach
+                @endforelse
             </div>
         </div>
     </section>
@@ -170,22 +213,28 @@
         </div>
 
         <div class="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            @foreach ($bestSellers as $product)
+            @forelse ($bestSellers as $product)
+                @php
+                    $badge = $product->shopBadge();
+                @endphp
                 <x-ui.product-card
-                    :name="$product['name']"
-                    :category="$product['category']"
-                    :price="$product['price']"
-                    :old-price="$product['oldPrice']"
-                    :badge="$product['badge']"
-                    :badge-variant="$product['badgeVariant']"
-                    :rating="$product['rating']"
-                    :reviews="$product['reviews']"
-                    :stock="$product['stock']"
-                    :stock-percent="$product['stockPercent']"
-                    :image="$product['image']"
-                    :href="route('product.show')"
+                    :name="$product->name"
+                    :category="$product->category?->name"
+                    :price="$product->formattedPrice()"
+                    :old-price="$product->isOnSale() ? $product->formattedCompareAtPrice() : null"
+                    :badge="$badge['badge']"
+                    :badge-variant="$badge['variant']"
+                    :rating="$product->placeholderRating()"
+                    :reviews="$product->placeholderReviewCount()"
+                    :stock="$product->shopStockLabel()"
+                    :stock-percent="$product->shopStockPercent()"
+                    :image="$product->primaryImageUrl()"
+                    :href="route('product.show', $product)"
+                    :product-id="$product->id"
                 />
-            @endforeach
+            @empty
+                <p class="col-span-full text-center text-navy-600">Featured products will appear here once published.</p>
+            @endforelse
         </div>
     </section>
 

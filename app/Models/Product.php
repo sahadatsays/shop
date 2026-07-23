@@ -86,6 +86,24 @@ class Product extends Model
     }
 
     /**
+     * @return BelongsToMany<Offer, $this>
+     */
+    public function offers(): BelongsToMany
+    {
+        return $this->belongsToMany(Offer::class)
+            ->withPivot(['sale_price_cents', 'sort_order']);
+    }
+
+    /**
+     * @return BelongsToMany<Collection, $this>
+     */
+    public function collections(): BelongsToMany
+    {
+        return $this->belongsToMany(\App\Models\Collection::class)
+            ->withPivot('sort_order');
+    }
+
+    /**
      * @return HasMany<ProductImage, $this>
      */
     public function images(): HasMany

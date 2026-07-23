@@ -83,7 +83,7 @@ test('shop filters on sale products', function (): void {
         'compare_at_price_cents' => 8000,
     ]);
 
-    $this->get(route('shop', ['on_sale' => 1]))
+    $this->get(route('shop', ['on_sale' => 1, 'search' => $product->name]))
         ->assertSuccessful()
         ->assertSee($product->name);
 });

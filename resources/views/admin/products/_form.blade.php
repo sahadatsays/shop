@@ -1,6 +1,7 @@
 @php
     $product = $form->product;
     $price = old('price', $product ? number_format($product->price_cents / 100, 2, '.', '') : '');
+    $compareAtPrice = old('compare_at_price', $product && $product->compare_at_price_cents ? number_format($product->compare_at_price_cents / 100, 2, '.', '') : '');
     $specifications = old('specifications', $product?->specifications->map(fn ($s) => ['name' => $s->name, 'value' => $s->value])->values()->all() ?? [['name' => '', 'value' => '']]);
     $attributes = old('attributes', $product?->attributes->map(fn ($a) => ['name' => $a->name, 'value' => $a->value])->values()->all() ?? [['name' => '', 'value' => '']]);
     $relatedIds = old('related_product_ids', $product?->relatedProducts->pluck('id')->all() ?? []);
@@ -114,6 +115,17 @@
                         placeholder="49.99"
                         help="Retail price in USD."
                         required
+                    />
+
+                    <x-admin.input
+                        label="Compare-at price"
+                        name="compare_at_price"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        :value="$compareAtPrice"
+                        placeholder="79.99"
+                        help="Original price shown struck through when higher than retail price."
                     />
 
                     <x-admin.input

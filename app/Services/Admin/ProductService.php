@@ -119,6 +119,9 @@ class ProductService
             'short_description' => $data['short_description'] ?? null,
             'description' => $data['description'] ?? null,
             'price_cents' => $this->priceToCents($data['price']),
+            'compare_at_price_cents' => filled($data['compare_at_price'] ?? null)
+                ? $this->priceToCents($data['compare_at_price'])
+                : null,
             'stock_quantity' => (int) ($data['stock_quantity'] ?? 0),
             'low_stock_threshold' => (int) ($data['low_stock_threshold'] ?? 10),
             'status' => $data['status'],

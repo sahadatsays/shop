@@ -44,6 +44,7 @@ abstract class ProductRequest extends FormRequest
             'short_description' => ['nullable', 'string', 'max:500'],
             'description' => ['nullable', 'string', 'max:10000'],
             'price' => ['required', 'numeric', 'min:0', 'max:999999.99'],
+            'compare_at_price' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
             'stock_quantity' => ['required', 'integer', 'min:0', 'max:999999'],
             'low_stock_threshold' => ['nullable', 'integer', 'min:0', 'max:9999'],
             'status' => ['required', Rule::enum(ProductStatus::class)],
