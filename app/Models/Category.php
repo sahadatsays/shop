@@ -28,6 +28,7 @@ class Category extends Model
         'image_path',
         'banner_path',
         'status',
+        'is_featured',
         'meta_title',
         'meta_description',
         'meta_keywords',
@@ -41,6 +42,7 @@ class Category extends Model
     {
         return [
             'status' => CategoryStatus::class,
+            'is_featured' => 'boolean',
             'sort_order' => 'integer',
         ];
     }
@@ -106,6 +108,15 @@ class Category extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('status', CategoryStatus::Active);
+    }
+
+    /**
+     * @param  Builder<Category>  $query
+     * @return Builder<Category>
+     */
+    public function scopeFeatured(Builder $query): Builder
+    {
+        return $query->where('is_featured', true);
     }
 
     /**

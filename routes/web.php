@@ -11,8 +11,10 @@ use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\CustomerRegistrationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SocialAuthController;
+use App\Http\Controllers\SubscribeNewsletterController;
 use App\Http\Controllers\TrackOrderController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
@@ -21,7 +23,11 @@ Route::get('/', HomeController::class)->name('home');
 Route::get('/collections/{collection:slug}', [CollectionController::class, 'show'])->name('collections.show');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 Route::view('/categories', 'categories')->name('categories');
-Route::view('/search', 'search')->name('search');
+Route::get('/search', [SearchController::class, 'index'])->name('search');
+Route::get('/search/suggest', [SearchController::class, 'suggest'])->name('search.suggest');
+Route::post('/newsletter', SubscribeNewsletterController::class)
+    ->middleware('throttle:6,1')
+    ->name('newsletter.subscribe');
 
 Route::get('/products/{product:slug?}', [ProductController::class, 'show'])->name('product.show');
 

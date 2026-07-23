@@ -152,11 +152,9 @@ export const initSearchPage = () => {
         });
     });
 
-    /* ---- Form submit: filter in place, remember the term ---- */
+    /* ---- Form submit: remember the term, then let the browser navigate ---- */
 
-    document.querySelector('[data-search-form]')?.addEventListener('submit', (event) => {
-        event.preventDefault();
-        applyFilters();
+    document.querySelector('[data-search-form]')?.addEventListener('submit', () => {
         saveRecent(input.value);
     });
 

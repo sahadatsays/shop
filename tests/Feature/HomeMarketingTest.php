@@ -2,6 +2,7 @@
 
 use App\Models\Collection;
 use Database\Seeders\CommerceSeeder;
+use Database\Seeders\HomepageSeeder;
 use Database\Seeders\MarketingSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -10,6 +11,7 @@ uses(RefreshDatabase::class);
 beforeEach(function (): void {
     $this->seed(CommerceSeeder::class);
     $this->seed(MarketingSeeder::class);
+    $this->seed(HomepageSeeder::class);
 });
 
 test('home page renders seeded hero banner and countdown promotion', function (): void {

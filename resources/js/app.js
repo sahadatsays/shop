@@ -14,6 +14,8 @@ import { initLoginPage } from './login-page';
 import { initRegisterPage } from './register-page';
 import { initForgotPasswordPage } from './forgot-password-page';
 import { initResetPasswordPage } from './reset-password-page';
+import { initHeroSlider } from './hero-slider';
+import { initNewsletterForm } from './newsletter';
 import { initNotificationsPage } from './notifications-page';
 import { initSupportPage } from './support-page';
 import { initAboutPage } from './about-page';
@@ -57,6 +59,12 @@ const initSearchPanel = () => {
         return;
     }
 
+    const suggestions = document.createElement('div');
+    suggestions.dataset.searchSuggestions = '';
+    suggestions.hidden = true;
+    suggestions.className = 'mx-auto max-w-3xl px-4 pb-4 sm:px-6';
+    panel.append(suggestions);
+
     const setOpen = (open) => {
         panel.hidden = !open;
         toggle.setAttribute('aria-expanded', String(open));
@@ -73,6 +81,54 @@ const initSearchPanel = () => {
             setOpen(false);
             toggle.focus();
         }
+    });
+
+    let debounce = null;
+
+    input?.addEventListener('input', () => {
+        clearTimeout(debounce);
+        const query = input.value.trim();
+
+        if (query.length < 2) {
+            suggestions.hidden = true;
+            suggestions.innerHTML = '';
+            return;
+        }
+
+        debounce = setTimeout(async () => {
+            try {
+                const response = await fetch(`/search/suggest?q=${encodeURIComponent(query)}`, {
+                    headers: { Accept: 'application/json' },
+                });
+                const payload = await response.json();
+                const products = payload.products ?? [];
+
+                if (products.length === 0) {
+                    suggestions.hidden = true;
+                    suggestions.innerHTML = '';
+                    return;
+                }
+
+                suggestions.innerHTML = `
+                    <ul class="divide-y divide-navy-100 overflow-hidden rounded-xl border border-navy-100 bg-surface shadow-soft">
+                        ${products.map((product) => `
+                            <li>
+                                <a href="${product.url}" class="flex items-center gap-3 px-4 py-3 text-left transition hover:bg-navy-50">
+                                    ${product.image ? `<img src="${product.image}" alt="" class="size-10 rounded-lg object-cover" loading="lazy">` : ''}
+                                    <span>
+                                        <span class="block text-sm font-semibold text-navy-900">${product.name}</span>
+                                        <span class="block text-xs text-navy-500">${product.category ?? ''} · ${product.price}</span>
+                                    </span>
+                                </a>
+                            </li>
+                        `).join('')}
+                    </ul>
+                `;
+                suggestions.hidden = false;
+            } catch {
+                suggestions.hidden = true;
+            }
+        }, 220);
     });
 };
 
@@ -231,10 +287,13 @@ const initWishlistToggle = () => {
 };
 
 initWishlistToggle();
+initMobileNav();
 initSearchPanel();
 initCarousels();
 initHeaderElevation();
 initRevealOnScroll();
+initHeroSlider();
+initNewsletterForm();
 initProductPage();
 initShopPage();
 initSearchPage();

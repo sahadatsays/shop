@@ -106,60 +106,60 @@
 
             {{-- Desktop navigation --}}
             <nav class="hidden items-center gap-1 lg:flex" aria-label="Main navigation">
-                {{-- Mega menu --}}
-                <div class="group/mega">
-                    <button type="button" aria-haspopup="true"
-                            class="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-medium text-navy-700 transition-colors duration-200 group-focus-within/mega:bg-navy-900/5 group-hover/mega:bg-navy-900/5 group-hover/mega:text-navy-900 hover:bg-navy-900/5 hover:text-navy-900">
-                        Shop
-                        <svg class="size-3.5 transition-transform duration-200 group-hover/mega:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-                    </button>
+                @forelse ($primaryMenuItems ?? [] as $menuItem)
+                    @if ($menuItem->children->isNotEmpty())
+                        <div class="group/mega">
+                            <button type="button" aria-haspopup="true" aria-expanded="false"
+                                    class="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-medium transition-colors duration-200 group-focus-within/mega:bg-navy-900/5 group-hover/mega:bg-navy-900/5 group-hover/mega:text-navy-900 hover:bg-navy-900/5 hover:text-navy-900 {{ $menuItem->isActiveRoute() ? 'bg-navy-900/5 text-navy-900' : 'text-navy-700' }}">
+                                {{ $menuItem->label }}
+                                <svg class="size-3.5 transition-transform duration-200 group-hover/mega:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                            </button>
 
-                    <div class="invisible absolute inset-x-0 top-full translate-y-2 pt-2 opacity-0 transition-all duration-200 ease-out group-focus-within/mega:visible group-focus-within/mega:translate-y-0 group-focus-within/mega:opacity-100 group-hover/mega:visible group-hover/mega:translate-y-0 group-hover/mega:opacity-100">
-                        <div class="mx-auto max-w-7xl overflow-hidden rounded-b-card bg-surface shadow-card-hover ring-1 ring-navy-900/5">
-                            <div class="grid grid-cols-3 gap-0">
-                                <div class="col-span-2 grid grid-cols-2 gap-1 p-8">
-                                    @foreach ([
-                                        ['name' => 'Apparel', 'desc' => 'Jackets, tees & headwear', 'icon' => 'M16 3l5 3-2 5-2-1v10a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V10l-2 1-2-5 5-3a4 4 0 0 0 8 0Z'],
-                                        ['name' => 'Military Collectibles', 'desc' => 'Medals, patches & memorabilia', 'icon' => 'M12 15a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 0 2.5 6.5L12 20l-2.5 1.5L12 15Z'],
-                                        ['name' => 'Outdoor Gear', 'desc' => 'Packs, tools & field equipment', 'icon' => 'M12 3 3 20h18L12 3Zm0 5 5 9H7l5-9Z'],
-                                        ['name' => 'Flags', 'desc' => 'Stitched & embroidered colors', 'icon' => 'M5 3v18M5 4h13l-2.5 4L18 12H5'],
-                                        ['name' => 'Challenge Coins', 'desc' => 'Unit & commemorative coins', 'icon' => 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-4a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z'],
-                                        ['name' => 'Books', 'desc' => 'History, memoirs & field guides', 'icon' => 'M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4Zm0 13h14M9 8h6'],
-                                        ['name' => 'Accessories', 'desc' => 'Wallets, watches & EDC', 'icon' => 'M12 8a4 4 0 0 1 4 4v0a4 4 0 0 1-8 0v0a4 4 0 0 1 4-4Zm-2-5h4l1 5H9l1-5Zm0 18h4l1-5H9l1 5Z'],
-                                        ['name' => 'Home Decor', 'desc' => 'Prints, signs & barware', 'icon' => 'M3 11 12 3l9 8M6 10v10h12V10'],
-                                    ] as $category)
-                                        <a href="{{ route('shop') }}" class="group/item flex items-start gap-4 rounded-xl p-4 transition-colors duration-200 hover:bg-navy-50">
-                                            <span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-olive-100 text-olive-700 transition-colors duration-200 group-hover/item:bg-olive-600 group-hover/item:text-white">
-                                                <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ $category['icon'] }}"/></svg>
-                                            </span>
-                                            <span>
-                                                <span class="block text-sm font-semibold text-navy-900">{{ $category['name'] }}</span>
-                                                <span class="mt-0.5 block text-xs text-navy-500">{{ $category['desc'] }}</span>
+                            <div class="invisible absolute inset-x-0 top-full translate-y-2 pt-2 opacity-0 transition-all duration-200 ease-out group-focus-within/mega:visible group-focus-within/mega:translate-y-0 group-focus-within/mega:opacity-100 group-hover/mega:visible group-hover/mega:translate-y-0 group-hover/mega:opacity-100">
+                                <div class="mx-auto max-w-7xl overflow-hidden rounded-b-card bg-surface shadow-card-hover ring-1 ring-navy-900/5">
+                                    <div class="grid grid-cols-3 gap-0">
+                                        <div class="col-span-2 grid grid-cols-2 gap-1 p-8">
+                                            @foreach ($menuItem->children as $child)
+                                                <a href="{{ $child->resolvedUrl() }}"
+                                                   @if ($child->open_in_new_tab) target="_blank" rel="noopener noreferrer" @endif
+                                                   @if ($child->isActiveRoute()) aria-current="page" @endif
+                                                   class="group/item flex items-start gap-4 rounded-xl p-4 transition-colors duration-200 hover:bg-navy-50 {{ $child->isActiveRoute() ? 'bg-navy-50' : '' }}">
+                                                    <span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-olive-100 text-olive-700 transition-colors duration-200 group-hover/item:bg-olive-600 group-hover/item:text-white">
+                                                        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 3l9 8M6 10v10h12V10"/></svg>
+                                                    </span>
+                                                    <span>
+                                                        <span class="block text-sm font-semibold text-navy-900">{{ $child->label }}</span>
+                                                    </span>
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                        <a href="{{ route('shop') }}" class="group/feature relative m-4 overflow-hidden rounded-card">
+                                            <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=70&auto=format&fit=crop" alt="Camper van on an open road at sunset" loading="lazy"
+                                                 class="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover/feature:scale-105">
+                                            <span class="absolute inset-0 bg-linear-to-t from-navy-950/80 via-navy-950/20 to-transparent"></span>
+                                            <span class="relative flex h-full min-h-64 flex-col justify-end p-6">
+                                                <x-ui.badge variant="bronze" class="self-start">New season</x-ui.badge>
+                                                <span class="mt-3 font-display text-lg font-bold text-white">The Expedition Collection</span>
+                                                <span class="mt-1 text-sm text-navy-200">Gear for the long way home</span>
                                             </span>
                                         </a>
-                                    @endforeach
+                                    </div>
                                 </div>
-                                <a href="#" class="group/feature relative m-4 overflow-hidden rounded-card">
-                                    <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=70&auto=format&fit=crop" alt="Camper van on an open road at sunset" loading="lazy"
-                                         class="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover/feature:scale-105">
-                                    <span class="absolute inset-0 bg-linear-to-t from-navy-950/80 via-navy-950/20 to-transparent"></span>
-                                    <span class="relative flex h-full min-h-64 flex-col justify-end p-6">
-                                        <x-ui.badge variant="bronze" class="self-start">New season</x-ui.badge>
-                                        <span class="mt-3 font-display text-lg font-bold text-white">The Expedition Collection</span>
-                                        <span class="mt-1 text-sm text-navy-200">Gear for the long way home</span>
-                                    </span>
-                                </a>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                @foreach (['Categories' => route('categories'), 'Our Story' => route('about'), 'Support' => route('support')] as $label => $href)
-                    <a href="{{ $href }}"
-                       class="rounded-xl px-4 py-2 text-sm font-medium text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900">
-                        {{ $label }}
-                    </a>
-                @endforeach
+                    @else
+                        <a href="{{ $menuItem->resolvedUrl() }}"
+                           @if ($menuItem->open_in_new_tab) target="_blank" rel="noopener noreferrer" @endif
+                           @if ($menuItem->isActiveRoute()) aria-current="page" @endif
+                           class="rounded-xl px-4 py-2 text-sm font-medium transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900 {{ $menuItem->isActiveRoute() ? 'bg-navy-900/5 text-navy-900' : 'text-navy-700' }}">
+                            {{ $menuItem->label }}
+                        </a>
+                    @endif
+                @empty
+                    <a href="{{ route('shop') }}" class="rounded-xl px-4 py-2 text-sm font-medium text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900">Shop</a>
+                    <a href="{{ route('about') }}" class="rounded-xl px-4 py-2 text-sm font-medium text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900">Our Story</a>
+                    <a href="{{ route('support') }}" class="rounded-xl px-4 py-2 text-sm font-medium text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900">Support</a>
+                @endforelse
             </nav>
 
             {{-- Actions --}}
@@ -184,7 +184,7 @@
                     </svg>
                     <span class="absolute -top-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-olive-600 text-[0.65rem] font-bold text-white">3</span>
                 </a>
-                <a href="{{ route('account') }}" aria-label="Account"
+                <a href="{{ session('customer_id') ? route('account') : route('login') }}" aria-label="{{ session('customer_id') ? 'Account' : 'Sign in' }}"
                    class="hidden size-10 items-center justify-center rounded-xl text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900 sm:flex">
                     <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
                         <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/>
@@ -226,12 +226,25 @@
 
         {{-- Mobile navigation --}}
         <nav id="mobile-nav" data-mobile-nav hidden class="max-h-[70vh] overflow-y-auto border-t border-navy-900/5 px-4 pt-2 pb-4 lg:hidden" aria-label="Mobile navigation">
-            @foreach (['Shop' => route('shop'), 'Categories' => route('categories'), 'Our Story' => route('about'), 'Support' => route('support'), 'Wishlist' => route('wishlist'), 'Compare' => route('compare'), 'Account' => route('account')] as $label => $href)
-                <a href="{{ $href }}"
-                   class="block rounded-xl px-4 py-3 text-base font-medium text-navy-800 transition-colors duration-200 hover:bg-navy-900/5">
-                    {{ $label }}
+            @forelse ($primaryMenuItems ?? [] as $menuItem)
+                <a href="{{ $menuItem->resolvedUrl() }}"
+                   @if ($menuItem->open_in_new_tab) target="_blank" rel="noopener noreferrer" @endif
+                   class="block rounded-xl px-4 py-3 text-base font-medium text-navy-800 transition-colors duration-200 hover:bg-navy-900/5 {{ $menuItem->isActiveRoute() ? 'bg-navy-900/5 text-navy-900' : '' }}">
+                    {{ $menuItem->label }}
                 </a>
-            @endforeach
+                @foreach ($menuItem->children as $child)
+                    <a href="{{ $child->resolvedUrl() }}"
+                       class="block rounded-xl px-8 py-2.5 text-sm font-medium text-navy-600 transition-colors duration-200 hover:bg-navy-900/5">
+                        {{ $child->label }}
+                    </a>
+                @endforeach
+            @empty
+                @foreach (['Shop' => route('shop'), 'Categories' => route('categories'), 'Our Story' => route('about'), 'Support' => route('support')] as $label => $href)
+                    <a href="{{ $href }}" class="block rounded-xl px-4 py-3 text-base font-medium text-navy-800 transition-colors duration-200 hover:bg-navy-900/5">{{ $label }}</a>
+                @endforeach
+            @endforelse
+            <a href="{{ route('wishlist') }}" class="block rounded-xl px-4 py-3 text-base font-medium text-navy-800 transition-colors duration-200 hover:bg-navy-900/5">Wishlist</a>
+            <a href="{{ session('customer_id') ? route('account') : route('login') }}" class="block rounded-xl px-4 py-3 text-base font-medium text-navy-800 transition-colors duration-200 hover:bg-navy-900/5">{{ session('customer_id') ? 'Account' : 'Sign in' }}</a>
         </nav>
     </header>
     @endif
@@ -306,33 +319,36 @@
                     </div>
                 </div>
 
-                @foreach ([
-                    'Shop' => ['All Products', 'Apparel', 'Outdoor Gear', 'Challenge Coins', 'Flags', 'Gift Cards'],
-                    'Company' => ['Our Story', 'Veteran Owned', 'Giving Back', 'Wholesale', 'Careers', 'Press'],
-                    'Support' => ['Contact Us', 'Shipping & Returns', 'Order Tracking', 'FAQ', 'Warranty', 'Size Guides'],
-                    'Legal' => ['Privacy Policy', 'Terms of Service', 'Refund Policy', 'Accessibility'],
-                ] as $heading => $links)
-                    <nav aria-label="{{ $heading }} links">
-                        <h3 class="font-display text-sm font-semibold tracking-wide text-white uppercase">{{ $heading }}</h3>
+                @forelse ($footerMenus ?? [] as $footerMenu)
+                    <nav aria-label="{{ $footerMenu['name'] }} links">
+                        <h3 class="font-display text-sm font-semibold tracking-wide text-white uppercase">{{ $footerMenu['name'] }}</h3>
                         <ul class="mt-5 space-y-3">
-                            @foreach ($links as $link)
-                                @php
-                                    $href = match (true) {
-                                        $link === 'Contact Us' => route('contact'),
-                                        $link === 'Our Story' => route('about'),
-                                        $link === 'Order Tracking' => route('track'),
-                                        $link === 'FAQ' => route('support').'#faq',
-                                        $link === 'All Products' => route('shop'),
-                                        default => '#',
-                                    };
-                                @endphp
+                            @foreach ($footerMenu['items'] as $link)
                                 <li>
-                                    <a href="{{ $href }}" class="text-sm text-navy-300 transition-colors duration-200 hover:text-bronze-400">{{ $link }}</a>
+                                    <a href="{{ $link->resolvedUrl() }}"
+                                       @if ($link->open_in_new_tab) target="_blank" rel="noopener noreferrer" @endif
+                                       class="text-sm text-navy-300 transition-colors duration-200 hover:text-bronze-400">{{ $link->label }}</a>
                                 </li>
                             @endforeach
                         </ul>
                     </nav>
-                @endforeach
+                @empty
+                    @foreach ([
+                        'Shop' => [['All Products', route('shop')]],
+                        'Company' => [['Our Story', route('about')]],
+                        'Support' => [['Contact Us', route('contact')], ['Order Tracking', route('track')]],
+                        'Legal' => [['Privacy Policy', '#']],
+                    ] as $heading => $links)
+                        <nav aria-label="{{ $heading }} links">
+                            <h3 class="font-display text-sm font-semibold tracking-wide text-white uppercase">{{ $heading }}</h3>
+                            <ul class="mt-5 space-y-3">
+                                @foreach ($links as [$label, $href])
+                                    <li><a href="{{ $href }}" class="text-sm text-navy-300 transition-colors duration-200 hover:text-bronze-400">{{ $label }}</a></li>
+                                @endforeach
+                            </ul>
+                        </nav>
+                    @endforeach
+                @endforelse
             </div>
 
             <div class="mt-16 flex flex-col items-center justify-between gap-6 border-t border-white/10 pt-8 lg:flex-row">

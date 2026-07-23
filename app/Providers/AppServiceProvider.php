@@ -41,6 +41,7 @@ use App\View\Composers\AdminNotificationComposer;
 use App\View\Composers\CartComposer;
 use App\View\Composers\CustomerAccountComposer;
 use App\View\Composers\CustomerNotificationComposer;
+use App\View\Composers\NavigationComposer;
 use App\View\Composers\StoreSettingsComposer;
 use App\View\Composers\WishlistComposer;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -85,6 +86,7 @@ class AppServiceProvider extends ServiceProvider
         View::composer('components.layouts.app', CartComposer::class);
         View::composer('components.layouts.app', WishlistComposer::class);
         View::composer('components.layouts.app', StoreSettingsComposer::class);
+        View::composer('components.layouts.app', NavigationComposer::class);
         View::composer('components.account.sidebar', CustomerNotificationComposer::class);
         View::composer('components.account.sidebar', CustomerAccountComposer::class);
         View::composer('components.admin.notification-panel', AdminNotificationComposer::class);

@@ -26,6 +26,7 @@ class CategoryFactory extends Factory
             'name' => ucwords($name),
             'slug' => Str::slug($name),
             'status' => CategoryStatus::Active,
+            'is_featured' => false,
             'meta_title' => null,
             'meta_description' => fake()->optional()->sentence(),
             'meta_keywords' => null,
@@ -37,6 +38,13 @@ class CategoryFactory extends Factory
     {
         return $this->state(fn (): array => [
             'status' => CategoryStatus::Inactive,
+        ]);
+    }
+
+    public function featured(): static
+    {
+        return $this->state(fn (): array => [
+            'is_featured' => true,
         ]);
     }
 

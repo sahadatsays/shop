@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ProductStatus;
+use App\Support\HomepageSettings;
 use App\Support\MoneyFormatter;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -320,7 +321,7 @@ class Product extends Model
             return ['badge' => '-'.$this->discountPercent().'%', 'variant' => 'danger'];
         }
 
-        if ($this->is_new_arrival) {
+        if ($this->isNew() || $this->is_new_arrival) {
             return ['badge' => 'New', 'variant' => 'olive'];
         }
 
@@ -333,6 +334,13 @@ class Product extends Model
         }
 
         return ['badge' => null, 'variant' => 'bronze'];
+    }
+
+    public function isNew(?int $days = null): bool
+    {
+        $days ??= (int) (HomepageSettings::current()->new_badge_days ?: 30);
+
+        return $this->created_at !== null && $this->created_at->gte(now()->subDays($days));
     }
 
     public function shopStockLabel(): string

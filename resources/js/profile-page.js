@@ -138,9 +138,21 @@ export const initProfilePage = () => {
                 avatarPreview.innerHTML = `<img src="${payload.customer.avatar_url}" alt="Avatar preview" class="size-full object-cover">`;
             }
 
-            form.querySelector('#current-password')?.value = '';
-            form.querySelector('#new-password')?.value = '';
-            form.querySelector('#confirm-password')?.value = '';
+            const currentPassword = form.querySelector('#current-password');
+            const newPassword = form.querySelector('#new-password');
+            const confirmPassword = form.querySelector('#confirm-password');
+
+            if (currentPassword) {
+                currentPassword.value = '';
+            }
+
+            if (newPassword) {
+                newPassword.value = '';
+            }
+
+            if (confirmPassword) {
+                confirmPassword.value = '';
+            }
         } catch (error) {
             saveStatus.textContent = error.message;
             saveStatus.classList.remove('text-green-700');

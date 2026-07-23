@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
         $this->call(MediaSeeder::class);
         $this->call(CommerceSeeder::class);
         $this->call(MarketingSeeder::class);
+        $this->call(HomepageSeeder::class);
         $this->call(NotificationSeeder::class);
     }
 }
