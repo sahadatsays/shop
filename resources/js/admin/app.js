@@ -1,5 +1,5 @@
 import { copyTextToClipboard } from './utils/clipboard';
-import { Alpine, registerDashboardAlpine } from './dashboard';
+import { Alpine, registerDashboardAlpine, initAdminDashboard } from './dashboard';
 import { registerCategoryForm } from './category-form';
 import { registerProductForm } from './product-form';
 import { registerCustomerForm } from './customer-form';
@@ -31,4 +31,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initAdminPanels();
     initAdminNotifications();
     initAdminPageLoader();
+    initAdminDashboard();
 });

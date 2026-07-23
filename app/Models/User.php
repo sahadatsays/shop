@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
@@ -43,6 +44,14 @@ class User extends Authenticatable
     public function hasRole(string $slug): bool
     {
         return $this->roles->contains('slug', $slug);
+    }
+
+    /**
+     * @return HasMany<DashboardUserWidget, $this>
+     */
+    public function dashboardWidgetPreferences(): HasMany
+    {
+        return $this->hasMany(DashboardUserWidget::class);
     }
 
     public function hasPermission(string $slug): bool

@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\CollectionController;
 use App\Http\Controllers\Admin\CountdownPromotionController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DashboardWidgetController;
 use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\HeroBannerController;
 use App\Http\Controllers\Admin\HomepageFeatureController;
@@ -34,7 +35,25 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('logout', [AuthController::class, 'destroy'])->name('logout');
 
-Route::middleware('admin.permission:dashboard.view')->get('/', DashboardController::class)->name('dashboard');
+Route::middleware('admin.permission:dashboard.view')->group(function (): void {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('dashboard/widgets/{key}', [DashboardController::class, 'widget'])->name('dashboard.widget');
+    Route::post('dashboard/preferences', [DashboardController::class, 'savePreferences'])->name('dashboard.preferences.save');
+    Route::post('dashboard/preferences/reset', [DashboardController::class, 'resetPreferences'])->name('dashboard.preferences.reset');
+});
+
+Route::middleware('admin.permission:dashboard.widgets.view')->group(function (): void {
+    Route::get('dashboard-widgets', [DashboardWidgetController::class, 'index'])->name('dashboard-widgets.index');
+
+    Route::middleware('admin.permission:dashboard.widgets.manage')->group(function (): void {
+        Route::get('dashboard-widgets/create', [DashboardWidgetController::class, 'create'])->name('dashboard-widgets.create');
+        Route::post('dashboard-widgets', [DashboardWidgetController::class, 'store'])->name('dashboard-widgets.store');
+        Route::get('dashboard-widgets/{dashboardWidget}/edit', [DashboardWidgetController::class, 'edit'])->name('dashboard-widgets.edit');
+        Route::put('dashboard-widgets/{dashboardWidget}', [DashboardWidgetController::class, 'update'])->name('dashboard-widgets.update');
+        Route::patch('dashboard-widgets/{dashboardWidget}/toggle', [DashboardWidgetController::class, 'toggle'])->name('dashboard-widgets.toggle');
+        Route::delete('dashboard-widgets/{dashboardWidget}', [DashboardWidgetController::class, 'destroy'])->name('dashboard-widgets.destroy');
+    });
+});
 
 Route::middleware('admin.permission:products.view')->group(function (): void {
     Route::resource('products', ProductController::class);

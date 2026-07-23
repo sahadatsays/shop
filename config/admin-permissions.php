@@ -4,6 +4,8 @@ return [
     'groups' => [
         'Dashboard' => [
             'dashboard.view' => 'View dashboard',
+            'dashboard.widgets.view' => 'View dashboard widget catalog',
+            'dashboard.widgets.manage' => 'Manage dashboard widgets',
         ],
         'Catalog' => [
             'products.view' => 'View products',
@@ -83,6 +85,10 @@ return [
             'name' => 'Customer Support',
             'description' => 'Support customers with profile access, notes, and order visibility.',
         ],
+        'marketing_manager' => [
+            'name' => 'Marketing Manager',
+            'description' => 'Manage offers, discounts, promotions, and marketing campaigns.',
+        ],
     ],
 
     'role_permissions' => [
@@ -121,6 +127,8 @@ return [
             'audit.view',
             'roles.view',
             'permissions.view',
+            'dashboard.widgets.view',
+            'dashboard.widgets.manage',
         ],
         'product_manager' => [
             'dashboard.view',
@@ -164,6 +172,21 @@ return [
             'orders.view',
             'notifications.view',
         ],
+        'marketing_manager' => [
+            'dashboard.view',
+            'offers.view',
+            'offers.manage',
+            'discounts.view',
+            'discounts.manage',
+            'sale-products.view',
+            'sale-products.manage',
+            'promotions.view',
+            'promotions.manage',
+            'collections.view',
+            'customers.view',
+            'homepage.view',
+            'notifications.view',
+        ],
     ],
 
     'default_users' => [
@@ -196,6 +219,11 @@ return [
             'name' => 'Taylor Reed',
             'email' => 'support@valorsupply.co',
             'role' => 'customer_support',
+        ],
+        [
+            'name' => 'Morgan Vale',
+            'email' => 'marketing@valorsupply.co',
+            'role' => 'marketing_manager',
         ],
     ],
 ];

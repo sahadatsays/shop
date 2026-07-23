@@ -4,6 +4,7 @@ use App\Enums\BrandStatus;
 use App\Models\Brand;
 use Database\Seeders\AdminAccessSeeder;
 use Database\Seeders\CommerceSeeder;
+use Database\Seeders\DashboardWidgetSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -82,11 +83,13 @@ test('brand can be soft deleted and restored', function (): void {
     expect(Brand::query()->find($brand->id))->not->toBeNull();
 });
 
-test('dashboard shows brands stat and featured brands widget', function (): void {
+test('dashboard shows the catalog health widget', function (): void {
+    $this->seed(DashboardWidgetSeeder::class);
+
     $this->get(route('admin.dashboard'))
         ->assertSuccessful()
         ->assertSee('Brands')
-        ->assertSee('Featured Brands');
+        ->assertSee('Catalog Health');
 });
 
 test('brand show page renders', function (): void {

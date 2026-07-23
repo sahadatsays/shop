@@ -38,6 +38,30 @@ use App\Repositories\Eloquent\OrderRepository;
 use App\Repositories\Eloquent\ProductRepository;
 use App\Repositories\Eloquent\WishlistRepository;
 use App\Services\Notifications\OrderNotificationDispatcher;
+use App\Support\Dashboard\WidgetRegistry;
+use App\Support\Dashboard\Widgets\ActivityTimelineWidget;
+use App\Support\Dashboard\Widgets\AnnouncementsWidget;
+use App\Support\Dashboard\Widgets\BestSellingProductsWidget;
+use App\Support\Dashboard\Widgets\CatalogStatsWidget;
+use App\Support\Dashboard\Widgets\CustomerGrowthChartWidget;
+use App\Support\Dashboard\Widgets\CustomerStatsWidget;
+use App\Support\Dashboard\Widgets\InventoryStatusChartWidget;
+use App\Support\Dashboard\Widgets\LatestCustomersWidget;
+use App\Support\Dashboard\Widgets\LatestReviewsWidget;
+use App\Support\Dashboard\Widgets\LowStockWidget;
+use App\Support\Dashboard\Widgets\MarketingCalendarWidget;
+use App\Support\Dashboard\Widgets\NotificationsWidget;
+use App\Support\Dashboard\Widgets\OrdersByRegionWidget;
+use App\Support\Dashboard\Widgets\OrderStatsWidget;
+use App\Support\Dashboard\Widgets\OrderStatusChartWidget;
+use App\Support\Dashboard\Widgets\OrdersTrendChartWidget;
+use App\Support\Dashboard\Widgets\QuickActionsWidget;
+use App\Support\Dashboard\Widgets\RecentOrdersWidget;
+use App\Support\Dashboard\Widgets\SalesStatsWidget;
+use App\Support\Dashboard\Widgets\SalesTrendChartWidget;
+use App\Support\Dashboard\Widgets\TopCategoriesChartWidget;
+use App\Support\Dashboard\Widgets\TopCustomersWidget;
+use App\Support\Dashboard\Widgets\WeatherWidget;
 use App\Support\StoreSettings;
 use App\View\Composers\AdminNotificationComposer;
 use App\View\Composers\CartComposer;
@@ -77,6 +101,51 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CartRepositoryInterface::class, CartRepository::class);
         $this->app->bind(WishlistRepositoryInterface::class, WishlistRepository::class);
         $this->app->singleton(OrderNotificationDispatcher::class, fn (): OrderNotificationDispatcher => new OrderNotificationDispatcher(collect()));
+
+        $this->registerDashboardWidgets();
+    }
+
+    /**
+     * Register the dashboard widget registry and map every widget key to its
+     * provider. Adding a new widget is a one-line entry here plus a config row.
+     */
+    private function registerDashboardWidgets(): void
+    {
+        $this->app->singleton(WidgetRegistry::class, function ($app): WidgetRegistry {
+            $registry = new WidgetRegistry($app);
+
+            $providers = [
+                'sales-stats' => SalesStatsWidget::class,
+                'order-stats' => OrderStatsWidget::class,
+                'catalog-stats' => CatalogStatsWidget::class,
+                'customer-stats' => CustomerStatsWidget::class,
+                'sales-trend' => SalesTrendChartWidget::class,
+                'orders-trend' => OrdersTrendChartWidget::class,
+                'order-status-breakdown' => OrderStatusChartWidget::class,
+                'top-categories' => TopCategoriesChartWidget::class,
+                'inventory-status' => InventoryStatusChartWidget::class,
+                'customer-growth' => CustomerGrowthChartWidget::class,
+                'recent-orders' => RecentOrdersWidget::class,
+                'low-stock' => LowStockWidget::class,
+                'best-selling-products' => BestSellingProductsWidget::class,
+                'latest-customers' => LatestCustomersWidget::class,
+                'top-customers' => TopCustomersWidget::class,
+                'latest-reviews' => LatestReviewsWidget::class,
+                'activity-timeline' => ActivityTimelineWidget::class,
+                'notifications' => NotificationsWidget::class,
+                'quick-actions' => QuickActionsWidget::class,
+                'marketing-calendar' => MarketingCalendarWidget::class,
+                'orders-by-region' => OrdersByRegionWidget::class,
+                'announcements' => AnnouncementsWidget::class,
+                'weather' => WeatherWidget::class,
+            ];
+
+            foreach ($providers as $key => $providerClass) {
+                $registry->register($key, $providerClass);
+            }
+
+            return $registry;
+        });
     }
 
     /**

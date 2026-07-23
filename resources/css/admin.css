@@ -367,3 +367,86 @@
         display: none !important;
     }
 }
+
+@layer components {
+    /* ---- Dynamic dashboard grid (responsive: mobile 1-col, tablet, desktop 12-col) ---- */
+    .admin-dashboard-grid {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 768px) {
+        .admin-dashboard-grid {
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 1279px) {
+        .admin-dashboard-grid > [data-widget] {
+            grid-column: span var(--w-md, 12);
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .admin-dashboard-grid > [data-widget] {
+            grid-column: span var(--w, 12);
+        }
+    }
+
+    /* Drag & drop reorder affordances */
+    [data-widget].is-dragging {
+        opacity: 0.5;
+    }
+
+    [data-widget].is-drop-target {
+        outline: 2px dashed var(--color-admin-brand);
+        outline-offset: 4px;
+        border-radius: var(--radius-admin-lg);
+    }
+
+    [data-admin-dashboard][data-edit='true'] [data-widget-handle] {
+        cursor: grab;
+    }
+
+    [data-admin-dashboard]:not([data-edit='true']) [data-widget-handle] {
+        display: none;
+    }
+
+    /* Collapsed widget body */
+    [data-widget][data-collapsed='true'] [data-widget-body] {
+        display: none;
+    }
+
+    /* Widget loading skeleton shimmer */
+    .admin-widget-skeleton {
+        position: relative;
+        overflow: hidden;
+        background: var(--color-admin-accent-muted);
+        border-radius: var(--radius-admin);
+    }
+
+    .admin-widget-skeleton::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        transform: translateX(-100%);
+        background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-admin-surface) 60%, transparent), transparent);
+        animation: admin-skeleton-shimmer 1.4s ease infinite;
+    }
+
+    /* Badge pulse when a live figure changes */
+    .admin-widget-pulse {
+        animation: admin-widget-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+}
+
+@keyframes admin-skeleton-shimmer {
+    100% { transform: translateX(100%); }
+}
+
+@keyframes admin-widget-pop {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.12); }
+    100% { transform: scale(1); }
+}
