@@ -54,6 +54,8 @@ test('wishlist page renders saved products', function (): void {
     $this->get(route('wishlist'))
         ->assertSuccessful()
         ->assertSee('Your wishlist')
+        ->assertSee('Account navigation', false)
+        ->assertSee('aria-current="page"', false)
         ->assertSee($product->name);
 });
 
