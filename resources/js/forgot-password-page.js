@@ -1,3 +1,19 @@
+const csrfToken = () => document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+
+const parseJsonResponse = async (response) => {
+    const payload = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        const message = payload.message
+            ?? Object.values(payload.errors ?? {})?.flat()?.[0]
+            ?? 'Something went wrong. Please try again.';
+
+        throw new Error(message);
+    }
+
+    return payload;
+};
+
 export const initForgotPasswordPage = () => {
     const page = document.querySelector('[data-forgot-password]');
 
@@ -24,17 +40,31 @@ export const initForgotPasswordPage = () => {
         successPanel.hidden = false;
     };
 
-    const sendReset = (email, onComplete) => {
+    const sendReset = async (email, onComplete) => {
         submitButton.disabled = true;
         submitLabel.textContent = 'Sending\u2026';
         statusEl.textContent = '';
         statusEl.classList.remove('text-green-700');
 
-        setTimeout(() => {
+        try {
+            await parseJsonResponse(await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: JSON.stringify({ email }),
+            }));
+
+            onComplete();
+        } catch (error) {
+            statusEl.textContent = error.message;
+        } finally {
             submitLabel.textContent = 'Send reset link';
             submitButton.disabled = false;
-            onComplete();
-        }, 900);
+        }
     };
 
     form?.addEventListener('submit', (event) => {
@@ -60,10 +90,10 @@ export const initForgotPasswordPage = () => {
         resendStatus.textContent = 'Sending\u2026';
         resendStatus.classList.remove('text-green-700');
 
-        setTimeout(() => {
+        sendReset(lastEmail, () => {
             resendStatus.textContent = 'Reset link sent again. Check your inbox.';
             resendStatus.classList.add('text-green-700');
             resendButton.disabled = false;
-        }, 800);
+        });
     });
 };

@@ -63,8 +63,9 @@ function seedAdminAccess(): void
 
 function actingAsCustomer(?Customer $customer = null): Customer
 {
-    $customer ??= Customer::query()->active()->firstOrFail();
+    $customer ??= Customer::factory()->create();
 
+    test()->actingAs($customer, 'customer');
     test()->withSession(['customer_id' => $customer->id]);
 
     return $customer;

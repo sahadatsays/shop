@@ -6,9 +6,13 @@ use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\CustomerNotificationController;
 use App\Http\Controllers\CustomerOrderController;
+use App\Http\Controllers\CustomerPasswordResetController;
+use App\Http\Controllers\CustomerProfileController;
+use App\Http\Controllers\CustomerRegistrationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\TrackOrderController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
@@ -30,8 +34,34 @@ Route::post('/cart/validate', [CartController::class, 'validateCart'])->name('ca
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
 
-Route::post('/login', [CustomerAuthController::class, 'login'])->name('login.store');
-Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
+Route::middleware('customer.guest')->group(function (): void {
+    Route::view('/login', 'login')->name('login');
+    Route::post('/login', [CustomerAuthController::class, 'login'])
+        ->middleware('throttle:customer-login')
+        ->name('login.store');
+
+    Route::view('/register', 'register')->name('register');
+    Route::post('/register', [CustomerRegistrationController::class, 'store'])
+        ->middleware('throttle:customer-register')
+        ->name('register.store');
+
+    Route::view('/forgot-password', 'forgot-password')->name('password.forgot');
+    Route::post('/forgot-password', [CustomerPasswordResetController::class, 'sendLink'])
+        ->middleware('throttle:customer-password-reset')
+        ->name('password.email');
+
+    Route::get('/reset-password/{token}', [CustomerPasswordResetController::class, 'create'])->name('password.reset');
+    Route::post('/reset-password', [CustomerPasswordResetController::class, 'reset'])
+        ->middleware('throttle:customer-password-reset')
+        ->name('password.update');
+
+    Route::get('/auth/{provider}', [SocialAuthController::class, 'redirect'])->name('auth.social.redirect');
+    Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('auth.social.callback');
+});
+
+Route::post('/logout', [CustomerAuthController::class, 'logout'])
+    ->middleware('customer.auth')
+    ->name('logout');
 
 Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
 Route::post('/wishlist/items', [WishlistController::class, 'store'])->name('wishlist.items.store');
@@ -50,6 +80,14 @@ Route::middleware('customer.auth')->group(function (): void {
     Route::get('/account/orders/{order:order_number}', [CustomerOrderController::class, 'show'])
         ->middleware('order.tracking')
         ->name('account.orders.show');
+
+    Route::get('/account', fn () => view('account'))->name('account');
+    Route::get('/account/settings', [CustomerProfileController::class, 'show'])->name('account.settings');
+    Route::match(['put', 'patch', 'post'], '/account/settings', [CustomerProfileController::class, 'update'])->name('account.settings.update');
+    Route::get('/profile', [CustomerProfileController::class, 'show'])->name('profile');
+    Route::match(['put', 'patch', 'post'], '/profile', [CustomerProfileController::class, 'update'])->name('profile.update');
+    Route::view('/account/addresses', 'account-addresses')->name('account.addresses');
+    Route::view('/account/reviews', 'account-reviews')->name('account.reviews');
 });
 
 Route::get('/track-order', [TrackOrderController::class, 'create'])->name('track-order.create');
@@ -58,14 +96,7 @@ Route::get('/track-order/{order:order_number}', [TrackOrderController::class, 's
     ->middleware('order.tracking')
     ->name('track-order.show');
 
-Route::view('/account', 'account')->name('account');
 Route::redirect('/track', '/track-order')->name('track');
-Route::view('/account/settings', 'account-settings')->name('account.settings');
-Route::view('/account/addresses', 'account-addresses')->name('account.addresses');
-Route::view('/account/reviews', 'account-reviews')->name('account.reviews');
-Route::view('/login', 'login')->name('login');
-Route::view('/register', 'register')->name('register');
-Route::view('/forgot-password', 'forgot-password')->name('password.forgot');
 Route::view('/support', 'support')->name('support');
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');

@@ -34,7 +34,8 @@
                     </p>
                 </div>
 
-                <form class="mt-8 space-y-5" data-forgot-form novalidate>
+                <form class="mt-8 space-y-5" data-forgot-form method="POST" action="{{ route('password.email') }}" novalidate>
+                    @csrf
                     <x-ui.input name="email" type="email" label="Email address" autocomplete="email" placeholder="you@example.com" required />
 
                     <x-ui.button type="submit" variant="primary" class="w-full" data-forgot-submit>

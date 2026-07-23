@@ -7,6 +7,7 @@ enum CustomerStatus: string
     case Active = 'active';
     case Inactive = 'inactive';
     case Suspended = 'suspended';
+    case Blocked = 'blocked';
 
     public function label(): string
     {
@@ -14,6 +15,7 @@ enum CustomerStatus: string
             self::Active => 'Active',
             self::Inactive => 'Inactive',
             self::Suspended => 'Suspended',
+            self::Blocked => 'Blocked',
         };
     }
 
@@ -22,7 +24,22 @@ enum CustomerStatus: string
         return match ($this) {
             self::Active => 'success',
             self::Inactive => 'muted',
-            self::Suspended => 'danger',
+            self::Suspended, self::Blocked => 'danger',
+        };
+    }
+
+    public function canLogin(): bool
+    {
+        return $this === self::Active;
+    }
+
+    public function loginBlockedMessage(): string
+    {
+        return match ($this) {
+            self::Suspended => 'Your account has been suspended. Please contact support for assistance.',
+            self::Blocked => 'Your account has been blocked. Please contact support for assistance.',
+            self::Inactive => 'Your account is inactive. Please contact support for assistance.',
+            default => 'Your account is not active.',
         };
     }
 

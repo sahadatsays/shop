@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\CustomerStatus;
+use App\Exceptions\CustomerAuthException;
 use App\Http\Requests\CustomerLoginRequest;
-use App\Models\Customer;
-use App\Services\AuditService;
 use App\Services\CartService;
+use App\Services\CustomerAuthService;
 use App\Services\WishlistService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -15,33 +14,23 @@ use Illuminate\Http\Request;
 class CustomerAuthController extends Controller
 {
     public function __construct(
+        private CustomerAuthService $auth,
         private CartService $cart,
         private WishlistService $wishlist,
-        private AuditService $audit,
     ) {}
 
     public function login(CustomerLoginRequest $request): JsonResponse|RedirectResponse
     {
-        $customer = Customer::query()
-            ->where('email', $request->validated('email'))
-            ->where('status', CustomerStatus::Active)
-            ->first();
-
-        if (! $customer) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'message' => 'No active account found with that email.',
-                ], 422);
-            }
-
-            return back()->withErrors(['email' => 'No active account found with that email.']);
+        try {
+            $customer = $this->auth->attemptLogin(
+                $request->validated('email'),
+                $request->validated('password'),
+                $request->boolean('remember'),
+                $request,
+            );
+        } catch (CustomerAuthException $exception) {
+            return $exception->render($request);
         }
-
-        session(['customer_id' => $customer->id]);
-
-        $this->cart->mergeGuestIntoCustomer($customer);
-        $this->wishlist->mergeGuestIntoCustomer($customer);
-        $this->audit->logCustomerLogin($customer, $request);
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -67,11 +56,7 @@ class CustomerAuthController extends Controller
 
     public function logout(Request $request): RedirectResponse
     {
-        $customerId = session('customer_id');
-        $customer = $customerId ? Customer::query()->find($customerId) : null;
-
-        session()->forget('customer_id');
-        $this->audit->logCustomerLogout($customer, $request);
+        $this->auth->logout($request);
 
         return redirect()
             ->route('home')

@@ -19,15 +19,16 @@
 <aside {{ $attributes->merge(['class' => 'lg:sticky lg:top-24 lg:self-start']) }}>
     {{-- Profile --}}
     <div class="flex items-center gap-4 rounded-card bg-navy-900 p-5 text-white">
-        <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-bronze-500 font-display text-lg font-bold" aria-hidden="true">JM</span>
+        @if ($accountCustomer?->avatarUrl())
+            <span class="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bronze-500 font-display text-lg font-bold" aria-hidden="true">
+                <img src="{{ $accountCustomer->avatarUrl() }}" alt="" class="size-full object-cover">
+            </span>
+        @else
+            <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-bronze-500 font-display text-lg font-bold" aria-hidden="true">{{ $accountCustomer?->initials() ?? 'CU' }}</span>
+        @endif
         <div class="min-w-0">
-            <p class="truncate font-display font-bold">James Mitchell</p>
-            <p class="flex items-center gap-1.5 text-xs text-navy-200">
-                <svg class="size-3.5 text-bronze-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3Z"/>
-                </svg>
-                Gold member · Army veteran
-            </p>
+            <p class="truncate font-display font-bold">{{ $accountCustomer?->name ?? 'Guest' }}</p>
+            <p class="truncate text-xs text-navy-200">{{ $accountCustomer?->email }}</p>
         </div>
     </div>
 
@@ -52,12 +53,15 @@
                 </li>
             @endforeach
             <li class="shrink-0 border-navy-100 lg:mt-2 lg:shrink lg:border-t lg:pt-2">
-                <a href="#" class="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium whitespace-nowrap text-red-600 transition-colors duration-200 hover:bg-red-50">
-                    <svg class="size-4.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3M16 17l5-5-5-5M21 12H9"/>
-                    </svg>
-                    Sign out
-                </a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium whitespace-nowrap text-red-600 transition-colors duration-200 hover:bg-red-50">
+                        <svg class="size-4.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3M16 17l5-5-5-5M21 12H9"/>
+                        </svg>
+                        Sign out
+                    </button>
+                </form>
             </li>
         </ul>
     </nav>

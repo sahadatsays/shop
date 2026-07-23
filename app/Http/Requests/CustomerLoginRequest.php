@@ -18,6 +18,15 @@ class CustomerLoginRequest extends FormRequest
     {
         return [
             'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
+            'remember' => ['sometimes', 'boolean'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'remember' => $this->boolean('remember'),
+        ]);
     }
 }

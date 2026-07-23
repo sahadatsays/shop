@@ -1,3 +1,19 @@
+const csrfToken = () => document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+
+const parseJsonResponse = async (response) => {
+    const payload = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        const message = payload.message
+            ?? Object.values(payload.errors ?? {})?.flat()?.[0]
+            ?? 'Something went wrong. Please try again.';
+
+        throw new Error(message);
+    }
+
+    return payload;
+};
+
 export const initLoginPage = () => {
     const page = document.querySelector('[data-login]');
 
@@ -30,9 +46,11 @@ export const initLoginPage = () => {
         event.preventDefault();
 
         const email = form.querySelector('#email')?.value.trim();
+        const password = form.querySelector('#password')?.value ?? '';
+        const remember = form.querySelector('[name="remember"]')?.checked ?? false;
 
-        if (!email) {
-            statusEl.textContent = 'Please enter your email address.';
+        if (!email || !password) {
+            statusEl.textContent = 'Please enter your email address and password.';
             statusEl.classList.remove('text-green-700');
             return;
         }
@@ -43,22 +61,16 @@ export const initLoginPage = () => {
         statusEl.classList.remove('text-green-700');
 
         try {
-            const response = await fetch(form.action, {
+            await parseJsonResponse(await fetch(form.action, {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                    'X-CSRF-TOKEN': csrfToken(),
                     'X-Requested-With': 'XMLHttpRequest',
                 },
-                body: JSON.stringify({ email }),
-            });
-
-            const payload = await response.json();
-
-            if (!response.ok) {
-                throw new Error(payload.message ?? 'Unable to sign in.');
-            }
+                body: JSON.stringify({ email, password, remember }),
+            }));
 
             submitLabel.textContent = 'Signed in \u2713';
             statusEl.textContent = 'Welcome back. Redirecting to your account\u2026';
@@ -66,7 +78,7 @@ export const initLoginPage = () => {
 
             setTimeout(() => {
                 window.location.href = '/account';
-            }, 1200);
+            }, 900);
         } catch (error) {
             submitLabel.textContent = 'Sign in';
             submitButton.disabled = false;
@@ -78,7 +90,13 @@ export const initLoginPage = () => {
     page.querySelectorAll('[data-social-login]').forEach((button) => {
         button.addEventListener('click', () => {
             const provider = button.dataset.socialLogin;
-            statusEl.textContent = `${provider === 'google' ? 'Google' : 'Apple'} sign-in is not configured in this demo.`;
+
+            if (provider === 'google') {
+                window.location.href = '/auth/google';
+                return;
+            }
+
+            statusEl.textContent = `${provider === 'apple' ? 'Apple' : 'Social'} sign-in is not configured yet.`;
             statusEl.classList.remove('text-green-700');
         });
     });

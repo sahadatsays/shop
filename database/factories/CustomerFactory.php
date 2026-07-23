@@ -21,7 +21,8 @@ class CustomerFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'phone' => fake()->optional()->phoneNumber(),
+            'phone' => fake()->unique()->numerify('+1##########'),
+            'password' => 'password',
             'status' => CustomerStatus::Active,
             'internal_notes' => fake()->optional(0.2)->sentence(),
         ];
@@ -38,6 +39,13 @@ class CustomerFactory extends Factory
     {
         return $this->state(fn (): array => [
             'status' => CustomerStatus::Suspended,
+        ]);
+    }
+
+    public function blocked(): static
+    {
+        return $this->state(fn (): array => [
+            'status' => CustomerStatus::Blocked,
         ]);
     }
 }

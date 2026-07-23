@@ -4,18 +4,20 @@ namespace App\Models;
 
 use App\Enums\CustomerStatus;
 use App\Models\Concerns\HasAppNotifications;
+use App\Notifications\CustomerResetPasswordNotification;
 use Database\Factories\CustomerFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class Customer extends Model
+class Customer extends Authenticatable
 {
     /** @use HasFactory<CustomerFactory> */
-    use HasAppNotifications, HasFactory, SoftDeletes;
+    use HasAppNotifications, HasFactory, Notifiable, SoftDeletes;
 
     /**
      * @var list<string>
@@ -24,8 +26,24 @@ class Customer extends Model
         'name',
         'email',
         'phone',
+        'password',
+        'avatar',
+        'provider',
+        'provider_id',
+        'email_verified_at',
         'status',
         'internal_notes',
+        'last_login_at',
+        'newsletter_subscribed',
+    ];
+
+    /**
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'provider_id',
     ];
 
     /**
@@ -35,6 +53,10 @@ class Customer extends Model
     {
         return [
             'status' => CustomerStatus::class,
+            'email_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
+            'newsletter_subscribed' => 'boolean',
+            'password' => 'hashed',
         ];
     }
 
@@ -71,6 +93,22 @@ class Customer extends Model
     }
 
     /**
+     * @return HasOne<CustomerProfile, $this>
+     */
+    public function profile(): HasOne
+    {
+        return $this->hasOne(CustomerProfile::class);
+    }
+
+    /**
+     * @return HasMany<CustomerSocialAccount, $this>
+     */
+    public function socialAccounts(): HasMany
+    {
+        return $this->hasMany(CustomerSocialAccount::class);
+    }
+
+    /**
      * @param  Builder<Customer>  $query
      * @return Builder<Customer>
      */
@@ -99,5 +137,28 @@ class Customer extends Model
             ->implode('');
 
         return $initials !== '' ? $initials : 'CU';
+    }
+
+    public function avatarUrl(): ?string
+    {
+        if (! $this->avatar) {
+            return null;
+        }
+
+        if (str_starts_with($this->avatar, 'http')) {
+            return $this->avatar;
+        }
+
+        return asset('storage/'.$this->avatar);
+    }
+
+    public function usesPasswordAuthentication(): bool
+    {
+        return filled($this->password);
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new CustomerResetPasswordNotification($token));
     }
 }

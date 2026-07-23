@@ -79,7 +79,8 @@
                         <p class="mt-2 text-navy-600">A few details and you’re ready to shop, track, and earn rewards.</p>
                     </div>
 
-                    <form class="mt-8 space-y-4 lg:mt-10" data-register-form novalidate>
+                    <form class="mt-8 space-y-4 lg:mt-10" data-register-form method="POST" action="{{ route('register.store') }}" novalidate>
+                        @csrf
                         <x-ui.input name="name" label="Full name" autocomplete="name" placeholder="James Mitchell" required />
 
                         <x-ui.input name="email" type="email" label="Email address" autocomplete="email" placeholder="you@example.com" required />

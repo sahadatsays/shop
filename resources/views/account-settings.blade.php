@@ -31,7 +31,9 @@
                     <p class="mt-2 text-navy-600">Update your personal details, security, and how we keep in touch.</p>
                 </div>
 
-                <form class="mt-8 space-y-8" novalidate data-profile-form>
+                <form class="mt-8 space-y-8" method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" novalidate data-profile-form>
+                    @csrf
+                    @method('PUT')
 
                     {{-- Avatar + Personal information --}}
                     <section class="rounded-card bg-surface p-7 shadow-soft" aria-labelledby="personal-heading">
@@ -40,7 +42,13 @@
                         {{-- Avatar upload --}}
                         <div class="mt-6 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
                             <div class="relative">
-                                <span data-avatar-preview class="flex size-24 items-center justify-center overflow-hidden rounded-full bg-bronze-500 font-display text-3xl font-bold text-white ring-4 ring-navy-100">JM</span>
+                                @if ($customer->avatarUrl())
+                                    <span data-avatar-preview class="flex size-24 items-center justify-center overflow-hidden rounded-full bg-bronze-500 font-display text-3xl font-bold text-white ring-4 ring-navy-100">
+                                        <img src="{{ $customer->avatarUrl() }}" alt="{{ $customer->name }}" class="size-full object-cover">
+                                    </span>
+                                @else
+                                    <span data-avatar-preview class="flex size-24 items-center justify-center overflow-hidden rounded-full bg-bronze-500 font-display text-3xl font-bold text-white ring-4 ring-navy-100">{{ $customer->initials() }}</span>
+                                @endif
                                 <label for="avatar" class="absolute -right-1 -bottom-1 flex size-9 cursor-pointer items-center justify-center rounded-full bg-navy-900 text-white shadow-soft transition-colors duration-200 hover:bg-navy-800">
                                     <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                         <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>
@@ -58,10 +66,10 @@
                         </div>
 
                         <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <x-ui.input name="first-name" label="First name" autocomplete="given-name" value="James" />
-                            <x-ui.input name="last-name" label="Last name" autocomplete="family-name" value="Mitchell" />
+                            <x-ui.input name="first-name" label="First name" autocomplete="given-name" :value="$firstName" />
+                            <x-ui.input name="last-name" label="Last name" autocomplete="family-name" :value="$lastName" />
                             <div class="sm:col-span-2">
-                                <x-ui.input name="display-name" label="Display name" value="James Mitchell" hint="Shown on reviews and your public profile." />
+                                <x-ui.input name="display-name" label="Display name" :value="$customer->name" hint="Shown on reviews and your public profile." readonly />
                             </div>
                         </div>
                     </section>
@@ -72,7 +80,7 @@
                         <p class="mt-1 text-sm text-navy-500">Used for sign-in, receipts, and order updates.</p>
                         <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div class="sm:col-span-2">
-                                <x-ui.input name="email" type="email" label="Email address" autocomplete="email" value="james.mitchell@example.com" />
+                                <x-ui.input name="email" type="email" label="Email address" autocomplete="email" :value="$customer->email" readonly />
                             </div>
                             <div class="sm:col-span-2">
                                 <label class="flex cursor-pointer items-center gap-3">
@@ -89,7 +97,7 @@
                         <h2 id="phone-heading" class="font-display text-lg font-bold text-navy-900">Phone</h2>
                         <p class="mt-1 text-sm text-navy-500">For delivery questions and two-factor authentication.</p>
                         <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <x-ui.input name="phone" type="tel" label="Mobile number" autocomplete="tel" value="+1 (217) 555-0142" />
+                            <x-ui.input name="phone" type="tel" label="Mobile number" autocomplete="tel" :value="$customer->phone" />
                             <div class="space-y-1.5">
                                 <label for="phone-country" class="block text-sm font-medium text-navy-900">Country code</label>
                                 <select id="phone-country" name="phone-country"
