@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\CustomerStatus;
 use App\Models\Customer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,6 +22,22 @@ class CustomerFactory extends Factory
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'phone' => fake()->optional()->phoneNumber(),
+            'status' => CustomerStatus::Active,
+            'internal_notes' => fake()->optional(0.2)->sentence(),
         ];
+    }
+
+    public function inactive(): static
+    {
+        return $this->state(fn (): array => [
+            'status' => CustomerStatus::Inactive,
+        ]);
+    }
+
+    public function suspended(): static
+    {
+        return $this->state(fn (): array => [
+            'status' => CustomerStatus::Suspended,
+        ]);
     }
 }

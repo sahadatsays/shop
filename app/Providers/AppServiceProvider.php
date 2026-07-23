@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Contracts\Repositories\AdminBrandRepositoryInterface;
 use App\Contracts\Repositories\AdminCategoryRepositoryInterface;
+use App\Contracts\Repositories\AdminCustomerRepositoryInterface;
 use App\Contracts\Repositories\AdminInventoryRepositoryInterface;
 use App\Contracts\Repositories\AdminProductRepositoryInterface;
 use App\Contracts\Repositories\CategoryRepositoryInterface;
@@ -12,6 +13,7 @@ use App\Contracts\Repositories\OrderRepositoryInterface;
 use App\Contracts\Repositories\ProductRepositoryInterface;
 use App\Repositories\Eloquent\AdminBrandRepository;
 use App\Repositories\Eloquent\AdminCategoryRepository;
+use App\Repositories\Eloquent\AdminCustomerRepository;
 use App\Repositories\Eloquent\AdminInventoryRepository;
 use App\Repositories\Eloquent\AdminProductRepository;
 use App\Repositories\Eloquent\CategoryRepository;
@@ -35,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AdminBrandRepositoryInterface::class, AdminBrandRepository::class);
         $this->app->bind(AdminProductRepositoryInterface::class, AdminProductRepository::class);
         $this->app->bind(AdminInventoryRepositoryInterface::class, AdminInventoryRepository::class);
+        $this->app->bind(AdminCustomerRepositoryInterface::class, AdminCustomerRepository::class);
     }
 
     /**

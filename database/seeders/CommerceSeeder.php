@@ -2,10 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Enums\AddressType;
 use App\Enums\OrderStatus;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Customer;
+use App\Models\CustomerAddress;
+use App\Models\CustomerNote;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -86,6 +89,43 @@ class CommerceSeeder extends Seeder
         });
 
         $customers = Customer::factory()->count(24)->create();
+
+        $customers->take(8)->each(function (Customer $customer): void {
+            CustomerAddress::query()->create([
+                'customer_id' => $customer->id,
+                'label' => 'Home',
+                'type' => AddressType::Shipping,
+                'name' => $customer->name,
+                'phone' => $customer->phone,
+                'line1' => fake()->streetAddress(),
+                'city' => fake()->city(),
+                'state' => fake()->stateAbbr(),
+                'postal_code' => fake()->postcode(),
+                'country' => 'US',
+                'is_default' => true,
+            ]);
+
+            if (fake()->boolean(40)) {
+                CustomerAddress::query()->create([
+                    'customer_id' => $customer->id,
+                    'label' => 'Billing',
+                    'type' => AddressType::Billing,
+                    'name' => $customer->name,
+                    'line1' => fake()->streetAddress(),
+                    'city' => fake()->city(),
+                    'state' => fake()->stateAbbr(),
+                    'postal_code' => fake()->postcode(),
+                    'country' => 'US',
+                    'is_default' => false,
+                ]);
+            }
+
+            CustomerNote::query()->create([
+                'customer_id' => $customer->id,
+                'body' => fake()->sentence(),
+                'author_name' => 'Admin',
+            ]);
+        });
 
         foreach (range(1, 12) as $monthsAgo) {
             $month = now()->subMonths($monthsAgo - 1)->startOfMonth();

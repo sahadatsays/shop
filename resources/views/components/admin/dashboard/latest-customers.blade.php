@@ -7,7 +7,7 @@
         @forelse ($customers as $customer)
             <li class="flex items-center justify-between gap-3 py-3 transition-colors duration-150 first:pt-0 last:pb-0 hover:bg-admin-accent-muted/30">
                 <div class="min-w-0">
-                    <p class="truncate text-sm font-medium admin-text">{{ $customer->name }}</p>
+                    <a href="{{ route('admin.customers.show', $customer->customerId) }}" class="truncate text-sm font-medium admin-text hover:text-admin-brand">{{ $customer->name }}</a>
                     <p class="truncate text-xs admin-muted">{{ $customer->email }}</p>
                 </div>
                 <div class="shrink-0 text-right">

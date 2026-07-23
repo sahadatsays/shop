@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\ProductController;
@@ -29,3 +30,10 @@ Route::resource('brands', BrandController::class);
 Route::post('brands/{brand}/restore', [BrandController::class, 'restore'])
     ->name('brands.restore')
     ->withTrashed();
+
+Route::resource('customers', CustomerController::class);
+Route::post('customers/{customer}/restore', [CustomerController::class, 'restore'])
+    ->name('customers.restore')
+    ->withTrashed();
+Route::post('customers/{customer}/notes', [CustomerController::class, 'storeNote'])
+    ->name('customers.notes.store');

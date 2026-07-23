@@ -40,10 +40,8 @@ class NavRegistry
             new NavItem(
                 label: 'Customers',
                 icon: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm11 4a3 3 0 1 0 0-6M22 21v-2a4 4 0 0 0-3-3.87',
-                disabled: true,
                 children: [
-                    new NavItem(label: 'Users', disabled: true),
-                    new NavItem(label: 'Addresses', disabled: true),
+                    new NavItem(label: 'Customers', route: 'admin.customers.index', routePrefix: 'admin.customers.'),
                     new NavItem(label: 'Reviews', disabled: true),
                 ],
             ),
@@ -92,6 +90,7 @@ class NavRegistry
                     ['label' => 'Products', 'href' => route('admin.products.index'), 'keywords' => 'catalog inventory sku'],
                     ['label' => 'Inventory', 'href' => route('admin.inventory.index'), 'keywords' => 'stock warehouse movement'],
                     ['label' => 'Stock history', 'href' => route('admin.inventory.movements'), 'keywords' => 'inventory log movement audit'],
+                    ['label' => 'Customers', 'href' => route('admin.customers.index'), 'keywords' => 'users accounts profiles'],
                     ['label' => 'Categories', 'href' => route('admin.categories.index'), 'keywords' => 'catalog organize'],
                     ['label' => 'Brands', 'href' => route('admin.brands.index'), 'keywords' => 'catalog brand logo'],
                 ],
@@ -102,6 +101,7 @@ class NavRegistry
                     ['label' => 'Create product', 'href' => route('admin.products.create'), 'keywords' => 'new catalog add'],
                     ['label' => 'Create category', 'href' => route('admin.categories.create'), 'keywords' => 'new catalog category'],
                     ['label' => 'Create brand', 'href' => route('admin.brands.create'), 'keywords' => 'new catalog brand'],
+                    ['label' => 'Create customer', 'href' => route('admin.customers.create'), 'keywords' => 'new user account'],
                     ['label' => 'View orders', 'href' => null, 'keywords' => 'commerce sales'],
                     ['label' => 'Export report', 'href' => null, 'keywords' => 'download csv'],
                 ],
@@ -117,7 +117,7 @@ class NavRegistry
         return [
             ['label' => 'Add Product', 'href' => route('admin.products.create'), 'icon' => 'M12 5v14M5 12h14'],
             ['label' => 'Manage Brands', 'href' => route('admin.brands.index'), 'icon' => 'M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3Z'],
-            ['label' => 'Manage Customers', 'href' => null, 'icon' => 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z'],
+            ['label' => 'Manage Customers', 'href' => route('admin.customers.index'), 'icon' => 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z'],
             ['label' => 'View Reports', 'href' => null, 'icon' => 'M3 3v18h18M7 16l4-4 4 4 5-6'],
         ];
     }

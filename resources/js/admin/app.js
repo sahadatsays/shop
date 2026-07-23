@@ -1,6 +1,7 @@
 import { Alpine, registerDashboardAlpine } from './dashboard';
 import { registerCategoryForm } from './category-form';
 import { registerProductForm } from './product-form';
+import { registerCustomerForm } from './customer-form';
 import { initAdminTheme } from './stores/theme';
 import { initAdminSidebar } from './stores/sidebar';
 import { initAdminToast } from './stores/toast';
@@ -12,6 +13,7 @@ import { initAdminPageLoader } from './stores/page-loader';
 registerDashboardAlpine();
 registerCategoryForm(Alpine);
 registerProductForm(Alpine);
+registerCustomerForm(Alpine);
 window.Alpine = Alpine;
 
 document.addEventListener('DOMContentLoaded', () => {

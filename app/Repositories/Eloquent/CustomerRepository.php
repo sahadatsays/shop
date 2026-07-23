@@ -22,6 +22,7 @@ class CustomerRepository implements CustomerRepositoryInterface
             ->limit($limit)
             ->get()
             ->map(fn (Customer $customer): CustomerSummaryData => new CustomerSummaryData(
+                customerId: $customer->id,
                 name: $customer->name,
                 email: $customer->email,
                 joinedAt: $customer->created_at->diffForHumans(),

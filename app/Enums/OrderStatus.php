@@ -21,6 +21,15 @@ enum OrderStatus: string
         };
     }
 
+    public function badgeVariant(): string
+    {
+        return match ($this) {
+            self::Delivered, self::Shipped => 'success',
+            self::Processing, self::Pending => 'warning',
+            self::Cancelled => 'danger',
+        };
+    }
+
     /**
      * @return array<int, self>
      */
