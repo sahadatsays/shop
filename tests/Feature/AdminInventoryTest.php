@@ -6,13 +6,16 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\Warehouse;
+use Database\Seeders\AdminAccessSeeder;
 use Database\Seeders\CommerceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
+    $this->seed(AdminAccessSeeder::class);
     $this->seed(CommerceSeeder::class);
+    actingAsAdmin();
 });
 
 test('inventory index page renders with stock summary', function (): void {

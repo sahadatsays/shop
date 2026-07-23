@@ -2,6 +2,8 @@
 
 namespace App\Support\Admin\Navigation;
 
+use App\Models\User;
+
 class NavRegistry
 {
     /**
@@ -14,23 +16,24 @@ class NavRegistry
                 label: 'Dashboard',
                 route: 'admin.dashboard',
                 icon: 'M3 11 12 3l9 8M6 10v10h12V10',
+                permission: 'dashboard.view',
             ),
             new NavItem(
                 label: 'Catalog',
                 icon: 'M16 3l5 3-2 5-2-1v10a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V10l-2 1-2-5 5-3a4 4 0 0 0 8 0Z',
                 children: [
-                    new NavItem(label: 'Products', route: 'admin.products.index', routePrefix: 'admin.products.'),
-                    new NavItem(label: 'Categories', route: 'admin.categories.index', routePrefix: 'admin.categories.'),
-                    new NavItem(label: 'Brands', route: 'admin.brands.index', routePrefix: 'admin.brands.'),
+                    new NavItem(label: 'Products', route: 'admin.products.index', routePrefix: 'admin.products.', permission: 'products.view'),
+                    new NavItem(label: 'Categories', route: 'admin.categories.index', routePrefix: 'admin.categories.', permission: 'categories.view'),
+                    new NavItem(label: 'Brands', route: 'admin.brands.index', routePrefix: 'admin.brands.', permission: 'brands.view'),
                     new NavItem(label: 'Collections', disabled: true),
-                    new NavItem(label: 'Inventory', route: 'admin.inventory.index', routePrefix: 'admin.inventory.'),
+                    new NavItem(label: 'Inventory', route: 'admin.inventory.index', routePrefix: 'admin.inventory.', permission: 'inventory.view'),
                 ],
             ),
             new NavItem(
                 label: 'Commerce',
                 icon: 'M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7ZM9 10V6a3 3 0 0 1 6 0v4',
                 children: [
-                    new NavItem(label: 'Orders', route: 'admin.orders.index', routePrefix: 'admin.orders.'),
+                    new NavItem(label: 'Orders', route: 'admin.orders.index', routePrefix: 'admin.orders.', permission: 'orders.view'),
                     new NavItem(label: 'Refunds', disabled: true),
                     new NavItem(label: 'Coupons', disabled: true),
                     new NavItem(label: 'Shipping', disabled: true),
@@ -40,7 +43,7 @@ class NavRegistry
                 label: 'Customers',
                 icon: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm11 4a3 3 0 1 0 0-6M22 21v-2a4 4 0 0 0-3-3.87',
                 children: [
-                    new NavItem(label: 'Customers', route: 'admin.customers.index', routePrefix: 'admin.customers.'),
+                    new NavItem(label: 'Customers', route: 'admin.customers.index', routePrefix: 'admin.customers.', permission: 'customers.view'),
                     new NavItem(label: 'Reviews', disabled: true),
                 ],
             ),
@@ -71,9 +74,68 @@ class NavRegistry
             new NavItem(
                 label: 'System',
                 icon: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7.5-3a7.5 7.5 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-2-1.2L14.6 3h-4l-.4 2.6a7.6 7.6 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7.7 7.7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7.6 7.6 0 0 0 2 1.2l.4 2.6h4l.4-2.6a7.6 7.6 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.06-.4.1-.8.1-1.2Z',
-                disabled: true,
+                children: [
+                    new NavItem(label: 'Roles', route: 'admin.roles.index', routePrefix: 'admin.roles.', permission: 'roles.view'),
+                    new NavItem(label: 'Permissions', route: 'admin.permissions.index', routePrefix: 'admin.permissions.', permission: 'permissions.view'),
+                    new NavItem(label: 'Permission matrix', route: 'admin.roles.matrix', permission: 'access-matrix.manage'),
+                ],
             ),
         ];
+    }
+
+    /**
+     * @return array<int, NavItem>
+     */
+    public static function sidebarFor(?User $user): array
+    {
+        return self::filterItems(self::sidebar(), $user);
+    }
+
+    /**
+     * @param  array<int, NavItem>  $items
+     * @return array<int, NavItem>
+     */
+    private static function filterItems(array $items, ?User $user): array
+    {
+        $filtered = [];
+
+        foreach ($items as $item) {
+            if ($item->children !== null) {
+                $children = self::filterItems($item->children, $user);
+
+                if ($children === []) {
+                    continue;
+                }
+
+                $filtered[] = new NavItem(
+                    label: $item->label,
+                    route: $item->route,
+                    routePrefix: $item->routePrefix,
+                    icon: $item->icon,
+                    badge: $item->badge,
+                    disabled: $item->disabled,
+                    children: $children,
+                    paletteGroup: $item->paletteGroup,
+                    permission: $item->permission,
+                );
+
+                continue;
+            }
+
+            if ($item->disabled) {
+                $filtered[] = $item;
+
+                continue;
+            }
+
+            if ($item->permission !== null && ($user === null || ! $user->hasPermission($item->permission))) {
+                continue;
+            }
+
+            $filtered[] = $item;
+        }
+
+        return $filtered;
     }
 
     /**
@@ -93,6 +155,9 @@ class NavRegistry
                     ['label' => 'Orders', 'href' => route('admin.orders.index'), 'keywords' => 'commerce sales fulfillment'],
                     ['label' => 'Categories', 'href' => route('admin.categories.index'), 'keywords' => 'catalog organize'],
                     ['label' => 'Brands', 'href' => route('admin.brands.index'), 'keywords' => 'catalog brand logo'],
+                    ['label' => 'Roles', 'href' => route('admin.roles.index'), 'keywords' => 'system access security'],
+                    ['label' => 'Permissions', 'href' => route('admin.permissions.index'), 'keywords' => 'system access security'],
+                    ['label' => 'Permission matrix', 'href' => route('admin.roles.matrix'), 'keywords' => 'system access security matrix'],
                 ],
             ],
             [

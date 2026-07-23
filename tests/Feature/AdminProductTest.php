@@ -3,6 +3,7 @@
 use App\Enums\ProductStatus;
 use App\Models\Category;
 use App\Models\Product;
+use Database\Seeders\AdminAccessSeeder;
 use Database\Seeders\CommerceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -12,7 +13,9 @@ uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     Storage::fake('public');
+    $this->seed(AdminAccessSeeder::class);
     $this->seed(CommerceSeeder::class);
+    actingAsAdmin();
 });
 
 test('products index page renders with catalog data', function (): void {

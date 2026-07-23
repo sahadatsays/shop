@@ -5,13 +5,16 @@ use App\Models\Order;
 use App\Models\OrderNote;
 use App\Models\OrderTimelineEvent;
 use App\Support\OrderNumberGenerator;
+use Database\Seeders\AdminAccessSeeder;
 use Database\Seeders\CommerceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
+    $this->seed(AdminAccessSeeder::class);
     $this->seed(CommerceSeeder::class);
+    actingAsAdmin();
 });
 
 test('orders index page renders with search and status filters', function (): void {

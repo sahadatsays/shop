@@ -16,6 +16,7 @@ readonly class NavItem
         public bool $disabled = false,
         public ?array $children = null,
         public ?string $paletteGroup = null,
+        public ?string $permission = null,
     ) {}
 
     public function isActive(?string $currentRoute): bool

@@ -2,6 +2,7 @@
 
 use App\Enums\CategoryStatus;
 use App\Models\Category;
+use Database\Seeders\AdminAccessSeeder;
 use Database\Seeders\CommerceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -11,7 +12,9 @@ uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     Storage::fake('public');
+    $this->seed(AdminAccessSeeder::class);
     $this->seed(CommerceSeeder::class);
+    actingAsAdmin();
 });
 
 test('categories index page renders', function (): void {

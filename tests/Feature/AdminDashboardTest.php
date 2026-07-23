@@ -1,13 +1,16 @@
 <?php
 
 use App\Support\Admin\Navigation\NavRegistry;
+use Database\Seeders\AdminAccessSeeder;
 use Database\Seeders\CommerceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
+    $this->seed(AdminAccessSeeder::class);
     $this->seed(CommerceSeeder::class);
+    actingAsAdmin();
 });
 
 test('admin dashboard renders successfully with live data', function (): void {

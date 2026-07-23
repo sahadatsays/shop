@@ -1,0 +1,145 @@
+<?php
+
+return [
+    'groups' => [
+        'Dashboard' => [
+            'dashboard.view' => 'View dashboard',
+        ],
+        'Catalog' => [
+            'products.view' => 'View products',
+            'products.manage' => 'Manage products',
+            'categories.view' => 'View categories',
+            'categories.manage' => 'Manage categories',
+            'brands.view' => 'View brands',
+            'brands.manage' => 'Manage brands',
+        ],
+        'Inventory' => [
+            'inventory.view' => 'View inventory',
+            'inventory.manage' => 'Manage inventory',
+        ],
+        'Commerce' => [
+            'orders.view' => 'View orders',
+            'orders.manage' => 'Manage orders',
+        ],
+        'Customers' => [
+            'customers.view' => 'View customers',
+            'customers.manage' => 'Manage customers',
+        ],
+        'Administration' => [
+            'roles.view' => 'View roles',
+            'roles.manage' => 'Manage roles',
+            'permissions.view' => 'View permissions',
+            'permissions.manage' => 'Manage permissions',
+            'access-matrix.manage' => 'Manage permission matrix',
+        ],
+    ],
+
+    'roles' => [
+        'owner' => [
+            'name' => 'Owner',
+            'description' => 'Full platform access including administration and security settings.',
+        ],
+        'manager' => [
+            'name' => 'Manager',
+            'description' => 'Operational oversight across catalog, inventory, orders, and customers.',
+        ],
+        'product_manager' => [
+            'name' => 'Product Manager',
+            'description' => 'Manage catalog content including products, categories, and brands.',
+        ],
+        'inventory_manager' => [
+            'name' => 'Inventory Manager',
+            'description' => 'Manage stock levels, warehouses, and inventory movements.',
+        ],
+        'order_manager' => [
+            'name' => 'Order Manager',
+            'description' => 'Manage order lifecycle, fulfillment status, and order notes.',
+        ],
+        'customer_support' => [
+            'name' => 'Customer Support',
+            'description' => 'Support customers with profile access, notes, and order visibility.',
+        ],
+    ],
+
+    'role_permissions' => [
+        'owner' => '*',
+        'manager' => [
+            'dashboard.view',
+            'products.view',
+            'products.manage',
+            'categories.view',
+            'categories.manage',
+            'brands.view',
+            'brands.manage',
+            'inventory.view',
+            'inventory.manage',
+            'orders.view',
+            'orders.manage',
+            'customers.view',
+            'customers.manage',
+            'roles.view',
+            'permissions.view',
+        ],
+        'product_manager' => [
+            'dashboard.view',
+            'products.view',
+            'products.manage',
+            'categories.view',
+            'categories.manage',
+            'brands.view',
+            'brands.manage',
+            'inventory.view',
+        ],
+        'inventory_manager' => [
+            'dashboard.view',
+            'products.view',
+            'inventory.view',
+            'inventory.manage',
+        ],
+        'order_manager' => [
+            'dashboard.view',
+            'orders.view',
+            'orders.manage',
+            'customers.view',
+        ],
+        'customer_support' => [
+            'dashboard.view',
+            'customers.view',
+            'customers.manage',
+            'orders.view',
+        ],
+    ],
+
+    'default_users' => [
+        [
+            'name' => 'Jordan Reeves',
+            'email' => 'owner@valorsupply.co',
+            'role' => 'owner',
+        ],
+        [
+            'name' => 'Alex Morgan',
+            'email' => 'manager@valorsupply.co',
+            'role' => 'manager',
+        ],
+        [
+            'name' => 'Sam Ortiz',
+            'email' => 'product@valorsupply.co',
+            'role' => 'product_manager',
+        ],
+        [
+            'name' => 'Riley Chen',
+            'email' => 'inventory@valorsupply.co',
+            'role' => 'inventory_manager',
+        ],
+        [
+            'name' => 'Casey Brooks',
+            'email' => 'orders@valorsupply.co',
+            'role' => 'order_manager',
+        ],
+        [
+            'name' => 'Taylor Reed',
+            'email' => 'support@valorsupply.co',
+            'role' => 'customer_support',
+        ],
+    ],
+];

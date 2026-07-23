@@ -4,13 +4,16 @@ use App\Enums\AddressType;
 use App\Enums\CustomerStatus;
 use App\Models\Customer;
 use App\Models\CustomerNote;
+use Database\Seeders\AdminAccessSeeder;
 use Database\Seeders\CommerceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
+    $this->seed(AdminAccessSeeder::class);
     $this->seed(CommerceSeeder::class);
+    actingAsAdmin();
 });
 
 test('customers index page renders with search and filters', function (): void {

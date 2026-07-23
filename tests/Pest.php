@@ -1,6 +1,7 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\User;
+use Database\Seeders\AdminAccessSeeder;
 use Tests\TestCase;
 
 /*
@@ -15,7 +16,6 @@ use Tests\TestCase;
 */
 
 pest()->extend(TestCase::class)
- // ->use(RefreshDatabase::class)
     ->in('Feature');
 
 /*
@@ -44,7 +44,18 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+function actingAsAdmin(?string $roleSlug = 'owner'): User
 {
-    // ..
+    $user = User::query()
+        ->whereHas('roles', fn ($query) => $query->where('slug', $roleSlug))
+        ->firstOrFail();
+
+    test()->actingAs($user, 'admin');
+
+    return $user;
+}
+
+function seedAdminAccess(): void
+{
+    test()->seed(AdminAccessSeeder::class);
 }

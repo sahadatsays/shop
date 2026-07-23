@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\AuthController;
+use App\Http\Middleware\EnsureAdminAuthenticated;
+use App\Http\Middleware\EnsureAdminPermission;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,11 +18,25 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::middleware('web')
                 ->prefix('admin')
                 ->name('admin.')
-                ->group(base_path('routes/admin.php'));
+                ->group(function (): void {
+                    Route::middleware('guest:admin')->group(function (): void {
+                        Route::get('login', [AuthController::class, 'create'])->name('login');
+                        Route::post('login', [AuthController::class, 'store'])->name('login.store');
+                    });
+
+                    Route::middleware('admin.auth')->group(base_path('routes/admin.php'));
+                });
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'admin.auth' => EnsureAdminAuthenticated::class,
+            'admin.permission' => EnsureAdminPermission::class,
+        ]);
+
+        $middleware->redirectGuestsTo(fn (Request $request): ?string => $request->is('admin', 'admin/*')
+            ? route('admin.login')
+            : null);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

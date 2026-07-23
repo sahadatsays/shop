@@ -2,6 +2,7 @@
 
 use App\Enums\BrandStatus;
 use App\Models\Brand;
+use Database\Seeders\AdminAccessSeeder;
 use Database\Seeders\CommerceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -11,7 +12,9 @@ uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     Storage::fake('public');
+    $this->seed(AdminAccessSeeder::class);
     $this->seed(CommerceSeeder::class);
+    actingAsAdmin();
 });
 
 test('brands index page renders with product counts', function (): void {

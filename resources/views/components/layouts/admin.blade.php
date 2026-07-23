@@ -1,7 +1,7 @@
 @php
     use App\Support\Admin\Navigation\NavRegistry;
 
-    $navItems = NavRegistry::sidebar();
+    $navItems = NavRegistry::sidebarFor(auth('admin')->user());
     $paletteGroups = NavRegistry::commandPalette();
     $quickActions = NavRegistry::quickActions();
     $currentRoute = request()->route()?->getName();
