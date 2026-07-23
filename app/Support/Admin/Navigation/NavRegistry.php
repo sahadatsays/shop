@@ -18,10 +18,9 @@ class NavRegistry
             new NavItem(
                 label: 'Catalog',
                 icon: 'M16 3l5 3-2 5-2-1v10a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V10l-2 1-2-5 5-3a4 4 0 0 0 8 0Z',
-                disabled: true,
                 children: [
                     new NavItem(label: 'Products', disabled: true),
-                    new NavItem(label: 'Categories', disabled: true),
+                    new NavItem(label: 'Categories', route: 'admin.categories.index', routePrefix: 'admin.categories.'),
                     new NavItem(label: 'Collections', disabled: true),
                     new NavItem(label: 'Inventory', disabled: true, badge: 'Soon'),
                 ],
@@ -89,11 +88,13 @@ class NavRegistry
                 'group' => 'Navigate',
                 'items' => [
                     ['label' => 'Dashboard', 'href' => route('admin.dashboard'), 'keywords' => 'home overview'],
+                    ['label' => 'Categories', 'href' => route('admin.categories.index'), 'keywords' => 'catalog organize'],
                 ],
             ],
             [
                 'group' => 'Actions',
                 'items' => [
+                    ['label' => 'Create category', 'href' => route('admin.categories.create'), 'keywords' => 'new catalog category'],
                     ['label' => 'Create product', 'href' => null, 'keywords' => 'new catalog add'],
                     ['label' => 'View orders', 'href' => null, 'keywords' => 'commerce sales'],
                     ['label' => 'Export report', 'href' => null, 'keywords' => 'download csv'],

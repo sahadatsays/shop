@@ -1,4 +1,5 @@
 import { Alpine, registerDashboardAlpine } from './dashboard';
+import { registerCategoryForm } from './category-form';
 import { initAdminTheme } from './stores/theme';
 import { initAdminSidebar } from './stores/sidebar';
 import { initAdminToast } from './stores/toast';
@@ -8,6 +9,7 @@ import { initAdminPanels } from './stores/panels';
 import { initAdminPageLoader } from './stores/page-loader';
 
 registerDashboardAlpine();
+registerCategoryForm(Alpine);
 window.Alpine = Alpine;
 
 document.addEventListener('DOMContentLoaded', () => {

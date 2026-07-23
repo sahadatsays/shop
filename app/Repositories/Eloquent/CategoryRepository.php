@@ -14,6 +14,7 @@ class CategoryRepository implements CategoryRepositoryInterface
         return OrderItem::query()
             ->join('products', 'order_items.product_id', '=', 'products.id')
             ->join('categories', 'products.category_id', '=', 'categories.id')
+            ->whereNull('categories.deleted_at')
             ->select([
                 'categories.name as label',
                 DB::raw('SUM(order_items.line_total_cents) as revenue_cents'),

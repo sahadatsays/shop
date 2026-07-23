@@ -25,7 +25,13 @@ class CommerceSeeder extends Seeder
         ])->map(fn (string $name) => Category::factory()->create([
             'name' => $name,
             'slug' => str($name)->slug()->toString(),
+            'sort_order' => fake()->numberBetween(1, 10),
         ]));
+
+        $apparel = $categories->firstWhere('name', 'Apparel');
+        if ($apparel) {
+            Category::factory()->count(2)->child($apparel)->create();
+        }
 
         $products = $categories->flatMap(function (Category $category): Collection {
             return Product::factory()
