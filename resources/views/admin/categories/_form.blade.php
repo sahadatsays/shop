@@ -137,9 +137,9 @@
                 </div>
             </x-admin.form-card>
 
-            <div class="flex flex-col gap-2 sm:flex-row xl:flex-col">
-                <x-admin.button type="submit" class="w-full sm:flex-1 xl:w-full">{{ $submitLabel }}</x-admin.button>
-                <x-admin.button variant="secondary" :href="route('admin.categories.index')" class="w-full sm:flex-1 xl:w-full">Cancel</x-admin.button>
+            <div class="flex flex-col gap-2 sm:flex-row">
+                <x-admin.button type="submit" class="flex-1">{{ $submitLabel }}</x-admin.button>
+                <x-admin.button variant="secondary" :href="route('admin.categories.index')" class="flex-1">Cancel</x-admin.button>
             </div>
         </div>
     </div>
