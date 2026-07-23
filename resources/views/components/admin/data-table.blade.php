@@ -1,4 +1,8 @@
 <div {{ $attributes->merge(['class' => 'overflow-hidden rounded-[var(--radius-admin-lg)] border admin-border admin-surface shadow-sm']) }}>
+    @if (isset($header))
+        <div class="border-b admin-border bg-admin-bg/30 px-4 py-3.5 sm:px-6">{{ $header }}</div>
+    @endif
+
     @if (isset($toolbar))
         <div class="border-b admin-border bg-admin-bg/30 px-4 py-3.5 sm:px-6">{{ $toolbar }}</div>
     @endif

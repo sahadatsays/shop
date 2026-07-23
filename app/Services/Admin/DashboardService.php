@@ -193,7 +193,7 @@ class DashboardService
         return [
             new QuickActionData(
                 label: 'Add Product',
-                href: null,
+                href: route('admin.products.create'),
                 icon: 'M12 5v14M5 12h14',
                 description: 'Create a new catalog item',
             ),

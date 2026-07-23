@@ -2,17 +2,21 @@
 
 namespace App\Models;
 
+use App\Enums\ProductStatus;
+use App\Support\MoneyFormatter;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * @var list<string>
@@ -22,10 +26,20 @@ class Product extends Model
         'brand_id',
         'name',
         'slug',
+        'sku',
+        'barcode',
+        'short_description',
+        'description',
         'price_cents',
         'stock_quantity',
         'low_stock_threshold',
-        'is_active',
+        'status',
+        'is_featured',
+        'is_new_arrival',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
+        'sort_order',
     ];
 
     /**
@@ -37,7 +51,10 @@ class Product extends Model
             'price_cents' => 'integer',
             'stock_quantity' => 'integer',
             'low_stock_threshold' => 'integer',
-            'is_active' => 'boolean',
+            'status' => ProductStatus::class,
+            'is_featured' => 'boolean',
+            'is_new_arrival' => 'boolean',
+            'sort_order' => 'integer',
         ];
     }
 
@@ -66,12 +83,88 @@ class Product extends Model
     }
 
     /**
+     * @return HasMany<ProductImage, $this>
+     */
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('sort_order');
+    }
+
+    /**
+     * @return HasMany<ProductSpecification, $this>
+     */
+    public function specifications(): HasMany
+    {
+        return $this->hasMany(ProductSpecification::class)->orderBy('sort_order');
+    }
+
+    /**
+     * @return HasMany<ProductAttribute, $this>
+     */
+    public function attributes(): HasMany
+    {
+        return $this->hasMany(ProductAttribute::class)->orderBy('sort_order');
+    }
+
+    /**
+     * @return BelongsToMany<Product, $this>
+     */
+    public function relatedProducts(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Product::class,
+            'product_related',
+            'product_id',
+            'related_product_id',
+        )->withPivot('sort_order')->orderByPivot('sort_order');
+    }
+
+    public function primaryImageUrl(): ?string
+    {
+        $image = $this->images->firstWhere('is_primary', true) ?? $this->images->first();
+
+        return $image?->url();
+    }
+
+    public function formattedPrice(): string
+    {
+        return MoneyFormatter::format($this->price_cents);
+    }
+
+    /**
+     * @param  Builder<Product>  $query
+     * @return Builder<Product>
+     */
+    public function scopePublished(Builder $query): Builder
+    {
+        return $query->where('status', ProductStatus::Published);
+    }
+
+    /**
      * @param  Builder<Product>  $query
      * @return Builder<Product>
      */
     public function scopeActive(Builder $query): Builder
     {
-        return $query->where('is_active', true);
+        return $query->published();
+    }
+
+    /**
+     * @param  Builder<Product>  $query
+     * @return Builder<Product>
+     */
+    public function scopeFeatured(Builder $query): Builder
+    {
+        return $query->where('is_featured', true);
+    }
+
+    /**
+     * @param  Builder<Product>  $query
+     * @return Builder<Product>
+     */
+    public function scopeNewArrival(Builder $query): Builder
+    {
+        return $query->where('is_new_arrival', true);
     }
 
     /**
@@ -81,5 +174,14 @@ class Product extends Model
     public function scopeLowStock(Builder $query): Builder
     {
         return $query->whereColumn('stock_quantity', '<=', 'low_stock_threshold');
+    }
+
+    /**
+     * @param  Builder<Product>  $query
+     * @return Builder<Product>
+     */
+    public function scopeOrdered(Builder $query): Builder
+    {
+        return $query->orderBy('sort_order')->orderBy('name');
     }
 }
