@@ -175,20 +175,6 @@ const initOptionGroups = () => {
     });
 };
 
-const initToggleButtons = () => {
-    document.querySelectorAll('[data-toggle-active]').forEach((button) => {
-        button.setAttribute('aria-pressed', 'false');
-
-        button.addEventListener('click', () => {
-            const active = button.getAttribute('aria-pressed') !== 'true';
-            button.setAttribute('aria-pressed', String(active));
-            button.classList.toggle('border-bronze-500', active);
-            button.classList.toggle('bg-bronze-50', active);
-            button.classList.toggle('text-bronze-700', active);
-        });
-    });
-};
-
 const initStickyAddToCart = () => {
     const bar = document.querySelector('[data-sticky-atc]');
     const anchor = document.querySelector('[data-atc-anchor]');
@@ -218,6 +204,5 @@ export const initProductPage = () => {
     initGallery();
     initQuantitySteppers();
     initOptionGroups();
-    initToggleButtons();
     initStickyAddToCart();
 };

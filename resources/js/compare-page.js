@@ -1,3 +1,5 @@
+import { removeCompareItem } from './compare-api';
+
 const DIFF_CLASSES = ['bg-bronze-50/70'];
 
 export const initComparePage = () => {
@@ -13,9 +15,17 @@ export const initComparePage = () => {
     const countLabel = compare.querySelector('[data-compare-count]');
     const diffToggle = compare.querySelector('[data-compare-diff-toggle]');
 
+    if (!table) {
+        return;
+    }
+
     const remainingColumns = () => [...table.querySelectorAll('thead [data-col]')].map((th) => th.dataset.col);
 
     const applyDiffHighlight = () => {
+        if (!diffToggle) {
+            return;
+        }
+
         const highlight = diffToggle.checked;
 
         table.querySelectorAll('[data-compare-row]').forEach((row) => {
@@ -31,26 +41,58 @@ export const initComparePage = () => {
 
     const updateState = () => {
         const count = remainingColumns().length;
-        countLabel.textContent = `${count} ${count === 1 ? 'product' : 'products'}`;
+
+        if (countLabel) {
+            countLabel.textContent = `${count} ${count === 1 ? 'product' : 'products'}`;
+        }
 
         const isEmpty = count === 0;
-        scroller.hidden = isEmpty;
-        emptyState.hidden = !isEmpty;
-        diffToggle.closest('label').hidden = isEmpty;
+
+        if (scroller) {
+            scroller.hidden = isEmpty;
+        }
+
+        if (emptyState) {
+            emptyState.hidden = !isEmpty;
+        }
+
+        if (diffToggle?.closest('label')) {
+            diffToggle.closest('label').hidden = isEmpty;
+        }
+
         applyDiffHighlight();
+
+        if (isEmpty) {
+            window.location.reload();
+        }
     };
 
-    table.addEventListener('click', (event) => {
+    table.addEventListener('click', async (event) => {
         const removeButton = event.target.closest('[data-compare-remove]');
 
         if (!removeButton) {
             return;
         }
 
-        const column = removeButton.closest('[data-col]').dataset.col;
-        table.querySelectorAll(`[data-col="${column}"]`).forEach((cell) => cell.remove());
-        updateState();
+        const compareItemId = removeButton.dataset.compareItemId;
+
+        if (!compareItemId) {
+            return;
+        }
+
+        removeButton.disabled = true;
+
+        try {
+            await removeCompareItem(Number(compareItemId));
+
+            const column = removeButton.closest('[data-col]').dataset.col;
+            table.querySelectorAll(`[data-col="${column}"]`).forEach((cell) => cell.remove());
+            updateState();
+        } catch (error) {
+            alert(error.message);
+            removeButton.disabled = false;
+        }
     });
 
-    diffToggle.addEventListener('change', applyDiffHighlight);
+    diffToggle?.addEventListener('change', applyDiffHighlight);
 };

@@ -138,8 +138,16 @@
                                     <span data-action-label>Move to cart</span>
                                 </x-ui.button>
                             @endif
-                            <button type="button" data-toggle-active aria-label="Add {{ $product->name }} to compare"
-                                    class="flex size-11.5 shrink-0 items-center justify-center rounded-xl border border-navy-200 text-navy-600 transition-colors duration-200 hover:border-navy-300 hover:bg-navy-50 hover:text-navy-900 aria-pressed:border-bronze-500 aria-pressed:bg-bronze-50 aria-pressed:text-bronze-700">
+                            @php($wishlistInCompare = in_array($product->id, $compareProductIds ?? [], true))
+                            <button type="button"
+                                    data-compare-toggle
+                                    data-product-id="{{ $product->id }}"
+                                    aria-pressed="{{ $wishlistInCompare ? 'true' : 'false' }}"
+                                    aria-label="{{ $wishlistInCompare ? 'Remove' : 'Add' }} {{ $product->name }} {{ $wishlistInCompare ? 'from' : 'to' }} compare"
+                                    @class([
+                                        'flex size-11.5 shrink-0 items-center justify-center rounded-xl border border-navy-200 text-navy-600 transition-colors duration-200 hover:border-navy-300 hover:bg-navy-50 hover:text-navy-900',
+                                        'border-olive-600 bg-olive-50 text-olive-700' => $wishlistInCompare,
+                                    ])>
                                 <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                     <path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/>
                                 </svg>

@@ -27,6 +27,7 @@ class CustomerAuthService
         private CustomerAuthRepositoryInterface $customers,
         private CartService $cart,
         private WishlistService $wishlist,
+        private CompareService $compare,
         private AuditService $audit,
     ) {}
 
@@ -236,6 +237,7 @@ class CustomerAuthService
 
         $this->cart->mergeGuestIntoCustomer($customer);
         $this->wishlist->mergeGuestIntoCustomer($customer);
+        $this->compare->mergeGuestIntoCustomer($customer);
         $this->audit->logCustomerLogin($customer, $request);
 
         CustomerLoggedIn::dispatch($customer);

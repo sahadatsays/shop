@@ -3,6 +3,7 @@
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CollectionController;
+use App\Http\Controllers\CompareController;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\CustomerNotificationController;
 use App\Http\Controllers\CustomerOrderController;
@@ -76,7 +77,11 @@ Route::delete('/wishlist/items/{wishlistItem}', [WishlistController::class, 'des
 Route::post('/wishlist/items/{wishlistItem}/move-to-cart', [WishlistController::class, 'moveToCart'])->name('wishlist.items.move-to-cart');
 Route::post('/wishlist/move-all-to-cart', [WishlistController::class, 'moveAllToCart'])->name('wishlist.move-all-to-cart');
 Route::delete('/wishlist', [WishlistController::class, 'clear'])->name('wishlist.clear');
-Route::view('/compare', 'compare')->name('compare');
+Route::get('/compare', [CompareController::class, 'index'])->name('compare');
+Route::post('/compare/items', [CompareController::class, 'store'])->name('compare.items.store');
+Route::post('/compare/toggle', [CompareController::class, 'toggle'])->name('compare.toggle');
+Route::delete('/compare/items/{compareItem}', [CompareController::class, 'destroy'])->name('compare.items.destroy');
+Route::delete('/compare', [CompareController::class, 'clear'])->name('compare.clear');
 
 Route::middleware('customer.auth')->group(function (): void {
     Route::get('/account/notifications', [CustomerNotificationController::class, 'index'])->name('account.notifications');

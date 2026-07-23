@@ -249,7 +249,13 @@
                             <path d="M12 21s-7.5-4.7-9.5-9A5.5 5.5 0 0 1 12 6.5 5.5 5.5 0 0 1 21.5 12c-2 4.3-9.5 9-9.5 9Z"/>
                         </svg>
                     </x-ui.button>
-                    <x-ui.button variant="outline" aria-label="Add to compare" data-toggle-active class="px-4">
+                    @php($productInCompare = in_array($product->id, $compareProductIds ?? [], true))
+                    <x-ui.button variant="outline"
+                                 aria-label="{{ $productInCompare ? 'Remove from compare' : 'Add to compare' }}"
+                                 data-compare-toggle
+                                 data-product-id="{{ $product->id }}"
+                                 aria-pressed="{{ $productInCompare ? 'true' : 'false' }}"
+                                 @class(['px-4', 'border-olive-600! bg-olive-50! text-olive-700!' => $productInCompare])>
                         <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
                         </svg>

@@ -222,6 +222,7 @@ const initRevealOnScroll = () => {
 
 import { addToCart, updateCartBadge } from './cart-api';
 import { syncWishlistButtons, toggleWishlist } from './wishlist-api';
+import { syncCompareButtons, toggleCompare } from './compare-api';
 
 const initAddToCart = () => {
     document.addEventListener('click', async (event) => {
@@ -307,6 +308,43 @@ const initWishlistToggle = () => {
 };
 
 initWishlistToggle();
+
+const initCompareToggle = () => {
+    const productIds = [...document.querySelectorAll('[data-compare-product-ids]')].flatMap(
+        (element) => JSON.parse(element.textContent || '[]'),
+    );
+
+    if (productIds.length > 0) {
+        syncCompareButtons(productIds);
+    }
+
+    document.addEventListener('click', async (event) => {
+        const button = event.target.closest('[data-compare-toggle]');
+
+        if (!button || button.disabled) {
+            return;
+        }
+
+        const productId = button.dataset.productId;
+
+        if (!productId) {
+            return;
+        }
+
+        event.preventDefault();
+        button.disabled = true;
+
+        try {
+            await toggleCompare(Number(productId));
+        } catch (error) {
+            alert(error.message);
+        } finally {
+            button.disabled = false;
+        }
+    });
+};
+
+initCompareToggle();
 initMobileNav();
 initSearchPanel();
 initCarousels();

@@ -46,6 +46,7 @@
     </a>
 
     <script type="application/json" data-wishlist-product-ids>@json($wishlistProductIds ?? [])</script>
+    <script type="application/json" data-compare-product-ids>@json($compareProductIds ?? [])</script>
 
     @if ($minimal ?? false)
         {{-- Distraction-free header for checkout --}}
@@ -177,12 +178,14 @@
                     </svg>
                     <span data-wishlist-count @class(['absolute -top-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-bronze-500 text-[0.65rem] font-bold text-white', 'hidden' => ($wishlistItemCount ?? 0) <= 0])>{{ $wishlistItemCount ?? 0 }}</span>
                 </a>
-                <a href="{{ route('compare') }}" aria-label="Compare products, 3 items"
+                <a href="{{ route('compare') }}"
+                   data-compare-link
+                   aria-label="Compare products, {{ $compareItemCount ?? 0 }} {{ ($compareItemCount ?? 0) === 1 ? 'item' : 'items' }}"
                    class="site-header-icon relative hidden size-10 items-center justify-center rounded-xl transition-colors duration-200 hover:bg-white/10 hover:text-white lg:flex">
                     <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/>
                     </svg>
-                    <span class="absolute -top-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-olive-600 text-[0.65rem] font-bold text-white">3</span>
+                    <span data-compare-count-badge @class(['absolute -top-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-olive-600 text-[0.65rem] font-bold text-white', 'hidden' => ($compareItemCount ?? 0) <= 0])>{{ $compareItemCount ?? 0 }}</span>
                 </a>
                 <a href="{{ session('customer_id') ? route('account') : route('login') }}" aria-label="{{ session('customer_id') ? 'Account' : 'Sign in' }}"
                    class="site-header-icon hidden size-10 items-center justify-center rounded-xl transition-colors duration-200 hover:bg-white/10 hover:text-white sm:flex">

@@ -59,12 +59,22 @@
                     <path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/>
                 </svg>
             </button>
-            <button type="button" data-toggle-active aria-label="Add {{ $name }} to compare"
-                    class="flex size-10 -translate-x-2 items-center justify-center rounded-full bg-white/90 text-navy-700 opacity-0 shadow-soft backdrop-blur-sm transition-all delay-150 duration-300 hover:bg-navy-900 hover:text-white focus-visible:translate-x-0 focus-visible:opacity-100 group-hover:translate-x-0 group-hover:opacity-100 aria-pressed:text-olive-700">
-                <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/>
-                </svg>
-            </button>
+            @if ($productId)
+                @php($inCompare = in_array($productId, $compareProductIds ?? [], true))
+                <button type="button"
+                        data-compare-toggle
+                        data-product-id="{{ $productId }}"
+                        aria-pressed="{{ $inCompare ? 'true' : 'false' }}"
+                        aria-label="{{ $inCompare ? 'Remove' : 'Add' }} {{ $name }} {{ $inCompare ? 'from' : 'to' }} compare"
+                        @class([
+                            'flex size-10 -translate-x-2 items-center justify-center rounded-full bg-white/90 text-navy-700 opacity-0 shadow-soft backdrop-blur-sm transition-all delay-150 duration-300 hover:bg-navy-900 hover:text-white focus-visible:translate-x-0 focus-visible:opacity-100 group-hover:translate-x-0 group-hover:opacity-100',
+                            'border border-olive-600 bg-olive-50 text-olive-700' => $inCompare,
+                        ])>
+                    <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/>
+                    </svg>
+                </button>
+            @endif
         </div>
 
         {{-- Slide-up add to cart --}}
