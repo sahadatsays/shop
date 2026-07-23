@@ -65,7 +65,7 @@
                                 <a href="{{ route('admin.categories.show', $category) }}" class="block truncate font-medium admin-text hover:underline">{{ $category->name }}</a>
                                 <p class="truncate text-xs admin-muted">{{ $category->slug }}</p>
                                 <div class="mt-2 flex flex-wrap items-center gap-2">
-                                    <x-admin.badge :variant="$category->status === \App\Enums\CategoryStatus::Active ? 'success' : 'muted'">
+                                    <x-admin.badge :variant="$category->status === \App\Enums\CategoryStatus::Active ? 'success' : 'muted'" dot>
                                         {{ $category->status->label() }}
                                     </x-admin.badge>
                                     <span class="text-xs admin-muted">{{ $category->products_count }} products</span>
@@ -100,43 +100,43 @@
             </div>
         </x-slot:mobile>
 
-        <thead class="border-b admin-border bg-admin-bg/60 text-xs uppercase tracking-wide admin-muted">
-            <tr>
-                <th scope="col" class="px-5 py-3.5 font-medium">Category</th>
-                <th scope="col" class="px-5 py-3.5 font-medium">Parent</th>
-                <th scope="col" class="px-5 py-3.5 font-medium">Products</th>
-                <th scope="col" class="px-5 py-3.5 font-medium">Status</th>
-                <th scope="col" class="px-5 py-3.5 font-medium">Sort</th>
-                <th scope="col" class="px-5 py-3.5 text-right font-medium">Actions</th>
+        <thead>
+            <tr class="border-b admin-border bg-admin-bg/40">
+                <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider admin-muted">Category</th>
+                <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider admin-muted">Parent</th>
+                <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider admin-muted">Products</th>
+                <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider admin-muted">Status</th>
+                <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider admin-muted">Sort</th>
+                <th scope="col" class="px-6 py-3.5 text-right text-xs font-semibold uppercase tracking-wider admin-muted">Actions</th>
             </tr>
         </thead>
-        <tbody class="divide-y admin-border">
+        <tbody class="divide-y divide-admin-border/60">
             @forelse ($categories as $category)
-                <tr class="admin-table-row transition-colors hover:bg-admin-accent-muted/25">
-                    <td class="px-5 py-3.5">
+                <tr class="group transition-colors hover:bg-admin-bg/60">
+                    <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
                             @if ($category->imageUrl())
-                                <img src="{{ $category->imageUrl() }}" alt="" class="size-10 rounded-[var(--radius-admin)] object-cover ring-1 ring-black/5">
+                                <img src="{{ $category->imageUrl() }}" alt="" class="size-10 rounded-[var(--radius-admin)] object-cover ring-1 ring-admin-border">
                             @else
                                 <span class="flex size-10 items-center justify-center rounded-[var(--radius-admin)] bg-admin-accent-muted text-xs font-semibold admin-muted">
                                     {{ strtoupper(substr($category->name, 0, 2)) }}
                                 </span>
                             @endif
                             <div class="min-w-0">
-                                <a href="{{ route('admin.categories.show', $category) }}" class="block truncate font-medium admin-text hover:underline">{{ $category->name }}</a>
+                                <a href="{{ route('admin.categories.show', $category) }}" class="block truncate font-medium admin-text hover:text-admin-brand">{{ $category->name }}</a>
                                 <p class="truncate text-xs admin-muted">{{ $category->slug }}</p>
                             </div>
                         </div>
                     </td>
-                    <td class="px-5 py-3.5 admin-text-secondary">{{ $category->parent?->name ?? '—' }}</td>
-                    <td class="px-5 py-3.5 tabular-nums admin-text-secondary">{{ $category->products_count }}</td>
-                    <td class="px-5 py-3.5">
-                        <x-admin.badge :variant="$category->status === \App\Enums\CategoryStatus::Active ? 'success' : 'muted'">
+                    <td class="px-6 py-4 text-sm admin-text-secondary">{{ $category->parent?->name ?? '—' }}</td>
+                    <td class="px-6 py-4 text-sm tabular-nums admin-text-secondary">{{ $category->products_count }}</td>
+                    <td class="px-6 py-4">
+                        <x-admin.badge :variant="$category->status === \App\Enums\CategoryStatus::Active ? 'success' : 'muted'" dot>
                             {{ $category->status->label() }}
                         </x-admin.badge>
                     </td>
-                    <td class="px-5 py-3.5 tabular-nums admin-text-secondary">{{ $category->sort_order }}</td>
-                    <td class="px-5 py-3.5">
+                    <td class="px-6 py-4 text-sm tabular-nums admin-text-secondary">{{ $category->sort_order }}</td>
+                    <td class="px-6 py-4">
                         <div class="flex items-center justify-end gap-1">
                             @if ($isTrashed)
                                 <form method="POST" action="{{ route('admin.categories.restore', $category) }}">

@@ -70,7 +70,7 @@
                                 <a href="{{ route('admin.brands.show', $brand) }}" class="block truncate font-medium admin-text hover:underline">{{ $brand->name }}</a>
                                 <p class="truncate text-xs admin-muted">{{ $brand->slug }}</p>
                                 <div class="mt-2 flex flex-wrap items-center gap-2">
-                                    <x-admin.badge :variant="$brand->status === \App\Enums\BrandStatus::Active ? 'success' : 'muted'">
+                                    <x-admin.badge :variant="$brand->status === \App\Enums\BrandStatus::Active ? 'success' : 'muted'" dot>
                                         {{ $brand->status->label() }}
                                     </x-admin.badge>
                                     @if ($brand->is_featured)
@@ -108,49 +108,49 @@
             </div>
         </x-slot:mobile>
 
-        <thead class="border-b admin-border bg-admin-bg/60 text-xs uppercase tracking-wide admin-muted">
-            <tr>
-                <th scope="col" class="px-5 py-3.5 font-medium">Brand</th>
-                <th scope="col" class="px-5 py-3.5 font-medium">Products</th>
-                <th scope="col" class="px-5 py-3.5 font-medium">Status</th>
-                <th scope="col" class="px-5 py-3.5 font-medium">Featured</th>
-                <th scope="col" class="px-5 py-3.5 font-medium">Sort</th>
-                <th scope="col" class="px-5 py-3.5 text-right font-medium">Actions</th>
+        <thead>
+            <tr class="border-b admin-border bg-admin-bg/40">
+                <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider admin-muted">Brand</th>
+                <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider admin-muted">Products</th>
+                <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider admin-muted">Status</th>
+                <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider admin-muted">Featured</th>
+                <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider admin-muted">Sort</th>
+                <th scope="col" class="px-6 py-3.5 text-right text-xs font-semibold uppercase tracking-wider admin-muted">Actions</th>
             </tr>
         </thead>
-        <tbody class="divide-y admin-border">
+        <tbody class="divide-y divide-admin-border/60">
             @forelse ($brands as $brand)
-                <tr class="admin-table-row transition-colors hover:bg-admin-accent-muted/25">
-                    <td class="px-5 py-3.5">
+                <tr class="group transition-colors hover:bg-admin-bg/60">
+                    <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
                             @if ($brand->logoUrl())
-                                <img src="{{ $brand->logoUrl() }}" alt="" class="size-10 rounded-[var(--radius-admin)] object-contain bg-admin-bg p-1 ring-1 ring-black/5">
+                                <img src="{{ $brand->logoUrl() }}" alt="" class="size-10 rounded-[var(--radius-admin)] object-contain bg-admin-bg p-1 ring-1 ring-admin-border">
                             @else
                                 <span class="flex size-10 items-center justify-center rounded-[var(--radius-admin)] bg-admin-accent-muted text-xs font-semibold admin-muted">
                                     {{ strtoupper(substr($brand->name, 0, 2)) }}
                                 </span>
                             @endif
                             <div class="min-w-0">
-                                <a href="{{ route('admin.brands.show', $brand) }}" class="block truncate font-medium admin-text hover:underline">{{ $brand->name }}</a>
+                                <a href="{{ route('admin.brands.show', $brand) }}" class="block truncate font-medium admin-text hover:text-admin-brand">{{ $brand->name }}</a>
                                 <p class="truncate text-xs admin-muted">{{ $brand->slug }}</p>
                             </div>
                         </div>
                     </td>
-                    <td class="px-5 py-3.5 tabular-nums admin-text-secondary">{{ $brand->products_count }}</td>
-                    <td class="px-5 py-3.5">
-                        <x-admin.badge :variant="$brand->status === \App\Enums\BrandStatus::Active ? 'success' : 'muted'">
+                    <td class="px-6 py-4 text-sm tabular-nums admin-text-secondary">{{ $brand->products_count }}</td>
+                    <td class="px-6 py-4">
+                        <x-admin.badge :variant="$brand->status === \App\Enums\BrandStatus::Active ? 'success' : 'muted'" dot>
                             {{ $brand->status->label() }}
                         </x-admin.badge>
                     </td>
-                    <td class="px-5 py-3.5">
+                    <td class="px-6 py-4">
                         @if ($brand->is_featured)
                             <x-admin.badge variant="brand">Featured</x-admin.badge>
                         @else
-                            <span class="admin-muted">—</span>
+                            <span class="text-sm admin-muted">—</span>
                         @endif
                     </td>
-                    <td class="px-5 py-3.5 tabular-nums admin-text-secondary">{{ $brand->sort_order }}</td>
-                    <td class="px-5 py-3.5">
+                    <td class="px-6 py-4 text-sm tabular-nums admin-text-secondary">{{ $brand->sort_order }}</td>
+                    <td class="px-6 py-4">
                         <div class="flex items-center justify-end gap-1">
                             @if ($isTrashed)
                                 <form method="POST" action="{{ route('admin.brands.restore', $brand) }}">
