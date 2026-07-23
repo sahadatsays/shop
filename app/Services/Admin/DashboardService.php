@@ -2,14 +2,17 @@
 
 namespace App\Services\Admin;
 
+use App\Contracts\Repositories\AdminBrandRepositoryInterface;
 use App\Contracts\Repositories\CategoryRepositoryInterface;
 use App\Contracts\Repositories\CustomerRepositoryInterface;
 use App\Contracts\Repositories\OrderRepositoryInterface;
 use App\Contracts\Repositories\ProductRepositoryInterface;
 use App\DTOs\Admin\Dashboard\ChartData;
 use App\DTOs\Admin\Dashboard\DashboardViewData;
+use App\DTOs\Admin\Dashboard\FeaturedBrandData;
 use App\DTOs\Admin\Dashboard\QuickActionData;
 use App\DTOs\Admin\Dashboard\StatMetricData;
+use App\Models\Brand;
 use App\Support\MoneyFormatter;
 use Illuminate\Support\Collection;
 
@@ -20,6 +23,7 @@ class DashboardService
         private ProductRepositoryInterface $products,
         private CustomerRepositoryInterface $customers,
         private CategoryRepositoryInterface $categories,
+        private AdminBrandRepositoryInterface $brands,
     ) {}
 
     public function getViewData(): DashboardViewData
@@ -35,6 +39,7 @@ class DashboardService
             latestCustomers: $this->customers->latest(),
             topProducts: $this->products->topSelling(),
             lowStockProducts: $this->products->lowStock(),
+            featuredBrands: $this->buildFeaturedBrands(),
             quickActions: $this->buildQuickActions(),
         );
     }
@@ -85,6 +90,13 @@ class DashboardService
                 icon: 'M16 3l5 3-2 5-2-1v10a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V10l-2 1-2-5 5-3a4 4 0 0 0 8 0Z',
             ),
             new StatMetricData(
+                label: 'Brands',
+                value: (string) $this->brands->countActive(),
+                change: 'Active product brands',
+                trend: 'neutral',
+                icon: 'M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3Z',
+            ),
+            new StatMetricData(
                 label: 'Pending Orders',
                 value: (string) $this->orders->countPending(),
                 change: 'Awaiting fulfillment',
@@ -99,6 +111,19 @@ class DashboardService
                 icon: 'M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z',
             ),
         ];
+    }
+
+    /**
+     * @return Collection<int, FeaturedBrandData>
+     */
+    private function buildFeaturedBrands(): Collection
+    {
+        return $this->brands->featured()->map(fn (Brand $brand): FeaturedBrandData => new FeaturedBrandData(
+            name: $brand->name,
+            slug: $brand->slug,
+            logoUrl: $brand->logoUrl(),
+            productCount: $brand->products_count,
+        ));
     }
 
     /**
@@ -173,10 +198,10 @@ class DashboardService
                 description: 'Create a new catalog item',
             ),
             new QuickActionData(
-                label: 'Create Order',
-                href: null,
-                icon: 'M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7Z',
-                description: 'Manually place an order',
+                label: 'Manage Brands',
+                href: route('admin.brands.index'),
+                icon: 'M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3Z',
+                description: 'Create and feature product brands',
             ),
             new QuickActionData(
                 label: 'Manage Customers',

@@ -23,6 +23,7 @@ readonly class DashboardViewData
      * @param  Collection<int, CustomerSummaryData>  $latestCustomers
      * @param  Collection<int, TopProductData>  $topProducts
      * @param  Collection<int, LowStockProductData>  $lowStockProducts
+     * @param  Collection<int, FeaturedBrandData>  $featuredBrands
      * @param  array<int, QuickActionData>  $quickActions
      */
     public function __construct(
@@ -32,6 +33,7 @@ readonly class DashboardViewData
         public Collection $latestCustomers,
         public Collection $topProducts,
         public Collection $lowStockProducts,
+        public Collection $featuredBrands,
         public array $quickActions,
     ) {}
 }

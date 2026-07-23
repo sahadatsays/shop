@@ -29,12 +29,15 @@
         </div>
     </div>
 
-    <div class="mt-6 grid gap-6 lg:grid-cols-2">
+    <div class="mt-6 grid gap-6 lg:grid-cols-3">
         <div class="admin-fade-up" style="animation-delay: 0.45s">
             <x-admin.dashboard.latest-customers :customers="$dashboard->latestCustomers" />
         </div>
         <div class="admin-fade-up" style="animation-delay: 0.5s">
             <x-admin.dashboard.top-products :products="$dashboard->topProducts" />
+        </div>
+        <div class="admin-fade-up" style="animation-delay: 0.55s">
+            <x-admin.dashboard.featured-brands :brands="$dashboard->featuredBrands" />
         </div>
     </div>
 

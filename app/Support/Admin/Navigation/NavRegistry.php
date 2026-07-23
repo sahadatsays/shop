@@ -21,6 +21,7 @@ class NavRegistry
                 children: [
                     new NavItem(label: 'Products', disabled: true),
                     new NavItem(label: 'Categories', route: 'admin.categories.index', routePrefix: 'admin.categories.'),
+                    new NavItem(label: 'Brands', route: 'admin.brands.index', routePrefix: 'admin.brands.'),
                     new NavItem(label: 'Collections', disabled: true),
                     new NavItem(label: 'Inventory', disabled: true, badge: 'Soon'),
                 ],
@@ -89,12 +90,14 @@ class NavRegistry
                 'items' => [
                     ['label' => 'Dashboard', 'href' => route('admin.dashboard'), 'keywords' => 'home overview'],
                     ['label' => 'Categories', 'href' => route('admin.categories.index'), 'keywords' => 'catalog organize'],
+                    ['label' => 'Brands', 'href' => route('admin.brands.index'), 'keywords' => 'catalog brand logo'],
                 ],
             ],
             [
                 'group' => 'Actions',
                 'items' => [
                     ['label' => 'Create category', 'href' => route('admin.categories.create'), 'keywords' => 'new catalog category'],
+                    ['label' => 'Create brand', 'href' => route('admin.brands.create'), 'keywords' => 'new catalog brand'],
                     ['label' => 'Create product', 'href' => null, 'keywords' => 'new catalog add'],
                     ['label' => 'View orders', 'href' => null, 'keywords' => 'commerce sales'],
                     ['label' => 'Export report', 'href' => null, 'keywords' => 'download csv'],
@@ -110,7 +113,7 @@ class NavRegistry
     {
         return [
             ['label' => 'Add Product', 'href' => null, 'icon' => 'M12 5v14M5 12h14'],
-            ['label' => 'Create Order', 'href' => null, 'icon' => 'M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7Z'],
+            ['label' => 'Manage Brands', 'href' => route('admin.brands.index'), 'icon' => 'M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3Z'],
             ['label' => 'Manage Customers', 'href' => null, 'icon' => 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z'],
             ['label' => 'View Reports', 'href' => null, 'icon' => 'M3 3v18h18M7 16l4-4 4 4 5-6'],
         ];

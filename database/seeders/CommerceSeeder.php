@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\OrderStatus;
+use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Order;
@@ -33,7 +34,21 @@ class CommerceSeeder extends Seeder
             Category::factory()->count(2)->child($apparel)->create();
         }
 
-        $products = $categories->flatMap(function (Category $category): Collection {
+        $brands = collect([
+            'Valor Supply Co.',
+            'Garrison Works',
+            'Sentinel & Sons',
+            'Basecamp Provisions',
+            'Old Glory Textiles',
+        ])->map(fn (string $name, int $index) => Brand::factory()->create([
+            'name' => $name,
+            'slug' => str($name)->slug()->toString(),
+            'is_featured' => $index < 3,
+            'sort_order' => $index + 1,
+            'description' => fake()->paragraph(),
+        ]));
+
+        $products = $categories->flatMap(function (Category $category) use ($brands): Collection {
             return Product::factory()
                 ->count(4)
                 ->sequence(
@@ -42,7 +57,10 @@ class CommerceSeeder extends Seeder
                     ['stock_quantity' => 6, 'low_stock_threshold' => 10],
                     ['stock_quantity' => 0],
                 )
-                ->create(['category_id' => $category->id]);
+                ->create([
+                    'category_id' => $category->id,
+                    'brand_id' => $brands->random()->id,
+                ]);
         });
 
         $customers = Customer::factory()->count(24)->create();

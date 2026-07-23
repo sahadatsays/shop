@@ -13,11 +13,12 @@ beforeEach(function (): void {
 test('dashboard service returns all required widgets', function (): void {
     $dashboard = app(DashboardService::class)->getViewData();
 
-    expect($dashboard->stats)->toHaveCount(7)
+    expect($dashboard->stats)->toHaveCount(8)
         ->and($dashboard->charts)->toHaveCount(5)
         ->and($dashboard->recentOrders)->not->toBeEmpty()
         ->and($dashboard->latestCustomers)->not->toBeEmpty()
         ->and($dashboard->topProducts)->not->toBeEmpty()
+        ->and($dashboard->featuredBrands)->not->toBeEmpty()
         ->and($dashboard->quickActions)->toHaveCount(4);
 
     $labels = collect($dashboard->stats)->pluck('label')->all();
@@ -27,6 +28,7 @@ test('dashboard service returns all required widgets', function (): void {
         ->toContain('Revenue')
         ->toContain('Customers')
         ->toContain('Products')
+        ->toContain('Brands')
         ->toContain('Pending Orders')
         ->toContain('Low Stock');
 });

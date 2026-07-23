@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -23,6 +24,7 @@ class ProductFactory extends Factory
 
         return [
             'category_id' => Category::factory(),
+            'brand_id' => null,
             'name' => ucwords($name),
             'slug' => Str::slug($name),
             'price_cents' => fake()->numberBetween(2500, 45000),
@@ -30,6 +32,13 @@ class ProductFactory extends Factory
             'low_stock_threshold' => 10,
             'is_active' => true,
         ];
+    }
+
+    public function forBrand(Brand $brand): static
+    {
+        return $this->state(fn (): array => [
+            'brand_id' => $brand->id,
+        ]);
     }
 
     public function lowStock(): static
