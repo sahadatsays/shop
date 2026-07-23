@@ -1,4 +1,5 @@
 import { removeCompareItem } from './compare-api';
+import { storeToast } from './store-toast';
 
 const DIFF_CLASSES = ['bg-bronze-50/70'];
 
@@ -83,13 +84,14 @@ export const initComparePage = () => {
         removeButton.disabled = true;
 
         try {
-            await removeCompareItem(Number(compareItemId));
+            const payload = await removeCompareItem(Number(compareItemId));
 
             const column = removeButton.closest('[data-col]').dataset.col;
             table.querySelectorAll(`[data-col="${column}"]`).forEach((cell) => cell.remove());
+            storeToast.push({ title: payload.message ?? 'Removed from compare.', type: 'info' });
             updateState();
         } catch (error) {
-            alert(error.message);
+            storeToast.error(error.message ?? 'Unable to remove product from compare.');
             removeButton.disabled = false;
         }
     });

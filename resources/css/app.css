@@ -276,3 +276,73 @@
     -webkit-backdrop-filter: blur(16px) saturate(1.4);
     box-shadow: var(--shadow-glass);
 }
+
+@keyframes store-toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(-0.75rem) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes store-toast-out {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-0.5rem) scale(0.98);
+    }
+}
+
+@keyframes badge-pop {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.25);
+    }
+}
+
+.store-toast-enter {
+    animation: store-toast-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.store-toast-exit {
+    animation: store-toast-out 0.2s ease forwards;
+}
+
+[data-cart-count].is-pulsing,
+[data-wishlist-count].is-pulsing,
+[data-compare-count-badge].is-pulsing {
+    animation: badge-pop 0.35s ease;
+}
+
+[data-wishlist-toggle][aria-pressed='true'] {
+    border-color: var(--color-bronze-500);
+    background-color: var(--color-bronze-50);
+    color: var(--color-red-600);
+}
+
+[data-wishlist-toggle][aria-pressed='true'] svg path {
+    fill: currentColor;
+}
+
+[data-wishlist-toggle][aria-pressed='true']:hover {
+    background-color: color-mix(in srgb, var(--color-bronze-50) 80%, white);
+}
+
+[data-compare-toggle][aria-pressed='true'] {
+    border-color: var(--color-olive-600);
+    background-color: var(--color-olive-50);
+    color: var(--color-olive-700);
+}
+
+[data-compare-toggle][aria-pressed='true']:hover {
+    background-color: color-mix(in srgb, var(--color-olive-50) 80%, white);
+}

@@ -1,3 +1,5 @@
+import { pulseBadges } from './badge-pulse';
+
 const csrfToken = () => document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
 const jsonHeaders = () => ({
@@ -12,6 +14,8 @@ export const updateCartBadge = (count) => {
         badge.textContent = String(count);
         badge.hidden = count <= 0;
     });
+
+    pulseBadges('[data-cart-count]:not([hidden])');
 
     document.querySelectorAll('[data-cart-count-label]').forEach((label) => {
         label.textContent = `${count} ${count === 1 ? 'item' : 'items'}`;

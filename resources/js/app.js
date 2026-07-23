@@ -220,9 +220,12 @@ const initRevealOnScroll = () => {
     });
 };
 
-import { addToCart, updateCartBadge } from './cart-api';
+import { initStoreToast, storeToast } from './store-toast';
+import { addToCart } from './cart-api';
 import { syncWishlistButtons, toggleWishlist } from './wishlist-api';
 import { syncCompareButtons, toggleCompare } from './compare-api';
+
+initStoreToast();
 
 const initAddToCart = () => {
     document.addEventListener('click', async (event) => {
@@ -246,26 +249,15 @@ const initAddToCart = () => {
             ?? document.querySelector('[data-product-page] [data-qty-input]');
         const quantity = Number(quantityInput?.value) || 1;
 
-        const originalText = button.textContent.trim();
         button.disabled = true;
 
         try {
             const payload = await addToCart(Number(productId), quantity);
-            button.textContent = 'Added ✓';
-            updateCartBadge(payload.cart?.item_count ?? 0);
-
-            setTimeout(() => {
-                button.textContent = originalText;
-                button.disabled = false;
-            }, 1500);
+            storeToast.success(payload.message ?? 'Added to cart.');
         } catch (error) {
-            button.textContent = 'Unavailable';
-            alert(error.message);
-
-            setTimeout(() => {
-                button.textContent = originalText;
-                button.disabled = false;
-            }, 2000);
+            storeToast.error(error.message ?? 'Unable to add item to cart.');
+        } finally {
+            button.disabled = false;
         }
     });
 };
@@ -298,9 +290,13 @@ const initWishlistToggle = () => {
         button.disabled = true;
 
         try {
-            await toggleWishlist(Number(productId));
+            const payload = await toggleWishlist(Number(productId));
+            storeToast.push({
+                title: payload.message ?? (payload.in_wishlist ? 'Saved to wishlist.' : 'Removed from wishlist.'),
+                type: payload.in_wishlist ? 'success' : 'info',
+            });
         } catch (error) {
-            alert(error.message);
+            storeToast.error(error.message ?? 'Unable to update wishlist.');
         } finally {
             button.disabled = false;
         }
@@ -335,9 +331,13 @@ const initCompareToggle = () => {
         button.disabled = true;
 
         try {
-            await toggleCompare(Number(productId));
+            const payload = await toggleCompare(Number(productId));
+            storeToast.push({
+                title: payload.message ?? (payload.in_compare ? 'Added to compare.' : 'Removed from compare.'),
+                type: payload.in_compare ? 'success' : 'info',
+            });
         } catch (error) {
-            alert(error.message);
+            storeToast.error(error.message ?? 'Unable to update compare list.');
         } finally {
             button.disabled = false;
         }

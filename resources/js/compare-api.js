@@ -1,3 +1,5 @@
+import { pulseBadges } from './badge-pulse';
+
 const csrfToken = () => document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
 const jsonHeaders = () => ({
@@ -12,6 +14,8 @@ export const updateCompareBadge = (count, productIds = null) => {
         badge.textContent = String(count);
         badge.hidden = count <= 0;
     });
+
+    pulseBadges('[data-compare-count-badge]:not([hidden])');
 
     document.querySelectorAll('[data-compare-link]').forEach((link) => {
         link.setAttribute('aria-label', `Compare products, ${count} ${count === 1 ? 'item' : 'items'}`);
@@ -30,10 +34,10 @@ export const syncCompareButtons = (productIds) => {
         const active = ids.has(productId);
 
         button.setAttribute('aria-pressed', String(active));
+        button.classList.toggle('border', active);
         button.classList.toggle('border-olive-600', active);
         button.classList.toggle('bg-olive-50', active);
         button.classList.toggle('text-olive-700', active);
-        button.classList.toggle('aria-pressed:text-olive-700', active);
     });
 };
 

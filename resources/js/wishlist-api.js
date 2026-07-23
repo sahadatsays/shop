@@ -1,3 +1,6 @@
+import { pulseBadges } from './badge-pulse';
+import { updateCartBadge } from './cart-api';
+
 const csrfToken = () => document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
 const jsonHeaders = () => ({
@@ -12,6 +15,8 @@ export const updateWishlistBadge = (count, productIds = null) => {
         badge.textContent = String(count);
         badge.hidden = count <= 0;
     });
+
+    pulseBadges('[data-wishlist-count]:not([hidden])');
 
     document.querySelectorAll('[data-wishlist-count-label]').forEach((label) => {
         label.textContent = `${count} saved ${count === 1 ? 'item' : 'items'}`;
@@ -34,16 +39,25 @@ export const syncWishlistButtons = (productIds) => {
         const active = ids.has(productId);
 
         button.setAttribute('aria-pressed', String(active));
+        button.classList.toggle('border', active);
         button.classList.toggle('border-bronze-500', active);
         button.classList.toggle('bg-bronze-50', active);
-        button.classList.toggle('text-bronze-700', active);
         button.classList.toggle('text-red-600', active);
+        button.classList.toggle('text-bronze-700', active);
+
+        button.querySelectorAll('svg path').forEach((path) => {
+            path.setAttribute('fill', active ? 'currentColor' : 'none');
+        });
     });
 };
 
 const applyWishlistPayload = (payload) => {
     if (payload.wishlist?.item_count !== undefined) {
         updateWishlistBadge(payload.wishlist.item_count, payload.wishlist.product_ids ?? null);
+    }
+
+    if (payload.cart?.item_count !== undefined) {
+        updateCartBadge(payload.cart.item_count);
     }
 };
 

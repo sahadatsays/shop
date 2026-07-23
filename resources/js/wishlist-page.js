@@ -1,29 +1,13 @@
-import { addToCart, updateCartBadge } from './cart-api';
+import { addToCart } from './cart-api';
 import {
     clearWishlist,
     moveAllWishlistToCart,
     moveWishlistItemToCart,
     removeWishlistItem,
 } from './wishlist-api';
+import { storeToast } from './store-toast';
 
 const REMOVE_ANIMATION_MS = 300;
-
-const showAddedFeedback = (button) => {
-    const label = button.querySelector('[data-action-label]');
-
-    if (!label || button.disabled) {
-        return;
-    }
-
-    const original = label.textContent;
-    button.disabled = true;
-    label.textContent = 'Added \u2713';
-
-    setTimeout(() => {
-        label.textContent = original;
-        button.disabled = false;
-    }, 1600);
-};
 
 export const initWishlistPage = () => {
     const wishlist = document.querySelector('[data-wishlist]');
@@ -62,10 +46,11 @@ export const initWishlistPage = () => {
         item.classList.add('opacity-0', 'scale-95');
 
         try {
-            await removeWishlistItem(wishlistItemId);
+            const payload = await removeWishlistItem(wishlistItemId);
+            storeToast.push({ title: payload.message ?? 'Removed from wishlist.', type: 'info' });
         } catch (error) {
             item.classList.remove('opacity-0', 'scale-95');
-            alert(error.message);
+            storeToast.error(error.message ?? 'Unable to remove item.');
             return;
         }
 
@@ -90,12 +75,11 @@ export const initWishlistPage = () => {
 
             try {
                 const payload = await moveWishlistItemToCart(moveButton.dataset.wishlistItemId);
-                updateCartBadge(payload.cart?.item_count ?? 0);
-                showAddedFeedback(moveButton);
+                storeToast.success(payload.message ?? 'Moved to cart.');
                 removeItemElement(moveButton.closest('[data-wishlist-item]'));
             } catch (error) {
                 moveButton.disabled = false;
-                alert(error.message);
+                storeToast.error(error.message ?? 'Unable to move item to cart.');
             }
 
             return;
@@ -109,11 +93,11 @@ export const initWishlistPage = () => {
 
             try {
                 const payload = await addToCart(Number(addButton.dataset.productId), 1);
-                updateCartBadge(payload.cart?.item_count ?? 0);
-                showAddedFeedback(addButton);
+                storeToast.success(payload.message ?? 'Added to cart.');
             } catch (error) {
+                storeToast.error(error.message ?? 'Unable to add item to cart.');
+            } finally {
                 addButton.disabled = false;
-                alert(error.message);
             }
         }
 
@@ -123,6 +107,7 @@ export const initWishlistPage = () => {
             const label = notifyButton.querySelector('[data-action-label]');
             label.textContent = "We'll email you \u2713";
             notifyButton.disabled = true;
+            storeToast.success("We'll email you when this item is back in stock.");
         }
     });
 
@@ -132,11 +117,12 @@ export const initWishlistPage = () => {
         }
 
         try {
-            await clearWishlist();
+            const payload = await clearWishlist();
             items().forEach((item) => item.remove());
             updateState();
+            storeToast.push({ title: payload.message ?? 'Wishlist cleared.', type: 'info' });
         } catch (error) {
-            alert(error.message);
+            storeToast.error(error.message ?? 'Unable to clear wishlist.');
         }
     });
 
@@ -146,17 +132,17 @@ export const initWishlistPage = () => {
 
         try {
             const payload = await moveAllWishlistToCart();
-            updateCartBadge(payload.cart?.item_count ?? 0);
             items().forEach((item) => item.remove());
             updateState();
 
             if (payload.moved > 0) {
+                storeToast.success(payload.message ?? 'Items moved to cart.');
                 window.location.href = '/cart';
             } else {
-                alert(payload.message);
+                storeToast.warning(payload.message ?? 'No in-stock items were available to move.');
             }
         } catch (error) {
-            alert(error.message);
+            storeToast.error(error.message ?? 'Unable to move items to cart.');
         } finally {
             button.disabled = false;
         }

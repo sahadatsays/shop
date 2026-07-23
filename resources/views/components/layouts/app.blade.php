@@ -372,5 +372,8 @@
         </div>
     </footer>
     @endif
+
+    <x-ui.toast-host />
+
 </body>
 </html>
