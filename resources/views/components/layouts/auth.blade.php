@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ isset($title) ? $title . ' — ' . config('app.name') : config('app.name') }}</title>
     <meta name="description" content="{{ $description ?? 'Sign in to your Valor Supply Co. account.' }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-surface text-ink antialiased">

@@ -1,7 +1,23 @@
+import { removeCartItem, saveCart, updateCartItem } from './cart-api';
+
 const COUPON_CODE = 'VALOR10';
 const COUPON_RATE = 0.1;
 
 const formatMoney = (value) => `$${value.toFixed(2)}`;
+
+const showCartError = (cart, message) => {
+    let alert = cart.querySelector('[data-cart-error]');
+
+    if (!alert) {
+        alert = document.createElement('div');
+        alert.dataset.cartError = '';
+        alert.className = 'mt-6 rounded-card border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-800';
+        cart.querySelector('h1')?.parentElement?.after(alert);
+    }
+
+    alert.textContent = message;
+    alert.hidden = false;
+};
 
 export const initCartPage = () => {
     const cart = document.querySelector('[data-cart]');
@@ -24,6 +40,7 @@ export const initCartPage = () => {
     const shippingBar = cart.querySelector('[data-shipping-bar]');
     const shippingMessage = cart.querySelector('[data-shipping-message]');
     const shippingProgress = cart.querySelector('[data-shipping-progress]');
+    const saveButton = cart.querySelector('[data-save-cart]');
 
     let couponActive = false;
 
@@ -81,31 +98,50 @@ export const initCartPage = () => {
         shippingBar.hidden = isEmpty;
     };
 
-    /*
-     * Delegated listeners fire after the global stepper handlers (bubbling),
-     * so the input value is already updated when we recalculate.
-     */
+    const persistQuantity = async (row, quantity) => {
+        const cartItemId = row.dataset.cartItemId;
+
+        if (!cartItemId) {
+            recalculate();
+            return;
+        }
+
+        try {
+            if (quantity <= 0) {
+                await removeCartItem(cartItemId);
+                row.remove();
+            } else {
+                await updateCartItem(cartItemId, quantity);
+            }
+
+            recalculate();
+        } catch (error) {
+            showCartError(cart, error.message);
+        }
+    };
+
     itemsList.addEventListener('click', (event) => {
         const removeButton = event.target.closest('[data-cart-remove]');
 
         if (removeButton) {
             const row = removeButton.closest('[data-cart-item]');
             row.classList.add('opacity-0');
-            setTimeout(() => {
-                row.remove();
-                recalculate();
-            }, 300);
+            persistQuantity(row, 0);
             return;
         }
 
         if (event.target.closest('[data-qty-minus], [data-qty-plus]')) {
-            recalculate();
+            const row = event.target.closest('[data-cart-item]');
+            const input = row?.querySelector('[data-qty-input]');
+            const quantity = Number(input?.value) || 1;
+            persistQuantity(row, quantity);
         }
     });
 
     itemsList.addEventListener('change', (event) => {
         if (event.target.matches('[data-qty-input]')) {
-            recalculate();
+            const row = event.target.closest('[data-cart-item]');
+            persistQuantity(row, Number(event.target.value) || 1);
         }
     });
 
@@ -132,6 +168,16 @@ export const initCartPage = () => {
         couponInput.value = '';
         couponInput.focus();
         recalculate();
+    });
+
+    saveButton?.addEventListener('click', async () => {
+        try {
+            await saveCart();
+            saveButton.textContent = 'Cart saved';
+            saveButton.disabled = true;
+        } catch (error) {
+            showCartError(cart, error.message);
+        }
     });
 
     recalculate();

@@ -53,7 +53,7 @@
     </nav>
 
     {{-- Product section --}}
-    <section class="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8" data-gallery>
+    <section class="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8" data-gallery @isset($product) data-product-page data-product-id="{{ $product->id }}" @endisset>
 
         {{-- ============ Gallery ============ --}}
         <div class="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
@@ -217,7 +217,7 @@
                         </button>
                     </div>
 
-                    <x-ui.button variant="accent" class="flex-1">
+                    <x-ui.button variant="accent" class="flex-1" data-add-to-cart @isset($product) data-product-id="{{ $product->id }}" @endisset>
                         <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/>
                         </svg>
@@ -439,7 +439,7 @@
                     <p class="text-sm text-navy-600"><span class="font-bold text-navy-900">$189.00</span> <span class="text-navy-400 line-through">$249.00</span></p>
                 </div>
             </div>
-            <x-ui.button variant="accent" size="sm" class="shrink-0">
+            <x-ui.button variant="accent" size="sm" class="shrink-0" data-add-to-cart @isset($product) data-product-id="{{ $product->id }}" @endisset>
                 <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/>
                 </svg>

@@ -62,7 +62,8 @@
                         <p class="mt-2 text-navy-600">Sign in to track orders, manage your profile, and checkout faster.</p>
                     </div>
 
-                    <form class="mt-8 space-y-5 lg:mt-10" data-login-form novalidate>
+                    <form class="mt-8 space-y-5 lg:mt-10" data-login-form method="POST" action="{{ route('login.store') }}" novalidate>
+                        @csrf
                         <x-ui.input name="email" type="email" label="Email address" autocomplete="email" placeholder="you@example.com" required />
 
                         <div class="relative">

@@ -11,6 +11,7 @@
     'reviews' => null,
     'stock' => null,
     'stockPercent' => null,
+    'productId' => null,
 ])
 
 <article {{ $attributes->merge(['class' => 'group relative flex flex-col overflow-hidden rounded-card bg-surface shadow-card transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-card-hover']) }}>
@@ -57,6 +58,7 @@
         {{-- Slide-up add to cart --}}
         <div class="absolute inset-x-3 bottom-3 z-10">
             <button type="button"
+                    @if ($productId) data-add-to-cart data-product-id="{{ $productId }}" @endif
                     class="flex w-full translate-y-3 items-center justify-center gap-2 rounded-xl bg-navy-900/90 px-4 py-3 text-sm font-semibold text-white opacity-0 shadow-card backdrop-blur-sm transition-all duration-300 hover:bg-navy-800 focus-visible:translate-y-0 focus-visible:opacity-100 group-hover:translate-y-0 group-hover:opacity-100">
                 <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/>

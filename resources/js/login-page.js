@@ -26,14 +26,13 @@ export const initLoginPage = () => {
         });
     });
 
-    form?.addEventListener('submit', (event) => {
+    form?.addEventListener('submit', async (event) => {
         event.preventDefault();
 
         const email = form.querySelector('#email')?.value.trim();
-        const password = form.querySelector('#password')?.value;
 
-        if (!email || !password) {
-            statusEl.textContent = 'Please enter your email and password.';
+        if (!email) {
+            statusEl.textContent = 'Please enter your email address.';
             statusEl.classList.remove('text-green-700');
             return;
         }
@@ -43,7 +42,24 @@ export const initLoginPage = () => {
         statusEl.textContent = '';
         statusEl.classList.remove('text-green-700');
 
-        setTimeout(() => {
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: JSON.stringify({ email }),
+            });
+
+            const payload = await response.json();
+
+            if (!response.ok) {
+                throw new Error(payload.message ?? 'Unable to sign in.');
+            }
+
             submitLabel.textContent = 'Signed in \u2713';
             statusEl.textContent = 'Welcome back. Redirecting to your account\u2026';
             statusEl.classList.add('text-green-700');
@@ -51,7 +67,12 @@ export const initLoginPage = () => {
             setTimeout(() => {
                 window.location.href = '/account';
             }, 1200);
-        }, 900);
+        } catch (error) {
+            submitLabel.textContent = 'Sign in';
+            submitButton.disabled = false;
+            statusEl.textContent = error.message;
+            statusEl.classList.remove('text-green-700');
+        }
     });
 
     page.querySelectorAll('[data-social-login]').forEach((button) => {

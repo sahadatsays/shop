@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ isset($title) ? $title . ' — ' . config('app.name') : config('app.name') }}</title>
     <meta name="description" content="{{ $description ?? 'Premium gear and goods crafted with the honor, discipline, and quality of those who served.' }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-canvas text-ink antialiased">
@@ -147,12 +148,12 @@
                         <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/>
                     </svg>
                 </a>
-                <a href="{{ route('cart') }}" aria-label="Cart, 4 items"
+                <a href="{{ route('cart') }}" data-cart-link aria-label="Cart, {{ $cartItemCount ?? 0 }} {{ ($cartItemCount ?? 0) === 1 ? 'item' : 'items' }}"
                    class="relative flex size-10 items-center justify-center rounded-xl text-navy-700 transition-colors duration-200 hover:bg-navy-900/5 hover:text-navy-900">
                     <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/>
                     </svg>
-                    <span class="absolute -top-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-bronze-500 text-[0.65rem] font-bold text-white">4</span>
+                    <span data-cart-count @class(['absolute -top-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-bronze-500 text-[0.65rem] font-bold text-white', 'hidden' => ($cartItemCount ?? 0) <= 0])>{{ $cartItemCount ?? 0 }}</span>
                 </a>
 
                 {{-- Mobile menu toggle --}}

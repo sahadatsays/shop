@@ -7,6 +7,7 @@ use App\Contracts\Repositories\AdminCategoryRepositoryInterface;
 use App\Contracts\Repositories\AdminCustomerRepositoryInterface;
 use App\Contracts\Repositories\AdminInventoryRepositoryInterface;
 use App\Contracts\Repositories\AdminProductRepositoryInterface;
+use App\Contracts\Repositories\CartRepositoryInterface;
 use App\Contracts\Repositories\CategoryRepositoryInterface;
 use App\Contracts\Repositories\CustomerRepositoryInterface;
 use App\Contracts\Repositories\OrderRepositoryInterface;
@@ -16,10 +17,13 @@ use App\Repositories\Eloquent\AdminCategoryRepository;
 use App\Repositories\Eloquent\AdminCustomerRepository;
 use App\Repositories\Eloquent\AdminInventoryRepository;
 use App\Repositories\Eloquent\AdminProductRepository;
+use App\Repositories\Eloquent\CartRepository;
 use App\Repositories\Eloquent\CategoryRepository;
 use App\Repositories\Eloquent\CustomerRepository;
 use App\Repositories\Eloquent\OrderRepository;
 use App\Repositories\Eloquent\ProductRepository;
+use App\View\Composers\CartComposer;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -38,6 +42,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AdminProductRepositoryInterface::class, AdminProductRepository::class);
         $this->app->bind(AdminInventoryRepositoryInterface::class, AdminInventoryRepository::class);
         $this->app->bind(AdminCustomerRepositoryInterface::class, AdminCustomerRepository::class);
+        $this->app->bind(CartRepositoryInterface::class, CartRepository::class);
     }
 
     /**
@@ -45,6 +50,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        View::composer('components.layouts.app', CartComposer::class);
     }
 }

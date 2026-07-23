@@ -1,9 +1,6 @@
 @php
-    $orderItems = [
-        ['name' => 'Ranger Field Jacket', 'variant' => 'Olive Drab / M', 'price' => 189.00, 'qty' => 1, 'image' => 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=200&q=70&auto=format&fit=crop'],
-        ['name' => 'Patriot Canvas Rucksack', 'variant' => 'Coyote Brown', 'price' => 149.00, 'qty' => 1, 'image' => 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=200&q=70&auto=format&fit=crop'],
-        ['name' => 'Honor EDC Kit', 'variant' => 'Midnight Navy', 'price' => 96.00, 'qty' => 2, 'image' => 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=200&q=70&auto=format&fit=crop'],
-    ];
+    /** @var \App\DTOs\Cart\CartSummary $summary */
+    $taxRate = config('cart.tax_rate', 0.08);
 
     $addressFields = function (string $prefix): array {
         return [
@@ -227,18 +224,30 @@
                     <h2 class="font-display text-lg font-bold text-navy-900">Order summary</h2>
 
                     <ul class="mt-6 space-y-4">
-                        @foreach ($orderItems as $item)
+                        @foreach ($summary->items as $line)
+                            @php
+                                $item = $line->cartItem;
+                                $product = $line->product;
+                            @endphp
                             <li class="flex items-center gap-4">
                                 <span class="relative block size-16 shrink-0 overflow-hidden rounded-xl bg-navy-100">
-                                    <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" loading="lazy" class="size-full object-cover">
-                                    <span class="absolute top-0 right-0 flex size-5 items-center justify-center rounded-bl-xl bg-navy-900 text-[0.65rem] font-bold text-white" aria-hidden="true">{{ $item['qty'] }}</span>
+                                    @if ($line->imageUrl())
+                                        <img src="{{ $line->imageUrl() }}" alt="{{ $product->name }}" loading="lazy" class="size-full object-cover">
+                                    @else
+                                        <div class="flex size-full items-center justify-center bg-linear-to-br from-navy-100 to-bronze-100">
+                                            <svg class="size-6 text-navy-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+                                                <rect x="3" y="3" width="18" height="18" rx="3"/>
+                                            </svg>
+                                        </div>
+                                    @endif
+                                    <span class="absolute top-0 right-0 flex size-5 items-center justify-center rounded-bl-xl bg-navy-900 text-[0.65rem] font-bold text-white" aria-hidden="true">{{ $item->quantity }}</span>
                                 </span>
                                 <span class="min-w-0 flex-1">
-                                    <span class="block truncate text-sm font-semibold text-navy-900">{{ $item['name'] }}</span>
-                                    <span class="mt-0.5 block text-xs text-navy-500">{{ $item['variant'] }} · Qty {{ $item['qty'] }}</span>
+                                    <span class="block truncate text-sm font-semibold text-navy-900">{{ $product->name }}</span>
+                                    <span class="mt-0.5 block text-xs text-navy-500">{{ $product->category?->name }} · Qty {{ $item->quantity }}</span>
                                 </span>
-                                <span class="text-sm font-bold text-navy-900 tabular-nums" data-item-total data-price="{{ $item['price'] }}" data-qty="{{ $item['qty'] }}">
-                                    ${{ number_format($item['price'] * $item['qty'], 2) }}
+                                <span class="text-sm font-bold text-navy-900 tabular-nums" data-item-total data-price="{{ $item->unit_price_cents / 100 }}" data-qty="{{ $item->quantity }}">
+                                    {{ $line->formattedLineTotal() }}
                                 </span>
                             </li>
                         @endforeach
