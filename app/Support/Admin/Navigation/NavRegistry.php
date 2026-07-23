@@ -86,6 +86,7 @@ class NavRegistry
                 children: [
                     new NavItem(label: 'Store settings', route: 'admin.settings.edit', routePrefix: 'admin.settings.', permission: 'settings.view'),
                     new NavItem(label: 'Notifications', route: 'admin.notifications.index', routePrefix: 'admin.notifications.', permission: 'notifications.view'),
+                    new NavItem(label: 'Audit logs', route: 'admin.audit-logs.index', routePrefix: 'admin.audit-logs.', permission: 'audit.view'),
                     new NavItem(label: 'Roles', route: 'admin.roles.index', routePrefix: 'admin.roles.', permission: 'roles.view'),
                     new NavItem(label: 'Permissions', route: 'admin.permissions.index', routePrefix: 'admin.permissions.', permission: 'permissions.view'),
                     new NavItem(label: 'Permission matrix', route: 'admin.roles.matrix', permission: 'access-matrix.manage'),

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\BannerPromotionController;
 use App\Http\Controllers\Admin\BrandController;
@@ -138,6 +139,10 @@ Route::middleware('admin.permission:notifications.view')->group(function (): voi
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::patch('notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::post('notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.mark-all-read');
+});
+
+Route::middleware('admin.permission:audit.view')->group(function (): void {
+    Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
 });
 
 Route::middleware('admin.permission:media.view')->group(function (): void {

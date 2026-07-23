@@ -7,6 +7,7 @@ use App\DTOs\Admin\Customer\CustomerFormData;
 use App\Enums\AddressType;
 use App\Models\Customer;
 use App\Models\CustomerNote;
+use App\Services\AuditService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
@@ -14,6 +15,7 @@ class CustomerService
 {
     public function __construct(
         private AdminCustomerRepositoryInterface $customers,
+        private AuditService $audit,
     ) {}
 
     public function list(array $filters = []): LengthAwarePaginator
@@ -42,43 +44,73 @@ class CustomerService
             $this->syncAddresses($customer, $data['addresses'] ?? []);
 
             if (filled($data['note'] ?? null)) {
-                $this->addNote($customer, $data['note'], $data['note_author'] ?? 'Admin');
+                $this->addNote($customer, $data['note'], $data['note_author'] ?? 'Admin', audit: false);
             }
 
-            return $this->customers->find($customer->id);
+            $created = $this->customers->find($customer->id);
+            $this->audit->logCustomerCreated($created);
+
+            if (filled($data['note'] ?? null)) {
+                $this->audit->logCustomerNoteAdded($created, $data['note']);
+            }
+
+            return $created;
         });
     }
 
     public function update(Customer $customer, array $data): Customer
     {
         return DB::transaction(function () use ($customer, $data): Customer {
+            $before = $customer->only(['name', 'email', 'phone', 'status', 'internal_notes']);
             $customer = $this->customers->update($customer, $this->prepareAttributes($data));
             $this->syncAddresses($customer, $data['addresses'] ?? []);
 
             if (filled($data['note'] ?? null)) {
-                $this->addNote($customer, $data['note'], $data['note_author'] ?? 'Admin');
+                $this->addNote($customer, $data['note'], $data['note_author'] ?? 'Admin', audit: false);
             }
 
-            return $this->customers->find($customer->id);
+            $updated = $this->customers->find($customer->id);
+            $after = $updated->only(array_keys($before));
+            $changes = $this->audit->diffAttributes($before, $after, array_keys($before));
+
+            if ($changes !== []) {
+                $this->audit->logCustomerUpdated($updated, $changes);
+            }
+
+            if (filled($data['note'] ?? null)) {
+                $this->audit->logCustomerNoteAdded($updated, $data['note']);
+            }
+
+            return $updated;
         });
     }
 
     public function delete(Customer $customer): void
     {
         $this->customers->delete($customer);
+        $this->audit->logCustomerDeleted($customer);
     }
 
     public function restore(int $id): Customer
     {
-        return $this->customers->restore($id);
+        $customer = $this->customers->restore($id);
+        $this->audit->logCustomerRestored($customer);
+
+        return $customer;
     }
 
-    public function addNote(Customer $customer, string $body, ?string $authorName = null): CustomerNote
+    public function addNote(Customer $customer, string $body, ?string $authorName = null, bool $audit = true): CustomerNote
     {
-        return $customer->notes()->create([
+        $note = $customer->notes()->create([
             'body' => $body,
             'author_name' => $authorName ?: 'Admin',
         ]);
+
+        if ($audit) {
+            $this->audit->logCustomerNoteAdded($customer, $body);
+        }
+
+        return $note;
     }
 
     /**

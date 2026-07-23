@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\Warehouse;
 use App\Models\WarehouseStock;
+use App\Services\AuditService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,7 @@ class InventoryService
 {
     public function __construct(
         private AdminInventoryRepositoryInterface $inventory,
+        private AuditService $audit,
     ) {}
 
     public function listProducts(array $filters = []): LengthAwarePaginator
@@ -166,6 +168,9 @@ class InventoryService
             } else {
                 $this->syncProductTotal($product);
             }
+
+            $movement->load('product');
+            $this->audit->logStockChanged($movement);
 
             return $movement;
         });

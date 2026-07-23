@@ -7,6 +7,7 @@ use App\DTOs\Admin\Product\ProductFormData;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Services\AuditService;
 use App\Support\SlugGenerator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
@@ -18,6 +19,7 @@ class ProductService
     public function __construct(
         private AdminProductRepositoryInterface $products,
         private InventoryService $inventory,
+        private AuditService $audit,
     ) {}
 
     public function list(array $filters = []): LengthAwarePaginator
@@ -53,7 +55,10 @@ class ProductService
             $this->storeGalleryImages($product, $gallery);
             $this->inventory->initializeStock($product, (int) ($data['stock_quantity'] ?? 0));
 
-            return $this->products->find($product->id);
+            $created = $this->products->find($product->id);
+            $this->audit->logProductCreated($created);
+
+            return $created;
         });
     }
 
@@ -63,6 +68,10 @@ class ProductService
     public function update(Product $product, array $data, array $gallery = []): Product
     {
         return DB::transaction(function () use ($product, $data, $gallery): Product {
+            $before = $product->only([
+                'name', 'sku', 'status', 'price_cents', 'compare_at_price_cents',
+                'stock_quantity', 'category_id', 'brand_id', 'is_featured',
+            ]);
             $previousStock = $product->stock_quantity;
             $newStock = (int) ($data['stock_quantity'] ?? 0);
             $attributes = $this->prepareAttributes($data, $product);
@@ -83,18 +92,30 @@ class ProductService
                 $this->inventory->syncProductStockFromForm($product->fresh(), $newStock);
             }
 
-            return $this->products->find($product->id);
+            $updated = $this->products->find($product->id);
+            $after = $updated->only(array_keys($before));
+            $changes = $this->audit->diffAttributes($before, $after, array_keys($before));
+
+            if ($changes !== []) {
+                $this->audit->logProductUpdated($updated, $changes);
+            }
+
+            return $updated;
         });
     }
 
     public function delete(Product $product): void
     {
         $this->products->delete($product);
+        $this->audit->logProductDeleted($product);
     }
 
     public function restore(int $id): Product
     {
-        return $this->products->restore($id);
+        $product = $this->products->restore($id);
+        $this->audit->logProductRestored($product);
+
+        return $product;
     }
 
     /**

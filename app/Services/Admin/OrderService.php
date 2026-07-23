@@ -7,6 +7,7 @@ use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\OrderNote;
 use App\Models\OrderTimelineEvent;
+use App\Services\AuditService;
 use App\Services\NotificationService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,7 @@ class OrderService
     public function __construct(
         private AdminOrderRepositoryInterface $orders,
         private NotificationService $notifications,
+        private AuditService $audit,
     ) {}
 
     public function list(array $filters = []): LengthAwarePaginator
@@ -62,16 +64,27 @@ class OrderService
                 $message,
             );
 
+            $this->audit->logOrderStatusUpdated(
+                $updatedOrder,
+                $previousStatus,
+                $status,
+                $message,
+            );
+
             return $updatedOrder;
         });
     }
 
     public function addNote(Order $order, string $body, ?string $authorName = null): OrderNote
     {
-        return $this->orders->createNote($order, [
+        $note = $this->orders->createNote($order, [
             'body' => $body,
             'author_name' => $authorName ?: 'Admin',
         ]);
+
+        $this->audit->logOrderNoteAdded($order, $body);
+
+        return $note;
     }
 
     public function recordPlacedEvent(Order $order, ?string $authorName = null): OrderTimelineEvent
