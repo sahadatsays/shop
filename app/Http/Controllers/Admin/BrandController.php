@@ -60,6 +60,21 @@ class BrandController extends Controller
             ->with('success', 'Brand created successfully.');
     }
 
+    public function show(Brand $brand): View
+    {
+        $brand->loadCount('products');
+
+        return view('admin.brands.show', [
+            'title' => $brand->name,
+            'breadcrumbs' => [
+                ['label' => 'Catalog'],
+                ['label' => 'Brands', 'href' => route('admin.brands.index')],
+                ['label' => $brand->name],
+            ],
+            'brand' => $brand,
+        ]);
+    }
+
     public function edit(Brand $brand): View
     {
         return view('admin.brands.edit', [
@@ -67,7 +82,8 @@ class BrandController extends Controller
             'breadcrumbs' => [
                 ['label' => 'Catalog'],
                 ['label' => 'Brands', 'href' => route('admin.brands.index')],
-                ['label' => $brand->name],
+                ['label' => $brand->name, 'href' => route('admin.brands.show', $brand)],
+                ['label' => 'Edit'],
             ],
             'form' => $this->brands->formData($brand),
         ]);

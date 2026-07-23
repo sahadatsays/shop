@@ -11,7 +11,7 @@
 
 @if ($disabled)
     <span @class([
-        'group flex items-center gap-3 rounded-[var(--radius-admin)] px-3 py-2.5 text-sm font-medium admin-muted cursor-not-allowed',
+        'admin-nav-link group flex items-center gap-3 rounded-[var(--radius-admin)] px-3 py-2.5 text-sm font-medium admin-muted cursor-not-allowed',
         'bg-admin-accent-muted/40 admin-text' => $active,
     ])
           title="{{ $item->label }}">
@@ -20,17 +20,17 @@
                 <path d="{{ $item->icon }}"/>
             </svg>
         @endif
-        <span class="truncate [[data-sidebar-collapsed=true]_&]:lg:hidden">{{ $item->label }}</span>
+        <span class="admin-nav-label truncate">{{ $item->label }}</span>
         @if ($item->badge)
-            <x-admin.badge variant="muted" class="ml-auto [[data-sidebar-collapsed=true]_&]:lg:hidden">{{ $item->badge }}</x-admin.badge>
+            <x-admin.badge variant="muted" class="admin-nav-label ml-auto">{{ $item->badge }}</x-admin.badge>
         @endif
     </span>
 @else
     <a href="{{ $href }}"
        @class([
-           'group flex items-center gap-3 rounded-[var(--radius-admin)] px-3 py-2.5 text-sm font-medium admin-focus-ring transition-all duration-150',
+           'admin-nav-link group flex items-center gap-3 rounded-[var(--radius-admin)] px-3 py-2.5 text-sm font-medium admin-focus-ring transition-all duration-150',
            'bg-admin-accent-muted admin-text shadow-sm' => $active,
-           'admin-text-secondary hover:bg-admin-accent-muted/60 hover:admin-text hover:translate-x-0.5' => ! $active,
+           'admin-text-secondary hover:bg-admin-accent-muted/60 hover:admin-text' => ! $active,
        ])
        @if($active) aria-current="page" @endif
        title="{{ $item->label }}">
@@ -39,6 +39,6 @@
                 <path d="{{ $item->icon }}"/>
             </svg>
         @endif
-        <span class="truncate [[data-sidebar-collapsed=true]_&]:lg:hidden">{{ $item->label }}</span>
+        <span class="admin-nav-label truncate">{{ $item->label }}</span>
     </a>
 @endif

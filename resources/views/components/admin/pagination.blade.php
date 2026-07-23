@@ -1,18 +1,38 @@
-@if ($paginator->hasPages())
-    <nav role="navigation" aria-label="Pagination" class="flex items-center justify-between gap-4 px-1 py-3">
-        <p class="text-sm admin-muted">
-            Showing {{ $paginator->firstItem() }}–{{ $paginator->lastItem() }} of {{ $paginator->total() }}
+@props([
+    'paginator',
+])
+
+@if ($paginator->total() > 0)
+    <nav role="navigation" aria-label="Pagination" class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-xs admin-muted sm:text-sm">
+            Showing
+            <span class="font-medium admin-text-secondary">{{ $paginator->firstItem() }}</span>
+            to
+            <span class="font-medium admin-text-secondary">{{ $paginator->lastItem() }}</span>
+            of
+            <span class="font-medium admin-text-secondary">{{ $paginator->total() }}</span>
+            results
         </p>
-        <div class="flex gap-1">
+
+        <div class="flex items-center gap-1">
             @if ($paginator->onFirstPage())
-                <span class="rounded-[var(--radius-admin)] px-3 py-1.5 text-sm admin-muted">Prev</span>
+                <span class="inline-flex h-9 cursor-not-allowed items-center rounded-[var(--radius-admin)] border admin-border px-3 text-xs admin-muted">Previous</span>
             @else
-                <a href="{{ $paginator->previousPageUrl() }}" class="rounded-[var(--radius-admin)] px-3 py-1.5 text-sm admin-text-secondary admin-focus-ring hover:bg-admin-accent-muted/60">Prev</a>
+                <a href="{{ $paginator->previousPageUrl() }}" class="inline-flex h-9 items-center rounded-[var(--radius-admin)] border admin-border bg-admin-surface px-3 text-xs font-medium admin-text-secondary transition-colors admin-focus-ring hover:bg-admin-accent-muted/50">Previous</a>
             @endif
+
+            @foreach ($paginator->getUrlRange(max(1, $paginator->currentPage() - 1), min($paginator->lastPage(), $paginator->currentPage() + 1)) as $page => $url)
+                @if ($page === $paginator->currentPage())
+                    <span class="inline-flex size-9 items-center justify-center rounded-[var(--radius-admin)] bg-admin-accent text-xs font-semibold text-white dark:text-admin-bg" aria-current="page">{{ $page }}</span>
+                @else
+                    <a href="{{ $url }}" class="inline-flex size-9 items-center justify-center rounded-[var(--radius-admin)] border admin-border bg-admin-surface text-xs font-medium admin-text-secondary transition-colors admin-focus-ring hover:bg-admin-accent-muted/50">{{ $page }}</a>
+                @endif
+            @endforeach
+
             @if ($paginator->hasMorePages())
-                <a href="{{ $paginator->nextPageUrl() }}" class="rounded-[var(--radius-admin)] px-3 py-1.5 text-sm admin-text-secondary admin-focus-ring hover:bg-admin-accent-muted/60">Next</a>
+                <a href="{{ $paginator->nextPageUrl() }}" class="inline-flex h-9 items-center rounded-[var(--radius-admin)] border admin-border bg-admin-surface px-3 text-xs font-medium admin-text-secondary transition-colors admin-focus-ring hover:bg-admin-accent-muted/50">Next</a>
             @else
-                <span class="rounded-[var(--radius-admin)] px-3 py-1.5 text-sm admin-muted">Next</span>
+                <span class="inline-flex h-9 cursor-not-allowed items-center rounded-[var(--radius-admin)] border admin-border px-3 text-xs admin-muted">Next</span>
             @endif
         </div>
     </nav>

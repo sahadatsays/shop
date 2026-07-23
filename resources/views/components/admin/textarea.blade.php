@@ -1,12 +1,26 @@
 @props([
     'label' => null,
-    'name' => null,
+    'name',
+    'help' => null,
+    'required' => false,
     'rows' => 4,
 ])
 
-<label class="block">
-    @if ($label)
-        <span class="mb-1.5 block text-sm font-medium admin-text">{{ $label }}</span>
-    @endif
-    <textarea name="{{ $name }}" rows="{{ $rows }}" {{ $attributes->merge(['class' => 'block w-full rounded-[var(--radius-admin)] border admin-border bg-admin-bg px-3 py-2 text-sm admin-text placeholder:admin-muted admin-focus-ring']) }}>{{ $slot }}</textarea>
-</label>
+@php
+    $hasError = $errors->has($name);
+    $inputId = 'field-'.$name;
+    $wrapperClass = $attributes->get('class');
+@endphp
+
+<x-admin.field :label="$label" :name="$name" :help="$help" :required="$required" :class="$wrapperClass">
+    <textarea
+        name="{{ $name }}"
+        id="{{ $inputId }}"
+        rows="{{ $rows }}"
+        @if ($required) required @endif
+        @if ($hasError) aria-invalid="true" aria-describedby="{{ $inputId }}-error" @elseif ($help) aria-describedby="{{ $inputId }}-help" @endif
+        {{ $attributes->except('class')->merge([
+            'class' => 'block w-full rounded-[var(--radius-admin)] border bg-admin-bg px-3.5 py-2.5 text-sm admin-text placeholder:admin-muted admin-focus-ring '.($hasError ? 'border-admin-danger' : 'admin-border'),
+        ]) }}
+    >{{ $slot }}</textarea>
+</x-admin.field>

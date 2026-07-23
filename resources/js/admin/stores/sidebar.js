@@ -25,12 +25,18 @@ export const initAdminSidebar = () => {
         return;
     }
 
-    const collapsed = localStorage.getItem(STORAGE_KEY) === 'true';
+    let userCollapsed = localStorage.getItem(STORAGE_KEY) === 'true';
 
-    const setCollapsed = (value) => {
+    const setCollapsed = (value, persist = true) => {
         shell.dataset.sidebarCollapsed = String(value);
-        localStorage.setItem(STORAGE_KEY, String(value));
         collapseToggle?.setAttribute('aria-expanded', String(!value));
+        collapseToggle?.setAttribute('aria-label', value ? 'Expand sidebar' : 'Collapse sidebar');
+        collapseToggle?.setAttribute('title', value ? 'Expand sidebar' : 'Collapse sidebar');
+
+        if (persist) {
+            userCollapsed = value;
+            localStorage.setItem(STORAGE_KEY, String(value));
+        }
     };
 
     const setMobileOpen = (open) => {
@@ -61,13 +67,13 @@ export const initAdminSidebar = () => {
         shell.dataset.viewport = mode;
 
         if (mode === 'mobile') {
-            setCollapsed(false);
+            setCollapsed(false, false);
             setMobileOpen(false);
         } else if (mode === 'tablet') {
-            setCollapsed(true);
+            setCollapsed(true, false);
             setMobileOpen(false);
         } else {
-            setCollapsed(collapsed);
+            setCollapsed(userCollapsed, false);
             setMobileOpen(false);
         }
     };
@@ -83,7 +89,9 @@ export const initAdminSidebar = () => {
     });
 
     collapseToggle?.addEventListener('click', () => {
-        setCollapsed(shell.dataset.sidebarCollapsed !== 'true');
+        if (getViewportMode() === 'desktop') {
+            setCollapsed(shell.dataset.sidebarCollapsed !== 'true', true);
+        }
     });
 
     mobileToggle?.addEventListener('click', () => {
@@ -122,6 +130,10 @@ export const initAdminSidebar = () => {
         initPanel();
 
         toggle.addEventListener('click', () => {
+            if (shell.dataset.sidebarCollapsed === 'true' && getViewportMode() !== 'mobile') {
+                return;
+            }
+
             const expanded = toggle.getAttribute('aria-expanded') === 'true';
             toggle.setAttribute('aria-expanded', String(!expanded));
 

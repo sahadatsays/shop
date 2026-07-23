@@ -62,6 +62,21 @@ class CategoryController extends Controller
             ->with('success', 'Category created successfully.');
     }
 
+    public function show(Category $category): View
+    {
+        $category->load('parent')->loadCount('products');
+
+        return view('admin.categories.show', [
+            'title' => $category->name,
+            'breadcrumbs' => [
+                ['label' => 'Catalog'],
+                ['label' => 'Categories', 'href' => route('admin.categories.index')],
+                ['label' => $category->name],
+            ],
+            'category' => $category,
+        ]);
+    }
+
     public function edit(Category $category): View
     {
         $category = $this->categories->formData($category)->category;
@@ -71,7 +86,8 @@ class CategoryController extends Controller
             'breadcrumbs' => [
                 ['label' => 'Catalog'],
                 ['label' => 'Categories', 'href' => route('admin.categories.index')],
-                ['label' => $category->name],
+                ['label' => $category->name, 'href' => route('admin.categories.show', $category)],
+                ['label' => 'Edit'],
             ],
             'form' => $this->categories->formData($category),
         ]);

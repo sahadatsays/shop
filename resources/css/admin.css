@@ -70,14 +70,60 @@
 }
 
 @layer components {
-    /* Sidebar grid transition */
+    /* Shell grid — explicit widths so collapse actually shrinks the sidebar column */
     [data-admin-shell] {
         transition: grid-template-columns 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Sidebar width transition for collapse */
+    @media (min-width: 1024px) {
+        [data-admin-shell] {
+            display: grid;
+            grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+        }
+
+        [data-admin-shell][data-sidebar-collapsed='true'],
+        [data-admin-shell][data-viewport='tablet'] {
+            grid-template-columns: var(--sidebar-rail) minmax(0, 1fr);
+        }
+    }
+
+    /* Sidebar width tracks shell collapse state */
     [data-admin-sidebar] {
-        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        width: min(18rem, 100vw);
+        transition:
+            transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+            width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @media (min-width: 1024px) {
+        [data-admin-sidebar] {
+            width: var(--sidebar-width);
+            max-width: var(--sidebar-width);
+        }
+
+        [data-admin-shell][data-sidebar-collapsed='true'] [data-admin-sidebar],
+        [data-admin-shell][data-viewport='tablet'] [data-admin-sidebar] {
+            width: var(--sidebar-rail);
+            max-width: var(--sidebar-rail);
+        }
+
+        [data-admin-shell][data-sidebar-collapsed='true'] .admin-nav-label,
+        [data-admin-shell][data-viewport='tablet'] .admin-nav-label {
+            display: none;
+        }
+
+        [data-admin-shell][data-sidebar-collapsed='true'] .admin-nav-link,
+        [data-admin-shell][data-viewport='tablet'] .admin-nav-link {
+            justify-content: center;
+            gap: 0;
+            padding-left: 0.625rem;
+            padding-right: 0.625rem;
+        }
+
+        [data-admin-shell][data-sidebar-collapsed='true'] .admin-nav-group-panel,
+        [data-admin-shell][data-viewport='tablet'] .admin-nav-group-panel {
+            display: none !important;
+        }
     }
 
     /* Backdrop fade */

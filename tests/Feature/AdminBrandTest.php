@@ -85,3 +85,13 @@ test('dashboard shows brands stat and featured brands widget', function (): void
         ->assertSee('Brands')
         ->assertSee('Featured Brands');
 });
+
+test('brand show page renders', function (): void {
+    $brand = Brand::query()->firstOrFail();
+
+    $this->get(route('admin.brands.show', $brand))
+        ->assertSuccessful()
+        ->assertSee($brand->name)
+        ->assertSee($brand->slug)
+        ->assertSee('Edit brand');
+});

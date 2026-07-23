@@ -2,9 +2,30 @@
     'label',
     'name',
     'checked' => false,
+    'help' => null,
 ])
 
-<label class="inline-flex items-center gap-2 text-sm admin-text-secondary">
-    <input type="checkbox" name="{{ $name }}" @checked($checked) {{ $attributes->merge(['class' => 'size-4 rounded border admin-border text-admin-accent admin-focus-ring']) }}>
-    <span>{{ $label }}</span>
-</label>
+@php
+    $hasError = $errors->has($name);
+@endphp
+
+<div {{ $attributes->class('space-y-1.5') }}>
+    <label class="inline-flex cursor-pointer items-start gap-3">
+        <input
+            type="checkbox"
+            name="{{ $name }}"
+            value="1"
+            @checked(old($name, $checked))
+            class="mt-0.5 size-4 rounded border admin-border text-admin-accent admin-focus-ring"
+        >
+        <span>
+            <span class="block text-sm font-medium admin-text">{{ $label }}</span>
+            @if ($help)
+                <span class="mt-0.5 block text-xs admin-muted">{{ $help }}</span>
+            @endif
+        </span>
+    </label>
+    @if ($hasError)
+        <p class="text-xs text-admin-danger" role="alert">{{ $errors->first($name) }}</p>
+    @endif
+</div>

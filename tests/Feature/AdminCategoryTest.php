@@ -98,3 +98,13 @@ test('categories index shows product count', function (): void {
         ->assertSuccessful()
         ->assertSee((string) $category->products_count);
 });
+
+test('category show page renders', function (): void {
+    $category = Category::query()->firstOrFail();
+
+    $this->get(route('admin.categories.show', $category))
+        ->assertSuccessful()
+        ->assertSee($category->name)
+        ->assertSee($category->slug)
+        ->assertSee('Edit category');
+});

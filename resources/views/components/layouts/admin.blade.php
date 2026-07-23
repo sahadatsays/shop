@@ -34,7 +34,7 @@
          data-sidebar-collapsed="false"
          data-sidebar-mobile-open="false"
          data-viewport="desktop"
-         class="min-h-screen lg:grid lg:grid-cols-[var(--sidebar-width)_1fr] [[data-sidebar-collapsed=true]_&]:lg:grid-cols-[var(--sidebar-rail)_1fr] [[data-viewport=tablet]_&]:lg:grid-cols-[var(--sidebar-rail)_1fr]">
+         class="min-h-screen">
 
         <x-admin.sidebar :items="$navItems" :current-route="$currentRoute" />
 

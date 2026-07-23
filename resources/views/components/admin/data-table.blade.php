@@ -1,13 +1,19 @@
-<div {{ $attributes->merge(['class' => 'overflow-hidden rounded-[var(--radius-admin-lg)] border admin-border admin-surface']) }}>
-    @if (isset($header))
-        <div class="border-b admin-border px-4 py-3">{{ $header }}</div>
+<div {{ $attributes->merge(['class' => 'overflow-hidden rounded-[var(--radius-admin-lg)] border admin-border admin-surface shadow-sm']) }}>
+    @if (isset($toolbar))
+        <div class="border-b admin-border bg-admin-bg/30 px-4 py-3 sm:px-5">{{ $toolbar }}</div>
     @endif
-    <div class="overflow-x-auto admin-scrollbar">
+
+    @if (isset($mobile))
+        <div class="p-4 md:hidden">{{ $mobile }}</div>
+    @endif
+
+    <div @class(['hidden overflow-x-auto admin-scrollbar md:block', 'border-t admin-border' => isset($mobile)])>
         <table class="min-w-full text-left text-sm">
             {{ $slot }}
         </table>
     </div>
+
     @if (isset($footer))
-        <div class="border-t admin-border px-4 py-3">{{ $footer }}</div>
+        <div class="border-t admin-border bg-admin-bg/20 px-4 py-3 sm:px-5">{{ $footer }}</div>
     @endif
 </div>
