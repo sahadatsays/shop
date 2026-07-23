@@ -59,7 +59,9 @@ class NavRegistry
             new NavItem(
                 label: 'Content',
                 icon: 'M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2Z',
-                disabled: true,
+                children: [
+                    new NavItem(label: 'Media library', route: 'admin.media.index', routePrefix: 'admin.media.', permission: 'media.view'),
+                ],
             ),
             new NavItem(
                 label: 'Engagement',
@@ -164,6 +166,7 @@ class NavRegistry
                     ['label' => 'Categories', 'href' => route('admin.categories.index'), 'keywords' => 'catalog organize'],
                     ['label' => 'Brands', 'href' => route('admin.brands.index'), 'keywords' => 'catalog brand logo'],
                     ['label' => 'Store settings', 'href' => route('admin.settings.edit'), 'keywords' => 'store configuration logo seo maintenance theme'],
+                    ['label' => 'Media library', 'href' => route('admin.media.index'), 'keywords' => 'upload images files assets media'],
                     ['label' => 'Roles', 'href' => route('admin.roles.index'), 'keywords' => 'system access security'],
                     ['label' => 'Permissions', 'href' => route('admin.permissions.index'), 'keywords' => 'system access security'],
                     ['label' => 'Permission matrix', 'href' => route('admin.roles.matrix'), 'keywords' => 'system access security matrix'],

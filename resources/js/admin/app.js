@@ -1,7 +1,9 @@
+import { copyTextToClipboard } from './utils/clipboard';
 import { Alpine, registerDashboardAlpine } from './dashboard';
 import { registerCategoryForm } from './category-form';
 import { registerProductForm } from './product-form';
 import { registerCustomerForm } from './customer-form';
+import { registerMediaLibrary } from './media-library';
 import { initAdminTheme } from './stores/theme';
 import { initAdminSidebar } from './stores/sidebar';
 import { initAdminToast } from './stores/toast';
@@ -14,6 +16,8 @@ registerDashboardAlpine();
 registerCategoryForm(Alpine);
 registerProductForm(Alpine);
 registerCustomerForm(Alpine);
+registerMediaLibrary(Alpine);
+window.adminCopyText = copyTextToClipboard;
 window.Alpine = Alpine;
 
 document.addEventListener('DOMContentLoaded', () => {

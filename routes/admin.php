@@ -10,6 +10,8 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\MediaController;
+use App\Http\Controllers\Admin\MediaFolderController;
 use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PermissionController;
@@ -129,4 +131,24 @@ Route::middleware('admin.permission:settings.view')->group(function (): void {
     Route::put('settings', [StoreSettingsController::class, 'update'])
         ->middleware('admin.permission:settings.manage')
         ->name('settings.update');
+});
+
+Route::middleware('admin.permission:media.view')->group(function (): void {
+    Route::get('media', [MediaController::class, 'index'])->name('media.index');
+    Route::get('media/picker', [MediaController::class, 'picker'])->name('media.picker');
+    Route::get('media/{media}', [MediaController::class, 'show'])->name('media.show');
+});
+
+Route::middleware('admin.permission:media.manage')->group(function (): void {
+    Route::post('media', [MediaController::class, 'store'])->name('media.store');
+    Route::patch('media/{media}', [MediaController::class, 'update'])->name('media.update');
+    Route::post('media/{media}/crop', [MediaController::class, 'crop'])->name('media.crop');
+    Route::post('media/{media}/optimize', [MediaController::class, 'optimize'])->name('media.optimize');
+    Route::delete('media/{media}', [MediaController::class, 'destroy'])->name('media.destroy');
+});
+
+Route::middleware('admin.permission:media.folders.manage')->group(function (): void {
+    Route::post('media/folders', [MediaFolderController::class, 'store'])->name('media.folders.store');
+    Route::patch('media/folders/{folder}', [MediaFolderController::class, 'update'])->name('media.folders.update');
+    Route::delete('media/folders/{folder}', [MediaFolderController::class, 'destroy'])->name('media.folders.destroy');
 });

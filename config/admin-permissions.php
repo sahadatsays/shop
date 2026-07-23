@@ -37,6 +37,11 @@ return [
             'customers.view' => 'View customers',
             'customers.manage' => 'Manage customers',
         ],
+        'Content' => [
+            'media.view' => 'View media library',
+            'media.manage' => 'Upload and manage media',
+            'media.folders.manage' => 'Manage media folders',
+        ],
         'Administration' => [
             'settings.view' => 'View store settings',
             'settings.manage' => 'Manage store settings',
@@ -102,6 +107,9 @@ return [
             'promotions.view',
             'promotions.manage',
             'settings.view',
+            'media.view',
+            'media.manage',
+            'media.folders.manage',
             'roles.view',
             'permissions.view',
         ],
@@ -121,6 +129,8 @@ return [
             'discounts.view',
             'sale-products.view',
             'promotions.view',
+            'media.view',
+            'media.manage',
         ],
         'inventory_manager' => [
             'dashboard.view',

@@ -10,6 +10,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(AdminAccessSeeder::class);
         $this->call(StoreSettingsSeeder::class);
+        $this->call(MediaSeeder::class);
         $this->call(CommerceSeeder::class);
         $this->call(MarketingSeeder::class);
     }

@@ -1,5 +1,16 @@
 const toasts = [];
 let toastHost = null;
+let toastCounter = 0;
+
+const createToastId = () => {
+    if (typeof crypto?.randomUUID === 'function') {
+        return crypto.randomUUID();
+    }
+
+    toastCounter += 1;
+
+    return `toast-${Date.now()}-${toastCounter}`;
+};
 
 const renderToasts = () => {
     if (!toastHost) {
@@ -80,7 +91,7 @@ const dismissToast = (id) => {
 
 export const adminToast = {
     push({ title, message = '', type = 'info', duration = 5000 }) {
-        const id = crypto.randomUUID();
+        const id = createToastId();
         toasts.push({ id, title, message, type });
         renderToasts();
 
