@@ -8,9 +8,9 @@
     $base = 'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze-500 disabled:pointer-events-none disabled:opacity-50';
 
     $variants = [
-        'primary' => 'bg-navy-900 text-white shadow-soft hover:bg-navy-800 hover:shadow-card active:scale-[0.98]',
+        'primary' => 'bg-[var(--store-button-primary-bg,var(--color-navy-900))] text-[var(--store-button-primary-text,white)] shadow-soft hover:opacity-90 hover:shadow-card active:scale-[0.98]',
         'secondary' => 'bg-olive-600 text-white shadow-soft hover:bg-olive-700 hover:shadow-card active:scale-[0.98]',
-        'accent' => 'bg-bronze-500 text-white shadow-soft hover:bg-bronze-600 hover:shadow-card active:scale-[0.98]',
+        'accent' => 'bg-[var(--store-button-accent-bg,var(--color-bronze-500))] text-[var(--store-button-accent-text,white)] shadow-soft hover:opacity-90 hover:shadow-card active:scale-[0.98]',
         'outline' => 'border border-navy-200 bg-surface text-navy-900 hover:border-navy-300 hover:bg-navy-50 active:scale-[0.98]',
         'ghost' => 'text-navy-700 hover:bg-navy-900/5 hover:text-navy-900',
     ];

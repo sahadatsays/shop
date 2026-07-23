@@ -38,6 +38,8 @@ return [
             'customers.manage' => 'Manage customers',
         ],
         'Administration' => [
+            'settings.view' => 'View store settings',
+            'settings.manage' => 'Manage store settings',
             'roles.view' => 'View roles',
             'roles.manage' => 'Manage roles',
             'permissions.view' => 'View permissions',
@@ -99,6 +101,7 @@ return [
             'sale-products.manage',
             'promotions.view',
             'promotions.manage',
+            'settings.view',
             'roles.view',
             'permissions.view',
         ],

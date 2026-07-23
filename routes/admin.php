@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\PermissionMatrixController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SaleProductController;
+use App\Http\Controllers\Admin\StoreSettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('logout', [AuthController::class, 'destroy'])->name('logout');
@@ -121,4 +122,11 @@ Route::middleware('admin.permission:promotions.view')->group(function (): void {
     Route::resource('countdown-promotions', CountdownPromotionController::class)
         ->parameters(['countdown-promotions' => 'promotion'])
         ->except(['show']);
+});
+
+Route::middleware('admin.permission:settings.view')->group(function (): void {
+    Route::get('settings', [StoreSettingsController::class, 'edit'])->name('settings.edit');
+    Route::put('settings', [StoreSettingsController::class, 'update'])
+        ->middleware('admin.permission:settings.manage')
+        ->name('settings.update');
 });

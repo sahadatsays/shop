@@ -1,11 +1,42 @@
+@php
+    $pageTitle = isset($title) ? $title.' — '.$storeName : ($storeSettings->meta_title ?? $storeName);
+    $pageDescription = $description ?? $storeSettings->defaultMetaDescription();
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ isset($title) ? $title . ' — ' . config('app.name') : config('app.name') }}</title>
-    <meta name="description" content="{{ $description ?? 'Premium gear and goods crafted with the honor, discipline, and quality of those who served.' }}">
+    <title>{{ $pageTitle }}</title>
+    <meta name="description" content="{{ $pageDescription }}">
+    @if ($storeSettings->meta_keywords)
+        <meta name="keywords" content="{{ $storeSettings->meta_keywords }}">
+    @endif
+    @if ($storeSettings->ogImageUrl())
+        <meta property="og:image" content="{{ $storeSettings->ogImageUrl() }}">
+    @endif
+    @if ($storeSettings->faviconUrl())
+        <link rel="icon" href="{{ $storeSettings->faviconUrl() }}">
+    @endif
+    @if ($storeSettings->google_analytics_id)
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $storeSettings->google_analytics_id }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', @json($storeSettings->google_analytics_id));
+        </script>
+    @endif
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @if (filled($storeThemeCss))
+        <style>
+            :root {
+                @foreach ($storeThemeCss as $variable => $value)
+                {{ $variable }}: {{ $value }};
+                @endforeach
+            }
+        </style>
+    @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-canvas text-ink antialiased">
@@ -20,13 +51,17 @@
         {{-- Distraction-free header for checkout --}}
         <header class="glass sticky top-0 z-50 border-b border-navy-900/5">
             <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:h-[4.5rem] lg:px-8">
-                <a href="{{ route('home') }}" class="flex shrink-0 items-center gap-2.5" aria-label="{{ config('app.name') }} — Home">
-                    <span class="flex size-9 items-center justify-center rounded-xl bg-navy-900 text-bronze-400">
-                        <svg class="size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            <path d="M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3Zm0 4.2 1.4 2.84 3.13.46-2.26 2.2.53 3.12L12 13.35l-2.8 1.47.53-3.12-2.26-2.2 3.13-.46L12 6.2Z"/>
-                        </svg>
-                    </span>
-                    <span class="font-display text-lg font-bold tracking-tight text-navy-900">{{ config('app.name') }}</span>
+                <a href="{{ route('home') }}" class="flex shrink-0 items-center gap-2.5" aria-label="{{ $storeName }} — Home">
+                    @if ($storeSettings->logoUrl())
+                        <img src="{{ $storeSettings->logoUrl() }}" alt="" class="h-9 w-auto rounded-lg">
+                    @else
+                        <span class="flex size-9 items-center justify-center rounded-xl bg-navy-900 text-bronze-400">
+                            <svg class="size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3Zm0 4.2 1.4 2.84 3.13.46-2.26 2.2.53 3.12L12 13.35l-2.8 1.47.53-3.12-2.26-2.2 3.13-.46L12 6.2Z"/>
+                            </svg>
+                        </span>
+                    @endif
+                    <span class="font-display text-lg font-bold tracking-tight text-[var(--store-header-text,var(--color-navy-900))]">{{ $storeName }}</span>
                 </a>
 
                 <p class="hidden items-center gap-2 text-sm font-medium text-olive-700 sm:flex">
@@ -45,23 +80,28 @@
         </header>
     @else
     {{-- Utility bar --}}
-    <div class="bg-navy-950 text-center text-xs font-medium tracking-wide text-navy-200">
+    <div class="bg-[var(--store-utility-bg,var(--color-navy-950))] text-center text-xs font-medium tracking-wide text-[var(--store-utility-text,var(--color-navy-200))]">
         <p class="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
-            Free express shipping on orders over $75 &nbsp;•&nbsp; 5% of profits support veteran programs
+            {{ $storeSettings->utility_bar_message ?? 'Free express shipping on orders over $75 • 5% of profits support veteran programs' }}
         </p>
     </div>
 
     <header data-site-header
-            class="glass sticky top-0 z-50 border-b border-navy-900/5 transition-shadow duration-300">
+            class="glass sticky top-0 z-50 border-b border-navy-900/5 transition-shadow duration-300"
+            style="background-color: color-mix(in srgb, var(--store-header-bg, #ffffff) 92%, transparent);">
         <div class="relative mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:h-[4.5rem] lg:px-8">
             {{-- Brand --}}
-            <a href="{{ route('home') }}" class="flex shrink-0 items-center gap-2.5" aria-label="{{ config('app.name') }} — Home">
-                <span class="flex size-9 items-center justify-center rounded-xl bg-navy-900 text-bronze-400">
-                    <svg class="size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3Zm0 4.2 1.4 2.84 3.13.46-2.26 2.2.53 3.12L12 13.35l-2.8 1.47.53-3.12-2.26-2.2 3.13-.46L12 6.2Z"/>
-                    </svg>
-                </span>
-                <span class="font-display text-lg font-bold tracking-tight text-navy-900">{{ config('app.name') }}</span>
+            <a href="{{ route('home') }}" class="flex shrink-0 items-center gap-2.5" aria-label="{{ $storeName }} — Home">
+                @if ($storeSettings->logoUrl())
+                    <img src="{{ $storeSettings->logoUrl() }}" alt="" class="h-9 w-auto rounded-lg">
+                @else
+                    <span class="flex size-9 items-center justify-center rounded-xl bg-navy-900 text-bronze-400">
+                        <svg class="size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3Zm0 4.2 1.4 2.84 3.13.46-2.26 2.2.53 3.12L12 13.35l-2.8 1.47.53-3.12-2.26-2.2 3.13-.46L12 6.2Z"/>
+                        </svg>
+                    </span>
+                @endif
+                <span class="font-display text-lg font-bold tracking-tight text-[var(--store-header-text,var(--color-navy-900))]">{{ $storeName }}</span>
             </a>
 
             {{-- Desktop navigation --}}
@@ -204,7 +244,7 @@
         {{-- Slim distraction-free footer for checkout --}}
         <footer class="mt-20 border-t border-navy-100 bg-surface">
             <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 sm:px-6 lg:flex-row lg:px-8">
-                <p class="text-sm text-navy-500">&copy; {{ date('Y') }} {{ config('app.name') }} All rights reserved.</p>
+                <p class="text-sm text-navy-500">&copy; {{ date('Y') }} {{ $storeName }}. All rights reserved.</p>
                 <ul class="flex flex-wrap justify-center gap-x-6 gap-y-2">
                     @foreach (['Privacy Policy', 'Terms of Service', 'Refund Policy', 'Help'] as $link)
                         <li><a href="#" class="text-sm text-navy-500 transition-colors duration-200 hover:text-navy-900">{{ $link }}</a></li>
@@ -219,37 +259,49 @@
             </div>
         </footer>
     @else
-    <footer class="mt-24 bg-navy-950 text-navy-200">
+    <footer class="mt-24 bg-[var(--store-footer-bg,var(--color-navy-950))] text-navy-200">
         <div class="mx-auto max-w-7xl px-4 pt-20 pb-10 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 gap-12 lg:grid-cols-6">
                 <div class="space-y-5 lg:col-span-2">
                     <div class="flex items-center gap-2.5">
-                        <span class="flex size-10 items-center justify-center rounded-xl bg-white/10 text-bronze-400">
-                            <svg class="size-5.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path d="M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3Zm0 4.2 1.4 2.84 3.13.46-2.26 2.2.53 3.12L12 13.35l-2.8 1.47.53-3.12-2.26-2.2 3.13-.46L12 6.2Z"/>
-                            </svg>
-                        </span>
-                        <span class="font-display text-xl font-bold text-white">{{ config('app.name') }}</span>
+                        @if ($storeSettings->logoUrl())
+                            <img src="{{ $storeSettings->logoUrl() }}" alt="" class="h-10 w-auto rounded-lg">
+                        @else
+                            <span class="flex size-10 items-center justify-center rounded-xl bg-white/10 text-bronze-400">
+                                <svg class="size-5.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                    <path d="M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3Zm0 4.2 1.4 2.84 3.13.46-2.26 2.2.53 3.12L12 13.35l-2.8 1.47.53-3.12-2.26-2.2 3.13-.46L12 6.2Z"/>
+                                </svg>
+                            </span>
+                        @endif
+                        <span class="font-display text-xl font-bold text-white">{{ $storeName }}</span>
                     </div>
                     <p class="max-w-sm text-sm leading-relaxed text-navy-300">
-                        Premium gear and goods crafted with the honor, discipline, and quality of those who served. Veteran owned and operated since 2019.
+                        {{ $storeSettings->description ?? 'Premium gear and goods crafted with the honor, discipline, and quality of those who served.' }}
                     </p>
                     <ul class="space-y-2 text-sm text-navy-300">
                         <li class="flex items-center gap-2.5">
                             <svg class="size-4 text-bronze-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16v12H4zM4 7l8 6 8-6"/></svg>
-                            support@valorsupply.co
+                            <a href="mailto:{{ $storeSettings->contactEmail() }}" class="transition-colors hover:text-[var(--store-link-accent,var(--color-bronze-400))]">{{ $storeSettings->contactEmail() }}</a>
                         </li>
-                        <li class="flex items-center gap-2.5">
-                            <svg class="size-4 text-bronze-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg>
-                            1-800-VALOR-CO (Mon–Fri, 0800–1800 ET)
-                        </li>
+                        @if ($storeSettings->phone)
+                            <li class="flex items-center gap-2.5">
+                                <svg class="size-4 text-bronze-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg>
+                                {{ $storeSettings->phone }}
+                            </li>
+                        @endif
                     </ul>
                     <div class="flex gap-2">
-                        @foreach (['Instagram' => 'M8 3h8a5 5 0 0 1 5 5v8a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5V8a5 5 0 0 1 5-5Zm4 5.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM17 6.8a.8.8 0 1 0 0 1.6.8.8 0 0 0 0-1.6Z', 'Facebook' => 'M14 9h3V6h-3a4 4 0 0 0-4 4v2H7v3h3v6h3v-6h3l1-3h-4v-2a1 1 0 0 1 1-1Z', 'YouTube' => 'M21 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C15.4 5 12 5 12 5s-3.4 0-6.2.1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S3 9.6 3 11.2v1.5C3 14.4 3.2 16 3.2 16s.2 1.4.8 2c.8.8 1.8.8 2.2.9 1.6.1 5.8.1 5.8.1s3.4 0 6.2-.1c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.3v-1.5C21.2 9.6 21 8 21 8ZM10 14.6V9.4l5 2.6-5 2.6Z'] as $network => $path)
-                            <a href="#" aria-label="{{ $network }}"
-                               class="flex size-10 items-center justify-center rounded-xl bg-white/5 text-navy-300 transition-colors duration-200 hover:bg-bronze-500 hover:text-white">
-                                <svg class="size-4.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="{{ $path }}"/></svg>
-                            </a>
+                        @foreach ([
+                            'Instagram' => ['url' => $storeSettings->socialLinks()['instagram'], 'path' => 'M8 3h8a5 5 0 0 1 5 5v8a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5V8a5 5 0 0 1 5-5Zm4 5.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM17 6.8a.8.8 0 1 0 0 1.6.8.8 0 0 0 0-1.6Z'],
+                            'Facebook' => ['url' => $storeSettings->socialLinks()['facebook'], 'path' => 'M14 9h3V6h-3a4 4 0 0 0-4 4v2H7v3h3v6h3v-6h3l1-3h-4v-2a1 1 0 0 1 1-1Z'],
+                            'YouTube' => ['url' => $storeSettings->socialLinks()['youtube'], 'path' => 'M21 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C15.4 5 12 5 12 5s-3.4 0-6.2.1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S3 9.6 3 11.2v1.5C3 14.4 3.2 16 3.2 16s.2 1.4.8 2c.8.8 1.8.8 2.2.9 1.6.1 5.8.1 5.8.1s3.4 0 6.2-.1c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.3v-1.5C21.2 9.6 21 8 21 8ZM10 14.6V9.4l5 2.6-5 2.6Z'],
+                        ] as $network => $social)
+                            @if ($social['url'])
+                                <a href="{{ $social['url'] }}" aria-label="{{ $network }}" target="_blank" rel="noopener noreferrer"
+                                   class="flex size-10 items-center justify-center rounded-xl bg-white/5 text-navy-300 transition-colors duration-200 hover:bg-bronze-500 hover:text-white">
+                                    <svg class="size-4.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="{{ $social['path'] }}"/></svg>
+                                </a>
+                            @endif
                         @endforeach
                     </div>
                 </div>
@@ -284,7 +336,7 @@
             </div>
 
             <div class="mt-16 flex flex-col items-center justify-between gap-6 border-t border-white/10 pt-8 lg:flex-row">
-                <p class="text-sm text-navy-400">&copy; {{ date('Y') }} {{ config('app.name') }} All rights reserved.</p>
+                <p class="text-sm text-navy-400">&copy; {{ date('Y') }} {{ $storeName }}. All rights reserved.</p>
                 <ul class="flex flex-wrap justify-center gap-2">
                     @foreach (['VISA', 'Mastercard', 'AMEX', 'PayPal', 'Apple Pay', 'G Pay'] as $method)
                         <li class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold tracking-wide text-navy-300">{{ $method }}</li>

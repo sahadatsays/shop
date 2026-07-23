@@ -9,6 +9,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(AdminAccessSeeder::class);
+        $this->call(StoreSettingsSeeder::class);
         $this->call(CommerceSeeder::class);
         $this->call(MarketingSeeder::class);
     }

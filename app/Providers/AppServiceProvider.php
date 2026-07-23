@@ -26,7 +26,9 @@ use App\Repositories\Eloquent\CustomerRepository;
 use App\Repositories\Eloquent\OrderRepository;
 use App\Repositories\Eloquent\ProductRepository;
 use App\Repositories\Eloquent\WishlistRepository;
+use App\Support\StoreSettings;
 use App\View\Composers\CartComposer;
+use App\View\Composers\StoreSettingsComposer;
 use App\View\Composers\WishlistComposer;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -59,5 +61,31 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer('components.layouts.app', CartComposer::class);
         View::composer('components.layouts.app', WishlistComposer::class);
+        View::composer('components.layouts.app', StoreSettingsComposer::class);
+        View::composer('errors.store-maintenance', StoreSettingsComposer::class);
+
+        $this->applyStoreSettings();
+    }
+
+    private function applyStoreSettings(): void
+    {
+        try {
+            $settings = StoreSettings::current();
+
+            config([
+                'app.name' => $settings->store_name,
+                'app.timezone' => $settings->timezone,
+            ]);
+
+            if ($settings->mail_from_name) {
+                config(['mail.from.name' => $settings->mail_from_name]);
+            }
+
+            if ($settings->mail_from_address) {
+                config(['mail.from.address' => $settings->mail_from_address]);
+            }
+        } catch (\Throwable) {
+            //
+        }
     }
 }
