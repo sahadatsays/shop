@@ -91,4 +91,25 @@ class ProductFactory extends Factory
             'stock_quantity' => 0,
         ]);
     }
+
+    public function onSale(): static
+    {
+        return $this->state(function (array $attributes): array {
+            $price = $attributes['price_cents'] ?? fake()->numberBetween(2500, 45000);
+
+            return [
+                'compare_at_price_cents' => $price + fake()->numberBetween(500, 5000),
+                'price_cents' => $price,
+            ];
+        });
+    }
+
+    public function configure(): static
+    {
+        return $this->afterMaking(function (Product $product): void {
+            if ($product->compare_at_price_cents !== null && $product->compare_at_price_cents <= $product->price_cents) {
+                $product->compare_at_price_cents = null;
+            }
+        });
+    }
 }

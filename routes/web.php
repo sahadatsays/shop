@@ -4,10 +4,11 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
-Route::view('/shop', 'shop')->name('shop');
+Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 Route::view('/categories', 'categories')->name('categories');
 Route::view('/search', 'search')->name('search');
 

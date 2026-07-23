@@ -2,6 +2,8 @@
     'name',
     'price',
     'oldPrice' => null,
+    'brand' => null,
+    'shortDescription' => null,
     'category' => null,
     'badge' => null,
     'badgeVariant' => 'bronze',
@@ -58,8 +60,11 @@
         {{-- Slide-up add to cart --}}
         <div class="absolute inset-x-3 bottom-3 z-10">
             <button type="button"
-                    @if ($productId) data-add-to-cart data-product-id="{{ $productId }}" @endif
-                    class="flex w-full translate-y-3 items-center justify-center gap-2 rounded-xl bg-navy-900/90 px-4 py-3 text-sm font-semibold text-white opacity-0 shadow-card backdrop-blur-sm transition-all duration-300 hover:bg-navy-800 focus-visible:translate-y-0 focus-visible:opacity-100 group-hover:translate-y-0 group-hover:opacity-100">
+                    class="flex w-full translate-y-3 items-center justify-center gap-2 rounded-xl bg-navy-900/90 px-4 py-3 text-sm font-semibold text-white opacity-0 shadow-card backdrop-blur-sm transition-all duration-300 hover:bg-navy-800 focus-visible:translate-y-0 focus-visible:opacity-100 group-hover:translate-y-0 group-hover:opacity-100"
+                    @if ($productId)
+                        data-add-to-cart
+                        data-product-id="{{ $productId }}"
+                    @endif>
                 <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/>
                 </svg>
@@ -69,18 +74,37 @@
     </div>
 
     <div class="flex flex-1 flex-col gap-1.5 p-5">
-        @if ($category)
-            <p class="text-xs font-medium tracking-wide text-navy-500 uppercase">{{ $category }}</p>
+        @if ($category || $brand)
+            <p class="text-xs font-medium tracking-wide text-navy-500 uppercase">
+                @if ($category)
+                    {{ $category }}
+                @endif
+                @if ($category && $brand)
+                    <span class="text-navy-300"> · </span>
+                @endif
+                @if ($brand)
+                    {{ $brand }}
+                @endif
+            </p>
         @endif
 
         <h3 class="font-display text-base font-semibold text-navy-900">
             <a href="{{ $href }}" class="after:absolute after:inset-0">{{ $name }}</a>
         </h3>
 
+        @if ($shortDescription)
+            <p class="line-clamp-2 text-sm text-navy-600">{{ $shortDescription }}</p>
+        @endif
+
         @if ($rating !== null)
             <div class="flex items-center gap-2">
                 <x-ui.rating :value="$rating" size="sm" />
-                <span class="text-xs text-navy-500">{{ $rating }}@if ($reviews !== null) ({{ $reviews }})@endif</span>
+                <span class="text-xs text-navy-500">
+                    {{ $rating }}
+                    @if ($reviews !== null)
+                        ({{ $reviews }})
+                    @endif
+                </span>
             </div>
         @endif
 

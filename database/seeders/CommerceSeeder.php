@@ -12,6 +12,7 @@ use App\Models\CustomerNote;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\Warehouse;
 use App\Services\Admin\InventoryService;
 use Illuminate\Database\Seeder;
@@ -55,17 +56,42 @@ class CommerceSeeder extends Seeder
 
         $products = $categories->flatMap(function (Category $category) use ($brands): Collection {
             return Product::factory()
-                ->count(4)
+                ->count(6)
                 ->sequence(
-                    ['stock_quantity' => 45],
+                    ['stock_quantity' => 45, 'is_featured' => true],
                     ['stock_quantity' => 28],
                     ['stock_quantity' => 6, 'low_stock_threshold' => 10],
+                    ['stock_quantity' => 22, 'is_new_arrival' => true],
+                    ['stock_quantity' => 15],
                     ['stock_quantity' => 0],
                 )
                 ->create([
                     'category_id' => $category->id,
                     'brand_id' => $brands->random()->id,
                 ]);
+        });
+
+        $products->each(function (Product $product, int $index): void {
+            if (fake()->boolean(35)) {
+                $product->update([
+                    'compare_at_price_cents' => $product->price_cents + fake()->numberBetween(800, 6000),
+                ]);
+            }
+
+            ProductImage::query()->create([
+                'product_id' => $product->id,
+                'path' => 'https://images.unsplash.com/photo-'.fake()->randomElement([
+                    '1551028719-00167b16eac5',
+                    '1553062407-98eeb64c6a62',
+                    '1521572163474-6864f9cf17ab',
+                    '1524592094714-0f0654e20314',
+                    '1512436991641-6745cdb1723f',
+                    '1512820790803-83ca734da794',
+                ]).'?w=800&q=70&auto=format&fit=crop',
+                'alt_text' => $product->name,
+                'sort_order' => 0,
+                'is_primary' => true,
+            ]);
         });
 
         $warehouse = Warehouse::query()->create([
@@ -217,5 +243,7 @@ class CommerceSeeder extends Seeder
                     'total_cents' => $lineTotal,
                 ]);
             });
+
+        $this->call(StorefrontDemoSeeder::class);
     }
 }

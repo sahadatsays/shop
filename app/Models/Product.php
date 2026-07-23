@@ -31,6 +31,7 @@ class Product extends Model
         'short_description',
         'description',
         'price_cents',
+        'compare_at_price_cents',
         'stock_quantity',
         'low_stock_threshold',
         'status',
@@ -49,6 +50,7 @@ class Product extends Model
     {
         return [
             'price_cents' => 'integer',
+            'compare_at_price_cents' => 'integer',
             'stock_quantity' => 'integer',
             'low_stock_threshold' => 'integer',
             'status' => ProductStatus::class,
@@ -181,6 +183,115 @@ class Product extends Model
     public function formattedPrice(): string
     {
         return MoneyFormatter::format($this->price_cents);
+    }
+
+    public function formattedCompareAtPrice(): ?string
+    {
+        return $this->compare_at_price_cents !== null
+            ? MoneyFormatter::format($this->compare_at_price_cents)
+            : null;
+    }
+
+    public function isOnSale(): bool
+    {
+        return $this->compare_at_price_cents !== null
+            && $this->compare_at_price_cents > $this->price_cents;
+    }
+
+    public function discountPercent(): ?int
+    {
+        if (! $this->isOnSale()) {
+            return null;
+        }
+
+        return (int) round((1 - ($this->price_cents / $this->compare_at_price_cents)) * 100);
+    }
+
+    /**
+     * @return array{badge: string|null, variant: string}
+     */
+    public function shopBadge(): array
+    {
+        if ($this->isOnSale()) {
+            return ['badge' => '-'.$this->discountPercent().'%', 'variant' => 'danger'];
+        }
+
+        if ($this->is_new_arrival) {
+            return ['badge' => 'New', 'variant' => 'olive'];
+        }
+
+        if ($this->is_featured) {
+            return ['badge' => 'Best seller', 'variant' => 'bronze'];
+        }
+
+        if ($this->isLowStock()) {
+            return ['badge' => 'Limited', 'variant' => 'navy'];
+        }
+
+        return ['badge' => null, 'variant' => 'bronze'];
+    }
+
+    public function shopStockLabel(): string
+    {
+        if ($this->isLowStock()) {
+            return 'Only '.$this->stock_quantity.' left — order soon';
+        }
+
+        return 'In stock';
+    }
+
+    public function shopStockPercent(): ?int
+    {
+        if (! $this->isLowStock()) {
+            return null;
+        }
+
+        $capacity = max($this->low_stock_threshold * 3, 1);
+
+        return (int) min(100, max(8, round(($this->stock_quantity / $capacity) * 100)));
+    }
+
+    public function placeholderRating(): float
+    {
+        $seed = crc32((string) $this->id);
+
+        return round(4.3 + ($seed % 8) / 10, 1);
+    }
+
+    public function placeholderReviewCount(): int
+    {
+        $min = (int) config('shop.review_count_min', 12);
+        $max = (int) config('shop.review_count_max', 150);
+
+        return $min + (crc32($this->slug) % max(1, $max - $min + 1));
+    }
+
+    /**
+     * @param  Builder<Product>  $query
+     * @return Builder<Product>
+     */
+    public function scopeVisibleOnWebsite(Builder $query): Builder
+    {
+        return $query->published();
+    }
+
+    /**
+     * @param  Builder<Product>  $query
+     * @return Builder<Product>
+     */
+    public function scopeShopVisible(Builder $query): Builder
+    {
+        return $query->visibleOnWebsite();
+    }
+
+    /**
+     * @param  Builder<Product>  $query
+     * @return Builder<Product>
+     */
+    public function scopeOnSale(Builder $query): Builder
+    {
+        return $query->whereNotNull('compare_at_price_cents')
+            ->whereColumn('compare_at_price_cents', '>', 'price_cents');
     }
 
     /**

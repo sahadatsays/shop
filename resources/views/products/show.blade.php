@@ -53,7 +53,7 @@
     </nav>
 
     {{-- Product section --}}
-    <section class="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8" data-gallery @isset($product) data-product-page data-product-id="{{ $product->id }}" @endisset>
+    <section class="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8" data-gallery data-product-page data-product-id="{{ $product->id }}">
 
         {{-- ============ Gallery ============ --}}
         <div class="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
@@ -217,7 +217,7 @@
                         </button>
                     </div>
 
-                    <x-ui.button variant="accent" class="flex-1" data-add-to-cart @isset($product) data-product-id="{{ $product->id }}" @endisset>
+                    <x-ui.button variant="accent" class="flex-1" data-add-to-cart data-product-id="{{ $product->id }}">
                         <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/>
                         </svg>
@@ -394,14 +394,14 @@
             <x-ui.section-heading align="left" eyebrow="You may also like" title="Completes the kit" />
             <x-ui.button href="#" variant="outline">View all</x-ui.button>
         </div>
-        <div class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            @foreach ($relatedProducts as $product)
+        <div class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+            @foreach ($relatedProducts as $relatedItem)
                 <x-ui.product-card
-                    :name="$product['name']"
-                    :category="$product['category']"
-                    :price="$product['price']"
-                    :badge="$product['badge']"
-                    :badge-variant="$product['badgeVariant']"
+                    :name="$relatedItem['name']"
+                    :category="$relatedItem['category']"
+                    :price="$relatedItem['price']"
+                    :badge="$relatedItem['badge']"
+                    :badge-variant="$relatedItem['badgeVariant']"
                     :href="route('product.show')"
                 />
             @endforeach
@@ -411,12 +411,12 @@
     {{-- ============ Recently viewed ============ --}}
     <section class="mx-auto max-w-7xl px-4 pb-4 sm:px-6 lg:px-8" data-reveal>
         <x-ui.section-heading align="left" eyebrow="Pick up where you left off" title="Recently viewed" />
-        <div class="mt-10 grid grid-cols-2 gap-6 lg:grid-cols-4">
-            @foreach ($recentlyViewed as $product)
+        <div class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+            @foreach ($recentlyViewed as $viewedItem)
                 <x-ui.product-card
-                    :name="$product['name']"
-                    :category="$product['category']"
-                    :price="$product['price']"
+                    :name="$viewedItem['name']"
+                    :category="$viewedItem['category']"
+                    :price="$viewedItem['price']"
                     :href="route('product.show')"
                 />
             @endforeach
@@ -435,11 +435,16 @@
                     </svg>
                 </span>
                 <div class="min-w-0">
-                    <p class="truncate font-display text-sm font-semibold text-navy-900">Ranger Field Jacket</p>
-                    <p class="text-sm text-navy-600"><span class="font-bold text-navy-900">$189.00</span> <span class="text-navy-400 line-through">$249.00</span></p>
+                    <p class="truncate font-display text-sm font-semibold text-navy-900">{{ $product->name }}</p>
+                    <p class="text-sm text-navy-600">
+                        <span class="font-bold text-navy-900">{{ $product->formattedPrice() }}</span>
+                        @if ($product->isOnSale())
+                            <span class="text-navy-400 line-through">{{ $product->formattedCompareAtPrice() }}</span>
+                        @endif
+                    </p>
                 </div>
             </div>
-            <x-ui.button variant="accent" size="sm" class="shrink-0" data-add-to-cart @isset($product) data-product-id="{{ $product->id }}" @endisset>
+            <x-ui.button variant="accent" size="sm" class="shrink-0" data-add-to-cart data-product-id="{{ $product->id }}">
                 <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/>
                 </svg>
