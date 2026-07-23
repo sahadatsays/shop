@@ -7,6 +7,7 @@ use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\OrderNote;
 use App\Models\OrderTimelineEvent;
+use App\Services\NotificationService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
@@ -14,6 +15,7 @@ class OrderService
 {
     public function __construct(
         private AdminOrderRepositoryInterface $orders,
+        private NotificationService $notifications,
     ) {}
 
     public function list(array $filters = []): LengthAwarePaginator
@@ -41,6 +43,8 @@ class OrderService
         }
 
         return DB::transaction(function () use ($order, $status, $message, $authorName): Order {
+            $previousStatus = $order->status;
+
             $this->orders->updateStatus($order, $status->value);
 
             $this->orders->createTimelineEvent($order, [
@@ -49,7 +53,16 @@ class OrderService
                 'author_name' => $authorName ?: 'Admin',
             ]);
 
-            return $this->orders->find($order->id);
+            $updatedOrder = $this->orders->find($order->id);
+
+            $this->notifications->notifyOrderStatusChange(
+                $updatedOrder,
+                $previousStatus,
+                $status,
+                $message,
+            );
+
+            return $updatedOrder;
         });
     }
 

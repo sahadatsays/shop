@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Customer;
 use App\Models\User;
 use Database\Seeders\AdminAccessSeeder;
 use Tests\TestCase;
@@ -58,4 +59,13 @@ function actingAsAdmin(?string $roleSlug = 'owner'): User
 function seedAdminAccess(): void
 {
     test()->seed(AdminAccessSeeder::class);
+}
+
+function actingAsCustomer(?Customer $customer = null): Customer
+{
+    $customer ??= Customer::query()->active()->firstOrFail();
+
+    test()->withSession(['customer_id' => $customer->id]);
+
+    return $customer;
 }

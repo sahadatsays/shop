@@ -4,6 +4,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CustomerAuthController;
+use App\Http\Controllers\CustomerNotificationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopController;
@@ -38,12 +39,18 @@ Route::post('/wishlist/items/{wishlistItem}/move-to-cart', [WishlistController::
 Route::post('/wishlist/move-all-to-cart', [WishlistController::class, 'moveAllToCart'])->name('wishlist.move-all-to-cart');
 Route::delete('/wishlist', [WishlistController::class, 'clear'])->name('wishlist.clear');
 Route::view('/compare', 'compare')->name('compare');
+
+Route::middleware('customer.auth')->group(function (): void {
+    Route::get('/account/notifications', [CustomerNotificationController::class, 'index'])->name('account.notifications');
+    Route::patch('/account/notifications/{notification}/read', [CustomerNotificationController::class, 'markRead'])->name('account.notifications.read');
+    Route::post('/account/notifications/mark-all-read', [CustomerNotificationController::class, 'markAllRead'])->name('account.notifications.mark-all-read');
+});
+
 Route::view('/account', 'account')->name('account');
 Route::view('/account/orders', 'account-orders')->name('account.orders');
 Route::view('/account/settings', 'account-settings')->name('account.settings');
 Route::view('/account/addresses', 'account-addresses')->name('account.addresses');
 Route::view('/account/reviews', 'account-reviews')->name('account.reviews');
-Route::view('/account/notifications', 'account-notifications')->name('account.notifications');
 Route::view('/track', 'track')->name('track');
 Route::view('/login', 'login')->name('login');
 Route::view('/register', 'register')->name('register');

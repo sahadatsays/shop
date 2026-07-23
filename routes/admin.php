@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MediaFolderController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PermissionController;
@@ -131,6 +132,12 @@ Route::middleware('admin.permission:settings.view')->group(function (): void {
     Route::put('settings', [StoreSettingsController::class, 'update'])
         ->middleware('admin.permission:settings.manage')
         ->name('settings.update');
+});
+
+Route::middleware('admin.permission:notifications.view')->group(function (): void {
+    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::patch('notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::post('notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.mark-all-read');
 });
 
 Route::middleware('admin.permission:media.view')->group(function (): void {

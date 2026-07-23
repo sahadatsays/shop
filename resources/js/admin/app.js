@@ -10,6 +10,7 @@ import { initAdminToast } from './stores/toast';
 import { initAdminModal } from './stores/modal';
 import { initAdminPalette } from './stores/palette';
 import { initAdminPanels } from './stores/panels';
+import { initAdminNotifications } from './notifications';
 import { initAdminPageLoader } from './stores/page-loader';
 
 registerDashboardAlpine();
@@ -28,5 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initAdminModal();
     initAdminPalette();
     initAdminPanels();
+    initAdminNotifications();
     initAdminPageLoader();
 });

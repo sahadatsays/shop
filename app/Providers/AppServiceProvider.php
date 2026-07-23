@@ -27,7 +27,9 @@ use App\Repositories\Eloquent\OrderRepository;
 use App\Repositories\Eloquent\ProductRepository;
 use App\Repositories\Eloquent\WishlistRepository;
 use App\Support\StoreSettings;
+use App\View\Composers\AdminNotificationComposer;
 use App\View\Composers\CartComposer;
+use App\View\Composers\CustomerNotificationComposer;
 use App\View\Composers\StoreSettingsComposer;
 use App\View\Composers\WishlistComposer;
 use Illuminate\Support\Facades\View;
@@ -62,6 +64,8 @@ class AppServiceProvider extends ServiceProvider
         View::composer('components.layouts.app', CartComposer::class);
         View::composer('components.layouts.app', WishlistComposer::class);
         View::composer('components.layouts.app', StoreSettingsComposer::class);
+        View::composer('components.account.sidebar', CustomerNotificationComposer::class);
+        View::composer('components.admin.notification-panel', AdminNotificationComposer::class);
         View::composer('errors.store-maintenance', StoreSettingsComposer::class);
 
         $this->applyStoreSettings();

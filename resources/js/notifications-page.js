@@ -1,9 +1,12 @@
 export const initNotificationsPage = () => {
     const page = document.querySelector('[data-notifications]');
 
-    if (!page) {
+    if (! page) {
         return;
     }
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+    const markAllUrl = page.dataset.markAllUrl;
 
     const markAllButton = page.querySelector('[data-notifications-mark-all]');
     const unreadBadge = page.querySelector('[data-notifications-unread-badge]');
@@ -13,7 +16,7 @@ export const initNotificationsPage = () => {
     const statusEl = page.querySelector('[data-notifications-status]');
     const navBadge = document.querySelector('[data-nav-notifications-badge]');
 
-    let activeFilter = 'All';
+    let activeFilter = page.querySelector('[data-notifications-filter][aria-pressed="true"]')?.dataset.notificationsFilter ?? 'All';
 
     const getNotifications = () => [...page.querySelectorAll('[data-notification]')];
 
@@ -23,8 +26,24 @@ export const initNotificationsPage = () => {
         All: null,
         Orders: 'orders',
         Promotions: 'promotions',
-        Rewards: 'rewards',
         Account: 'account',
+    };
+
+    const persistMarkRead = async (notification) => {
+        const url = notification.dataset.markReadUrl;
+
+        if (! url) {
+            return;
+        }
+
+        await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                Accept: 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
     };
 
     const updateBadge = (count) => {
@@ -51,10 +70,12 @@ export const initNotificationsPage = () => {
         summaryEl.textContent = `${count} unread · ${total} total`;
     };
 
-    const markRead = (notification) => {
+    const markRead = async (notification) => {
         if (notification.dataset.read === 'true') {
             return;
         }
+
+        await persistMarkRead(notification);
 
         notification.dataset.read = 'true';
         notification.classList.remove('is-unread');
@@ -81,8 +102,8 @@ export const initNotificationsPage = () => {
             let groupVisible = 0;
 
             group.querySelectorAll('[data-notification]').forEach((notification) => {
-                const show = !type || notification.dataset.type === type;
-                notification.hidden = !show;
+                const show = ! type || notification.dataset.type === type;
+                notification.hidden = ! show;
                 groupVisible += show ? 1 : 0;
             });
 
@@ -104,20 +125,40 @@ export const initNotificationsPage = () => {
                 sibling.classList.toggle('bg-navy-900', active);
                 sibling.classList.toggle('text-white', active);
                 sibling.classList.toggle('shadow-soft', active);
-                sibling.classList.toggle('bg-surface', !active);
-                sibling.classList.toggle('text-navy-700', !active);
+                sibling.classList.toggle('bg-surface', ! active);
+                sibling.classList.toggle('text-navy-700', ! active);
             });
 
             applyFilter();
         });
     });
 
-    page.querySelector('[data-notifications-clear-filter]')?.addEventListener('click', () => {
-        page.querySelector('[data-notifications-filter="All"]')?.click();
-    });
+    markAllButton?.addEventListener('click', async () => {
+        if (! markAllUrl) {
+            getNotifications().forEach(markRead);
 
-    markAllButton?.addEventListener('click', () => {
-        getNotifications().forEach(markRead);
+            return;
+        }
+
+        await fetch(markAllUrl, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                Accept: 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+
+        getNotifications().forEach((notification) => {
+            notification.dataset.read = 'true';
+            notification.classList.remove('is-unread');
+            notification.querySelector('[data-unread-indicator]')?.remove();
+            notification.querySelector('[data-notification-mark-read]')?.remove();
+            notification.querySelector('[data-notification-dot]')?.classList.replace('bg-bronze-500', 'bg-navy-200');
+            notification.querySelector('[data-notification-card]')?.classList.remove('border-bronze-200/60', 'bg-bronze-50/30');
+            notification.querySelector('[data-notification-card]')?.classList.add('border-navy-100');
+        });
+
         statusEl.textContent = 'All notifications marked as read.';
         statusEl.classList.add('text-green-700');
         updateBadge(0);
@@ -130,10 +171,11 @@ export const initNotificationsPage = () => {
         if (markBtn && notification) {
             event.preventDefault();
             markRead(notification);
+
             return;
         }
 
-        if (notification && !event.target.closest('a, button') && notification.dataset.read === 'false') {
+        if (notification && ! event.target.closest('a, button') && notification.dataset.read === 'false') {
             markRead(notification);
         }
     });

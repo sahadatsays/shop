@@ -45,6 +45,8 @@ return [
         'Administration' => [
             'settings.view' => 'View store settings',
             'settings.manage' => 'Manage store settings',
+            'notifications.view' => 'View notifications',
+            'notifications.manage' => 'Manage notification broadcasts',
             'roles.view' => 'View roles',
             'roles.manage' => 'Manage roles',
             'permissions.view' => 'View permissions',
@@ -110,6 +112,7 @@ return [
             'media.view',
             'media.manage',
             'media.folders.manage',
+            'notifications.view',
             'roles.view',
             'permissions.view',
         ],
@@ -137,18 +140,21 @@ return [
             'products.view',
             'inventory.view',
             'inventory.manage',
+            'notifications.view',
         ],
         'order_manager' => [
             'dashboard.view',
             'orders.view',
             'orders.manage',
             'customers.view',
+            'notifications.view',
         ],
         'customer_support' => [
             'dashboard.view',
             'customers.view',
             'customers.manage',
             'orders.view',
+            'notifications.view',
         ],
     ],
 

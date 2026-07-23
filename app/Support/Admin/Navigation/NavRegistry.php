@@ -85,6 +85,7 @@ class NavRegistry
                 icon: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7.5-3a7.5 7.5 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-2-1.2L14.6 3h-4l-.4 2.6a7.6 7.6 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7.7 7.7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7.6 7.6 0 0 0 2 1.2l.4 2.6h4l.4-2.6a7.6 7.6 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.06-.4.1-.8.1-1.2Z',
                 children: [
                     new NavItem(label: 'Store settings', route: 'admin.settings.edit', routePrefix: 'admin.settings.', permission: 'settings.view'),
+                    new NavItem(label: 'Notifications', route: 'admin.notifications.index', routePrefix: 'admin.notifications.', permission: 'notifications.view'),
                     new NavItem(label: 'Roles', route: 'admin.roles.index', routePrefix: 'admin.roles.', permission: 'roles.view'),
                     new NavItem(label: 'Permissions', route: 'admin.permissions.index', routePrefix: 'admin.permissions.', permission: 'permissions.view'),
                     new NavItem(label: 'Permission matrix', route: 'admin.roles.matrix', permission: 'access-matrix.manage'),
