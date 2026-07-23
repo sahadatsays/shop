@@ -17,6 +17,7 @@ class ProductService
 {
     public function __construct(
         private AdminProductRepositoryInterface $products,
+        private InventoryService $inventory,
     ) {}
 
     public function list(array $filters = []): LengthAwarePaginator
@@ -50,6 +51,7 @@ class ProductService
             $this->syncAttributes($product, $data['attributes'] ?? []);
             $this->syncRelatedProducts($product, $data['related_product_ids'] ?? []);
             $this->storeGalleryImages($product, $gallery);
+            $this->inventory->initializeStock($product, (int) ($data['stock_quantity'] ?? 0));
 
             return $this->products->find($product->id);
         });
@@ -61,13 +63,25 @@ class ProductService
     public function update(Product $product, array $data, array $gallery = []): Product
     {
         return DB::transaction(function () use ($product, $data, $gallery): Product {
-            $product = $this->products->update($product, $this->prepareAttributes($data, $product));
+            $previousStock = $product->stock_quantity;
+            $newStock = (int) ($data['stock_quantity'] ?? 0);
+            $attributes = $this->prepareAttributes($data, $product);
+
+            if ($newStock !== $previousStock) {
+                unset($attributes['stock_quantity']);
+            }
+
+            $product = $this->products->update($product, $attributes);
 
             $this->removeImages($product, $data['remove_images'] ?? []);
             $this->syncSpecifications($product, $data['specifications'] ?? []);
             $this->syncAttributes($product, $data['attributes'] ?? []);
             $this->syncRelatedProducts($product, $data['related_product_ids'] ?? []);
             $this->storeGalleryImages($product, $gallery);
+
+            if ($newStock !== $previousStock) {
+                $this->inventory->syncProductStockFromForm($product->fresh(), $newStock);
+            }
 
             return $this->products->find($product->id);
         });

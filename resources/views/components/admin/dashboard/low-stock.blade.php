@@ -7,7 +7,7 @@
         @forelse ($products as $product)
             <li class="flex items-center justify-between gap-3 py-3 transition-colors duration-150 first:pt-0 last:pb-0 hover:bg-admin-accent-muted/30">
                 <div class="min-w-0">
-                    <p class="truncate text-sm font-medium admin-text">{{ $product->name }}</p>
+                    <a href="{{ route('admin.inventory.show', $product->productId) }}" class="truncate text-sm font-medium admin-text hover:text-admin-brand">{{ $product->name }}</a>
                     <p class="text-xs admin-muted">Threshold: {{ $product->threshold }}</p>
                 </div>
                 <x-admin.badge :variant="$product->stockQuantity === 0 ? 'danger' : 'warning'">

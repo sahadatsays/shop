@@ -9,6 +9,8 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Warehouse;
+use App\Services\Admin\InventoryService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 
@@ -61,6 +63,26 @@ class CommerceSeeder extends Seeder
                     'category_id' => $category->id,
                     'brand_id' => $brands->random()->id,
                 ]);
+        });
+
+        $warehouse = Warehouse::query()->create([
+            'name' => 'Fort Worth Distribution Center',
+            'code' => 'FTW-01',
+            'city' => 'Fort Worth',
+            'state' => 'TX',
+            'country' => 'US',
+            'address' => '1200 Logistics Parkway',
+            'is_default' => true,
+            'is_active' => true,
+            'sort_order' => 0,
+        ]);
+
+        $inventory = app(InventoryService::class);
+
+        $products->each(function (Product $product) use ($inventory, $warehouse): void {
+            if ($product->stock_quantity > 0) {
+                $inventory->initializeStock($product, $product->stock_quantity, $warehouse);
+            }
         });
 
         $customers = Customer::factory()->count(24)->create();

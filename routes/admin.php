@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -12,6 +13,12 @@ Route::resource('products', ProductController::class);
 Route::post('products/{product}/restore', [ProductController::class, 'restore'])
     ->name('products.restore')
     ->withTrashed();
+
+Route::get('inventory', [InventoryController::class, 'index'])->name('inventory.index');
+Route::get('inventory/movements', [InventoryController::class, 'movements'])->name('inventory.movements');
+Route::get('inventory/{product}', [InventoryController::class, 'show'])->name('inventory.show');
+Route::get('inventory/{product}/adjust', [InventoryController::class, 'adjust'])->name('inventory.adjust');
+Route::post('inventory/{product}/adjust', [InventoryController::class, 'storeAdjustment'])->name('inventory.adjust.store');
 
 Route::resource('categories', CategoryController::class);
 Route::post('categories/{category}/restore', [CategoryController::class, 'restore'])

@@ -1,0 +1,190 @@
+<?php
+
+namespace App\Services\Admin;
+
+use App\Contracts\Repositories\AdminInventoryRepositoryInterface;
+use App\Enums\StockMovementType;
+use App\Models\Product;
+use App\Models\StockMovement;
+use App\Models\Warehouse;
+use App\Models\WarehouseStock;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
+
+class InventoryService
+{
+    public function __construct(
+        private AdminInventoryRepositoryInterface $inventory,
+    ) {}
+
+    public function listProducts(array $filters = []): LengthAwarePaginator
+    {
+        return $this->inventory->paginateProducts($filters);
+    }
+
+    public function listMovements(array $filters = []): LengthAwarePaginator
+    {
+        return $this->inventory->paginateMovements($filters);
+    }
+
+    public function showProduct(int $id): Product
+    {
+        return $this->inventory->findProduct($id);
+    }
+
+    /**
+     * @return array{total: int, in_stock: int, low_stock: int, out_of_stock: int}
+     */
+    public function summary(): array
+    {
+        return $this->inventory->summaryCounts();
+    }
+
+    public function activeWarehouses(): Collection
+    {
+        return $this->inventory->activeWarehouses();
+    }
+
+    public function defaultWarehouse(): Warehouse
+    {
+        return Warehouse::query()->active()->where('is_default', true)->first()
+            ?? Warehouse::query()->active()->ordered()->firstOrFail();
+    }
+
+    public function initializeStock(Product $product, int $quantity, ?Warehouse $warehouse = null): ?StockMovement
+    {
+        if ($quantity <= 0) {
+            return null;
+        }
+
+        $warehouse ??= $this->defaultWarehouse();
+
+        return $this->recordMovement(
+            product: $product,
+            warehouse: $warehouse,
+            type: StockMovementType::Initial,
+            targetQuantity: $quantity,
+            reference: null,
+            notes: 'Opening stock on product creation.',
+        );
+    }
+
+    public function adjustStock(
+        Product $product,
+        Warehouse $warehouse,
+        StockMovementType $type,
+        int $quantity,
+        ?string $reference = null,
+        ?string $notes = null,
+    ): StockMovement {
+        if (! in_array($type, StockMovementType::adjustable(), true)) {
+            throw new InvalidArgumentException('Invalid adjustment type.');
+        }
+
+        if ($quantity <= 0) {
+            throw new InvalidArgumentException('Quantity must be greater than zero.');
+        }
+
+        $warehouseStock = $this->warehouseStock($product, $warehouse);
+        $current = $warehouseStock->quantity;
+
+        $targetQuantity = match ($type) {
+            StockMovementType::AdjustmentIn => $current + $quantity,
+            StockMovementType::AdjustmentOut => max(0, $current - $quantity),
+            StockMovementType::Recount => $quantity,
+        };
+
+        if ($type === StockMovementType::AdjustmentOut && $quantity > $current) {
+            throw new InvalidArgumentException('Cannot decrease more than available warehouse stock.');
+        }
+
+        return $this->recordMovement(
+            product: $product,
+            warehouse: $warehouse,
+            type: $type,
+            targetQuantity: $targetQuantity,
+            reference: $reference,
+            notes: $notes,
+        );
+    }
+
+    public function syncProductStockFromForm(Product $product, int $newTotal, ?string $notes = null): ?StockMovement
+    {
+        $warehouse = $this->defaultWarehouse();
+        $currentTotal = $product->stock_quantity;
+
+        if ($newTotal === $currentTotal) {
+            return null;
+        }
+
+        $warehouseStock = $this->warehouseStock($product, $warehouse);
+        $difference = $newTotal - $currentTotal;
+        $targetWarehouseQuantity = max(0, $warehouseStock->quantity + $difference);
+
+        return $this->recordMovement(
+            product: $product,
+            warehouse: $warehouse,
+            type: StockMovementType::Recount,
+            targetQuantity: $targetWarehouseQuantity,
+            reference: null,
+            notes: $notes ?? 'Stock updated via product form.',
+            syncProductTotal: $newTotal,
+        );
+    }
+
+    private function recordMovement(
+        Product $product,
+        Warehouse $warehouse,
+        StockMovementType $type,
+        int $targetQuantity,
+        ?string $reference,
+        ?string $notes,
+        ?int $syncProductTotal = null,
+    ): StockMovement {
+        return DB::transaction(function () use ($product, $warehouse, $type, $targetQuantity, $reference, $notes, $syncProductTotal): StockMovement {
+            $warehouseStock = $this->warehouseStock($product, $warehouse);
+            $quantityBefore = $warehouseStock->quantity;
+            $quantityChange = $targetQuantity - $quantityBefore;
+
+            $warehouseStock->update(['quantity' => $targetQuantity]);
+
+            $movement = StockMovement::query()->create([
+                'product_id' => $product->id,
+                'warehouse_id' => $warehouse->id,
+                'type' => $type,
+                'quantity_change' => $quantityChange,
+                'quantity_before' => $quantityBefore,
+                'quantity_after' => $targetQuantity,
+                'reference' => $reference,
+                'notes' => $notes,
+            ]);
+
+            if ($syncProductTotal !== null) {
+                $product->update(['stock_quantity' => $syncProductTotal]);
+            } else {
+                $this->syncProductTotal($product);
+            }
+
+            return $movement;
+        });
+    }
+
+    private function warehouseStock(Product $product, Warehouse $warehouse): WarehouseStock
+    {
+        return WarehouseStock::query()->firstOrCreate(
+            ['product_id' => $product->id, 'warehouse_id' => $warehouse->id],
+            ['quantity' => 0],
+        );
+    }
+
+    private function syncProductTotal(Product $product): void
+    {
+        $total = WarehouseStock::query()
+            ->where('product_id', $product->id)
+            ->sum('quantity');
+
+        $product->update(['stock_quantity' => (int) $total]);
+    }
+}

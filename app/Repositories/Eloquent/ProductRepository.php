@@ -64,6 +64,7 @@ class ProductRepository implements ProductRepositoryInterface
             ->limit($limit)
             ->get()
             ->map(fn (Product $product): LowStockProductData => new LowStockProductData(
+                productId: $product->id,
                 name: $product->name,
                 stockQuantity: $product->stock_quantity,
                 threshold: $product->low_stock_threshold,

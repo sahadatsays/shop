@@ -119,6 +119,58 @@ class Product extends Model
         )->withPivot('sort_order')->orderByPivot('sort_order');
     }
 
+    /**
+     * @return HasMany<WarehouseStock, $this>
+     */
+    public function warehouseStock(): HasMany
+    {
+        return $this->hasMany(WarehouseStock::class);
+    }
+
+    /**
+     * @return HasMany<StockMovement, $this>
+     */
+    public function stockMovements(): HasMany
+    {
+        return $this->hasMany(StockMovement::class)->latest();
+    }
+
+    public function isOutOfStock(): bool
+    {
+        return $this->stock_quantity === 0;
+    }
+
+    public function isLowStock(): bool
+    {
+        return $this->stock_quantity > 0 && $this->stock_quantity <= $this->low_stock_threshold;
+    }
+
+    public function stockStatusLabel(): string
+    {
+        if ($this->isOutOfStock()) {
+            return 'Out of stock';
+        }
+
+        if ($this->isLowStock()) {
+            return 'Low stock';
+        }
+
+        return 'In stock';
+    }
+
+    public function stockStatusBadgeVariant(): string
+    {
+        if ($this->isOutOfStock()) {
+            return 'danger';
+        }
+
+        if ($this->isLowStock()) {
+            return 'warning';
+        }
+
+        return 'success';
+    }
+
     public function primaryImageUrl(): ?string
     {
         $image = $this->images->firstWhere('is_primary', true) ?? $this->images->first();
@@ -171,9 +223,28 @@ class Product extends Model
      * @param  Builder<Product>  $query
      * @return Builder<Product>
      */
+    public function scopeOutOfStock(Builder $query): Builder
+    {
+        return $query->where('stock_quantity', 0);
+    }
+
+    /**
+     * @param  Builder<Product>  $query
+     * @return Builder<Product>
+     */
+    public function scopeInStock(Builder $query): Builder
+    {
+        return $query->where('stock_quantity', '>', 0);
+    }
+
+    /**
+     * @param  Builder<Product>  $query
+     * @return Builder<Product>
+     */
     public function scopeLowStock(Builder $query): Builder
     {
-        return $query->whereColumn('stock_quantity', '<=', 'low_stock_threshold');
+        return $query->where('stock_quantity', '>', 0)
+            ->whereColumn('stock_quantity', '<=', 'low_stock_threshold');
     }
 
     /**

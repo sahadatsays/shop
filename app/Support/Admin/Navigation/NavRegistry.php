@@ -23,7 +23,7 @@ class NavRegistry
                     new NavItem(label: 'Categories', route: 'admin.categories.index', routePrefix: 'admin.categories.'),
                     new NavItem(label: 'Brands', route: 'admin.brands.index', routePrefix: 'admin.brands.'),
                     new NavItem(label: 'Collections', disabled: true),
-                    new NavItem(label: 'Inventory', disabled: true, badge: 'Soon'),
+                    new NavItem(label: 'Inventory', route: 'admin.inventory.index', routePrefix: 'admin.inventory.'),
                 ],
             ),
             new NavItem(
@@ -90,6 +90,8 @@ class NavRegistry
                 'items' => [
                     ['label' => 'Dashboard', 'href' => route('admin.dashboard'), 'keywords' => 'home overview'],
                     ['label' => 'Products', 'href' => route('admin.products.index'), 'keywords' => 'catalog inventory sku'],
+                    ['label' => 'Inventory', 'href' => route('admin.inventory.index'), 'keywords' => 'stock warehouse movement'],
+                    ['label' => 'Stock history', 'href' => route('admin.inventory.movements'), 'keywords' => 'inventory log movement audit'],
                     ['label' => 'Categories', 'href' => route('admin.categories.index'), 'keywords' => 'catalog organize'],
                     ['label' => 'Brands', 'href' => route('admin.brands.index'), 'keywords' => 'catalog brand logo'],
                 ],
