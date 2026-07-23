@@ -20,4 +20,6 @@ return [
     'review_count_min' => 12,
 
     'review_count_max' => 150,
+
+    'reviews_auto_approve' => env('SHOP_REVIEWS_AUTO_APPROVE', true),
 ];

@@ -69,6 +69,14 @@ class Customer extends Authenticatable
     }
 
     /**
+     * @return HasMany<Review, $this>
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
      * @return HasOne<Wishlist, $this>
      */
     public function wishlist(): HasOne

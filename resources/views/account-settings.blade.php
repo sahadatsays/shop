@@ -164,35 +164,6 @@
                         </div>
                     </section>
 
-                    {{-- Language & Currency --}}
-                    <section class="rounded-card bg-surface p-7 shadow-soft" aria-labelledby="prefs-heading">
-                        <h2 id="prefs-heading" class="font-display text-lg font-bold text-navy-900">Language &amp; currency</h2>
-                        <p class="mt-1 text-sm text-navy-500">Set how prices and content appear across the store.</p>
-                        <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <div class="space-y-1.5">
-                                <label for="language" class="block text-sm font-medium text-navy-900">Language</label>
-                                <select id="language" name="language"
-                                        class="block w-full rounded-field border border-navy-200 bg-surface px-4 py-3 text-sm text-ink shadow-soft transition-colors duration-200 hover:border-navy-300 focus:outline-2 focus:outline-offset-2 focus:outline-bronze-500">
-                                    <option value="en" selected>English (US)</option>
-                                    <option value="en-gb">English (UK)</option>
-                                    <option value="es">Español</option>
-                                    <option value="fr">Français</option>
-                                </select>
-                            </div>
-                            <div class="space-y-1.5">
-                                <label for="currency" class="block text-sm font-medium text-navy-900">Currency</label>
-                                <select id="currency" name="currency"
-                                        class="block w-full rounded-field border border-navy-200 bg-surface px-4 py-3 text-sm text-ink shadow-soft transition-colors duration-200 hover:border-navy-300 focus:outline-2 focus:outline-offset-2 focus:outline-bronze-500">
-                                    <option value="USD" selected>USD — US Dollar ($)</option>
-                                    <option value="CAD">CAD — Canadian Dollar (CA$)</option>
-                                    <option value="GBP">GBP — British Pound (£)</option>
-                                    <option value="EUR">EUR — Euro (€)</option>
-                                    <option value="AUD">AUD — Australian Dollar (A$)</option>
-                                </select>
-                            </div>
-                        </div>
-                    </section>
-
                     {{-- Notifications --}}
                     <section class="rounded-card bg-surface p-7 shadow-soft" aria-labelledby="notifications-heading">
                         <h2 id="notifications-heading" class="font-display text-lg font-bold text-navy-900">Notifications</h2>

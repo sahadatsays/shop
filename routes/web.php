@@ -9,7 +9,7 @@ use App\Http\Controllers\CustomerNotificationController;
 use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\CustomerPasswordResetController;
 use App\Http\Controllers\CustomerProfileController;
-use App\Http\Controllers\CustomerRegistrationController;
+use App\Http\Controllers\CustomerReviewController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SearchController;
@@ -100,7 +100,10 @@ Route::middleware('customer.auth')->group(function (): void {
     Route::get('/profile', [CustomerProfileController::class, 'show'])->name('profile');
     Route::match(['put', 'patch', 'post'], '/profile', [CustomerProfileController::class, 'update'])->name('profile.update');
     Route::view('/account/addresses', 'account-addresses')->name('account.addresses');
-    Route::view('/account/reviews', 'account-reviews')->name('account.reviews');
+    Route::get('/account/reviews', [CustomerReviewController::class, 'index'])->name('account.reviews');
+    Route::patch('/account/reviews/{review}', [CustomerReviewController::class, 'update'])->name('account.reviews.update');
+    Route::delete('/account/reviews/{review}', [CustomerReviewController::class, 'destroy'])->name('account.reviews.destroy');
+    Route::post('/products/{product:slug}/reviews', [CustomerReviewController::class, 'store'])->name('product.reviews.store');
 });
 
 Route::get('/track-order', [TrackOrderController::class, 'create'])->name('track-order.create');

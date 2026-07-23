@@ -113,6 +113,38 @@ class Product extends Model
     }
 
     /**
+     * @return HasMany<Review, $this>
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * @return HasMany<Review, $this>
+     */
+    public function approvedReviews(): HasMany
+    {
+        return $this->reviews()->approved();
+    }
+
+    public function displayRating(): float
+    {
+        $average = $this->approvedReviews()->avg('rating');
+
+        return $average !== null
+            ? round((float) $average, 1)
+            : $this->placeholderRating();
+    }
+
+    public function displayReviewCount(): int
+    {
+        $count = $this->approvedReviews()->count();
+
+        return $count > 0 ? $count : $this->placeholderReviewCount();
+    }
+
+    /**
      * @return HasMany<ProductSpecification, $this>
      */
     public function specifications(): HasMany

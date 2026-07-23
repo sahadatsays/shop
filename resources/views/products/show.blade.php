@@ -12,6 +12,8 @@
     $primaryImageUrl = $product->primaryImageUrl();
     $pageTitle = $product->meta_title ?: $product->name;
     $pageDescription = $product->meta_description ?: ($product->short_description ?: $product->name);
+    $displayRating = $reviewSummary['average'] ?? $product->displayRating();
+    $displayReviewCount = $reviewSummary['count'] > 0 ? $reviewSummary['count'] : $product->displayReviewCount();
     $thumbGridClass = match (min(max($galleryImages->count(), 1), 5)) {
         1 => 'grid-cols-1',
         2 => 'grid-cols-2',
@@ -19,12 +21,6 @@
         4 => 'grid-cols-4',
         default => 'grid-cols-5',
     };
-
-    $placeholderReviews = [
-        ['name' => 'Marcus T.', 'rating' => 5, 'date' => 'June 28, 2026', 'title' => 'Best jacket I have owned since my service days', 'body' => 'The build quality is exceptional. Heavy-duty zippers, reinforced elbows, and the fit is true to size. Wore it through two weeks of rain in the Cascades — kept me dry the entire time.', 'verified' => true],
-        ['name' => 'Sarah K.', 'rating' => 5, 'date' => 'June 14, 2026', 'title' => 'Bought for my husband — he lives in it', 'body' => 'Gifted this for his retirement from the Corps. The attention to detail is obvious the moment you pick it up. The bronze hardware is a beautiful touch without being flashy.', 'verified' => true],
-        ['name' => 'David R.', 'rating' => 4, 'date' => 'May 30, 2026', 'title' => 'Rugged and refined', 'body' => 'Excellent jacket overall. Runs slightly warm for summer use, but for three-season wear it is unbeatable. Knowing part of my purchase supports veteran programs makes it even better.', 'verified' => false],
-    ];
 @endphp
 
 <x-layouts.app :title="$pageTitle" :description="$pageDescription">
@@ -125,11 +121,11 @@
                 <p class="mt-3 text-base leading-relaxed text-navy-600">{{ $product->short_description }}</p>
             @endif
 
-            {{-- Rating (placeholder until reviews ship) --}}
+            {{-- Rating --}}
             <div class="mt-4 flex flex-wrap items-center gap-3">
-                <x-ui.rating :value="$product->placeholderRating()" />
-                <span class="text-sm font-semibold text-navy-900">{{ $product->placeholderRating() }}</span>
-                <a href="#reviews" class="text-sm text-navy-500 underline-offset-4 transition-colors duration-200 hover:text-navy-900 hover:underline">{{ $product->placeholderReviewCount() }} reviews</a>
+                <x-ui.rating :value="$displayRating" />
+                <span class="text-sm font-semibold text-navy-900">{{ $displayRating }}</span>
+                <a href="#reviews" class="text-sm text-navy-500 underline-offset-4 transition-colors duration-200 hover:text-navy-900 hover:underline">{{ $displayReviewCount }} {{ Str::plural('review', $displayReviewCount) }}</a>
             </div>
 
             {{-- Price --}}
@@ -342,23 +338,29 @@
         </div>
     </section>
 
-    {{-- ============ Customer reviews (placeholder — dynamic reviews coming soon) ============ --}}
+    {{-- ============ Customer reviews ============ --}}
     <section id="reviews" class="bg-surface py-20" data-reveal>
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <x-ui.section-heading align="left" eyebrow="Customer reviews" title="What the community says" />
 
+            @if (session('success'))
+                <div class="mt-6 rounded-card border border-green-200 bg-green-50 px-5 py-4 text-sm font-medium text-green-800">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <div class="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-3">
                 <div class="rounded-card bg-canvas p-8 lg:self-start">
                     <div class="flex items-baseline gap-3">
-                        <span class="font-display text-5xl font-extrabold text-navy-900">{{ $product->placeholderRating() }}</span>
+                        <span class="font-display text-5xl font-extrabold text-navy-900">{{ $displayRating }}</span>
                         <span class="text-navy-500">out of 5</span>
                     </div>
                     <div class="mt-3 flex items-center gap-2">
-                        <x-ui.rating :value="$product->placeholderRating()" />
-                        <span class="text-sm text-navy-500">{{ $product->placeholderReviewCount() }} reviews</span>
+                        <x-ui.rating :value="$displayRating" />
+                        <span class="text-sm text-navy-500">{{ $displayReviewCount }} {{ Str::plural('review', $displayReviewCount) }}</span>
                     </div>
                     <div class="mt-6 space-y-2.5">
-                        @foreach ([5 => 84, 4 => 12, 3 => 3, 2 => 1, 1 => 0] as $stars => $sharePercent)
+                        @foreach ($reviewSummary['distribution'] as $stars => $sharePercent)
                             <div class="flex items-center gap-3 text-sm">
                                 <span class="w-8 shrink-0 font-medium text-navy-700">{{ $stars }} ★</span>
                                 <div class="h-2 flex-1 overflow-hidden rounded-full bg-navy-100">
@@ -368,41 +370,72 @@
                             </div>
                         @endforeach
                     </div>
-                    <x-ui.button variant="outline" class="mt-8 w-full">Write a review</x-ui.button>
+
+                    @if ($customer)
+                        @if ($canReview)
+                            <div class="mt-8 rounded-card border border-navy-100 bg-surface p-5 shadow-soft">
+                                <h3 class="font-display text-lg font-bold text-navy-900">Write a review</h3>
+                                <p class="mt-1 text-sm text-navy-500">Share your experience with this verified purchase.</p>
+                                <form method="POST" action="{{ route('product.reviews.store', $product) }}" class="mt-5 space-y-5">
+                                    @csrf
+                                    <input type="hidden" name="redirect" value="product">
+                                    <x-account.review-form-fields
+                                        rating-picker-id="product-rating"
+                                        title-id="product-review-title"
+                                        body-id="product-review-body"
+                                    />
+                                    <x-ui.button variant="secondary" type="submit" class="w-full">Submit review</x-ui.button>
+                                </form>
+                            </div>
+                        @elseif ($hasReviewed)
+                            <p class="mt-8 rounded-xl bg-olive-50 px-4 py-3 text-sm text-olive-800">
+                                You reviewed this product.
+                                <a href="{{ route('account.reviews') }}" class="font-semibold underline-offset-4 hover:underline">Manage your reviews</a>
+                            </p>
+                        @else
+                            <p class="mt-8 rounded-xl bg-navy-50 px-4 py-3 text-sm text-navy-600">
+                                Reviews open after your order is delivered.
+                                <a href="{{ route('account.orders') }}" class="font-semibold text-navy-900 underline-offset-4 hover:underline">View orders</a>
+                            </p>
+                        @endif
+                    @else
+                        <x-ui.button :href="route('login')" variant="outline" class="mt-8 w-full">Sign in to write a review</x-ui.button>
+                    @endif
                 </div>
 
                 <div class="space-y-6 lg:col-span-2">
-                    @foreach ($placeholderReviews as $review)
+                    @forelse ($approvedReviews as $review)
                         <article class="rounded-card bg-canvas p-6 sm:p-8">
                             <div class="flex flex-wrap items-center justify-between gap-3">
                                 <div class="flex items-center gap-3">
                                     <span class="flex size-10 items-center justify-center rounded-full bg-navy-900 font-display text-sm font-bold text-bronze-400">
-                                        {{ mb_substr($review['name'], 0, 1) }}
+                                        {{ $review->initials() }}
                                     </span>
                                     <div>
                                         <p class="flex items-center gap-2 text-sm font-semibold text-navy-900">
-                                            {{ $review['name'] }}
-                                            @if ($review['verified'])
+                                            {{ $review->author_name }}
+                                            @if ($review->isVerifiedPurchase())
                                                 <x-ui.badge variant="success">
                                                     <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>
-                                                    Verified buyer
+                                                    Verified purchase
                                                 </x-ui.badge>
                                             @endif
                                         </p>
-                                        <p class="text-xs text-navy-500">{{ $review['date'] }}</p>
+                                        <p class="text-xs text-navy-500">{{ $review->created_at?->format('M j, Y') }}</p>
                                     </div>
                                 </div>
-                                <x-ui.rating :value="$review['rating']" size="sm" />
+                                <x-ui.rating :value="$review->rating" size="sm" />
                             </div>
-                            <h3 class="mt-4 font-display text-base font-semibold text-navy-900">{{ $review['title'] }}</h3>
-                            <p class="mt-2 text-sm leading-relaxed text-navy-600">{{ $review['body'] }}</p>
+                            @if ($review->title)
+                                <h3 class="mt-4 font-display text-base font-semibold text-navy-900">{{ $review->title }}</h3>
+                            @endif
+                            <p class="mt-2 text-sm leading-relaxed text-navy-600">{{ $review->body }}</p>
                         </article>
-                    @endforeach
-
-                    <x-ui.button variant="ghost" class="mx-auto flex">
-                        Load more reviews
-                        <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-                    </x-ui.button>
+                    @empty
+                        <div class="rounded-card bg-canvas p-8 text-center">
+                            <p class="text-sm text-navy-600">No reviews yet. Be the first to share your experience after delivery.</p>
+                        </div>
+                    @endforelse
                 </div>
             </div>
         </div>

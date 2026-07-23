@@ -29,6 +29,51 @@ const ratingBucket = (rating) => {
     return '3 stars & below';
 };
 
+const initRatingPicker = (picker, valueInput) => {
+    if (!picker || !valueInput) {
+        return;
+    }
+
+    const setRating = (value) => {
+        valueInput.value = String(value);
+
+        picker.querySelectorAll('[data-rating-star]').forEach((star) => {
+            const starValue = Number(star.dataset.ratingStar);
+            star.classList.toggle('text-bronze-500', starValue <= value);
+            star.classList.toggle('text-navy-200', starValue > value);
+            star.setAttribute('aria-pressed', String(starValue <= value));
+        });
+    };
+
+    picker.querySelectorAll('[data-rating-star]').forEach((star) => {
+        star.addEventListener('click', () => setRating(Number(star.dataset.ratingStar)));
+
+        star.addEventListener('mouseenter', () => {
+            const hoverValue = Number(star.dataset.ratingStar);
+            picker.querySelectorAll('[data-rating-star]').forEach((s) => {
+                const v = Number(s.dataset.ratingStar);
+                s.classList.toggle('text-bronze-400', v <= hoverValue);
+                s.classList.toggle('text-navy-200', v > hoverValue);
+            });
+        });
+
+        star.addEventListener('mouseleave', () => setRating(Number(valueInput.value || 5)));
+    });
+
+    setRating(Number(valueInput.value || 5));
+
+    return setRating;
+};
+
+export const initRatingPickers = (root = document) => {
+    root.querySelectorAll('[data-rating-picker]').forEach((picker) => {
+        const pickerId = picker.dataset.ratingPicker;
+        const valueInput = root.querySelector(`[data-rating-value="${pickerId}"]`);
+
+        initRatingPicker(picker, valueInput);
+    });
+};
+
 export const initReviewsPage = () => {
     const page = document.querySelector('[data-reviews]');
 
@@ -36,34 +81,37 @@ export const initReviewsPage = () => {
         return;
     }
 
+    initRatingPickers(page);
+
     const list = page.querySelector('[data-reviews-list]');
     const dialog = page.querySelector('[data-review-dialog]');
+    const writeDialog = page.querySelector('[data-review-write-dialog]');
     const deleteDialog = page.querySelector('[data-review-delete-dialog]');
     const form = page.querySelector('[data-review-form]');
-    const ratingPicker = page.querySelector('[data-rating-picker]');
-    const ratingValue = page.querySelector('[data-rating-value]');
+    const writeForm = page.querySelector('[data-review-write-form]');
+    const deleteForm = page.querySelector('[data-review-delete-form]');
+    const editPicker = page.querySelector('[data-rating-picker="edit-rating"]');
+    const editRatingValue = page.querySelector('[data-rating-value="edit-rating"]');
+    const writePicker = page.querySelector('[data-rating-picker="write-rating"]');
+    const writeRatingValue = page.querySelector('[data-rating-value="write-rating"]');
+    const writeProductName = page.querySelector('[data-write-product-name]');
+    const writeProductIdInput = page.querySelector('[data-write-product-id]');
     const editProductName = page.querySelector('[data-edit-product-name]');
     const deleteProductEl = page.querySelector('[data-delete-product]');
-    const statusEl = page.querySelector('[data-reviews-status]');
     const countEl = page.querySelector('[data-reviews-count]');
     const totalEl = page.querySelector('[data-reviews-total]');
     const avgEl = page.querySelector('[data-reviews-avg]');
     const avgStarsEl = page.querySelector('[data-reviews-avg-stars]');
-    const helpfulTotalEl = page.querySelector('[data-reviews-helpful-total]');
     const emptyState = page.querySelector('[data-reviews-empty]');
     const filterEmpty = page.querySelector('[data-reviews-filter-empty]');
     const sortSelect = page.querySelector('[data-reviews-sort]');
 
-    let editingCard = null;
-    let deletingCard = null;
+    const setEditRating = initRatingPicker(editPicker, editRatingValue);
+    const setWriteRating = initRatingPicker(writePicker, writeRatingValue);
+
     let activeFilter = 'All';
 
     const getCards = () => [...page.querySelectorAll('[data-review-card]')];
-
-    const setStatus = (message, success = false) => {
-        statusEl.textContent = message;
-        statusEl.classList.toggle('text-green-700', success);
-    };
 
     const updateStats = () => {
         const cards = getCards();
@@ -73,8 +121,9 @@ export const initReviewsPage = () => {
 
         if (count === 0) {
             avgEl.textContent = '—';
-            avgStarsEl.innerHTML = '';
-            helpfulTotalEl.textContent = '0';
+            if (avgStarsEl) {
+                avgStarsEl.innerHTML = '';
+            }
             emptyState.hidden = false;
             list.hidden = true;
             return;
@@ -85,26 +134,15 @@ export const initReviewsPage = () => {
 
         const ratings = cards.map((card) => Number(card.dataset.rating));
         const avg = Math.round((ratings.reduce((sum, r) => sum + r, 0) / count) * 10) / 10;
-        const helpful = cards.reduce((sum, card) => sum + Number(card.dataset.helpful), 0);
 
         avgEl.textContent = String(avg);
-        avgStarsEl.innerHTML = renderRatingHtml(avg, 'sm');
-        helpfulTotalEl.textContent = String(helpful);
+        if (avgStarsEl) {
+            avgStarsEl.innerHTML = renderRatingHtml(avg, 'sm');
+        }
     };
 
     const updateCount = (visible) => {
         countEl.textContent = `${visible} ${visible === 1 ? 'review' : 'reviews'}`;
-    };
-
-    const setRatingPicker = (value) => {
-        ratingValue.value = String(value);
-
-        ratingPicker.querySelectorAll('[data-rating-star]').forEach((star) => {
-            const starValue = Number(star.dataset.ratingStar);
-            star.classList.toggle('text-bronze-500', starValue <= value);
-            star.classList.toggle('text-navy-200', starValue > value);
-            star.setAttribute('aria-pressed', String(starValue <= value));
-        });
     };
 
     const sortCards = () => {
@@ -112,10 +150,6 @@ export const initReviewsPage = () => {
         const mode = sortSelect.value;
 
         cards.sort((a, b) => {
-            if (mode === 'helpful') {
-                return Number(b.dataset.helpful) - Number(a.dataset.helpful);
-            }
-
             if (mode === 'rating-high') {
                 return Number(b.dataset.rating) - Number(a.dataset.rating);
             }
@@ -148,6 +182,17 @@ export const initReviewsPage = () => {
         list.hidden = cards.length === 0;
     };
 
+    const openWriteDialog = (button) => {
+        writeForm.action = button.dataset.storeUrl;
+        writeProductName.textContent = button.dataset.productName;
+        writeProductIdInput.value = button.dataset.productId;
+        writeForm.querySelector('#write-review-title').value = '';
+        writeForm.querySelector('#write-review-body').value = '';
+        setWriteRating?.(5);
+        writeDialog.showModal();
+        writeForm.querySelector('#write-review-title')?.focus();
+    };
+
     page.querySelectorAll('[data-reviews-filter]').forEach((button) => {
         button.addEventListener('click', () => {
             activeFilter = button.dataset.reviewsFilter;
@@ -175,39 +220,29 @@ export const initReviewsPage = () => {
         applyFilter();
     });
 
-    ratingPicker?.querySelectorAll('[data-rating-star]').forEach((star) => {
-        star.addEventListener('click', () => setRatingPicker(Number(star.dataset.ratingStar)));
-
-        star.addEventListener('mouseenter', () => {
-            const hoverValue = Number(star.dataset.ratingStar);
-            ratingPicker.querySelectorAll('[data-rating-star]').forEach((s) => {
-                const v = Number(s.dataset.ratingStar);
-                s.classList.toggle('text-bronze-400', v <= hoverValue);
-                s.classList.toggle('text-navy-200', v > hoverValue);
-            });
-        });
-
-        star.addEventListener('mouseleave', () => setRatingPicker(Number(ratingValue.value)));
+    page.querySelectorAll('[data-review-write]').forEach((button) => {
+        button.addEventListener('click', () => openWriteDialog(button));
     });
 
-    const openDialog = () => {
-        dialog.showModal();
-        form.querySelector('#review-title')?.focus();
-    };
+    page.querySelectorAll('[data-review-write-close]').forEach((btn) => {
+        btn.addEventListener('click', () => writeDialog.close());
+    });
 
-    const closeDialog = () => {
-        dialog.close();
-        form.reset();
-        editingCard = null;
-    };
+    writeDialog?.addEventListener('click', (event) => {
+        if (event.target === writeDialog) {
+            writeDialog.close();
+        }
+    });
+
+    const closeEditDialog = () => dialog.close();
 
     page.querySelectorAll('[data-review-dialog-close]').forEach((btn) => {
-        btn.addEventListener('click', closeDialog);
+        btn.addEventListener('click', closeEditDialog);
     });
 
     dialog?.addEventListener('click', (event) => {
         if (event.target === dialog) {
-            closeDialog();
+            closeEditDialog();
         }
     });
 
@@ -216,75 +251,43 @@ export const initReviewsPage = () => {
         const deleteBtn = event.target.closest('[data-review-delete]');
 
         if (editBtn) {
-            editingCard = editBtn.closest('[data-review-card]');
-            editProductName.textContent = editingCard.dataset.product;
-            form.querySelector('#review-title').value = editingCard.dataset.title;
-            form.querySelector('#review-body').value = editingCard.dataset.body;
-            setRatingPicker(Number(editingCard.dataset.rating));
-            openDialog();
+            const card = editBtn.closest('[data-review-card]');
+            editProductName.textContent = card.dataset.product;
+            form.action = card.dataset.updateUrl;
+            form.querySelector('#review-title').value = card.dataset.title;
+            form.querySelector('#review-body').value = card.dataset.body;
+            setEditRating?.(Number(card.dataset.rating));
+            dialog.showModal();
+            form.querySelector('#review-title')?.focus();
         }
 
         if (deleteBtn) {
-            deletingCard = deleteBtn.closest('[data-review-card]');
-            deleteProductEl.textContent = deletingCard.dataset.product;
+            const card = deleteBtn.closest('[data-review-card]');
+            deleteProductEl.textContent = card.dataset.product;
+            deleteForm.action = card.dataset.deleteUrl;
             deleteDialog.showModal();
         }
     });
 
-    form?.addEventListener('submit', (event) => {
-        event.preventDefault();
-
-        if (!editingCard) {
-            return;
-        }
-
-        const title = form.querySelector('#review-title').value.trim();
-        const body = form.querySelector('#review-body').value.trim();
-        const rating = Number(ratingValue.value);
-
-        if (!title || !body || rating < 1) {
-            setStatus('Please add a rating, title, and review text.');
-            return;
-        }
-
-        editingCard.dataset.title = title;
-        editingCard.dataset.body = body;
-        editingCard.dataset.rating = String(rating);
-        editingCard.querySelector('[data-review-title]').textContent = title;
-        editingCard.querySelector('[data-review-body]').textContent = body;
-        editingCard.querySelector('[data-review-rating-display]').innerHTML = renderRatingHtml(rating, 'sm');
-
-        updateStats();
-        applyFilter();
-        setStatus('Review updated successfully.', true);
-        closeDialog();
-    });
-
     page.querySelector('[data-delete-cancel]')?.addEventListener('click', () => {
         deleteDialog.close();
-        deletingCard = null;
-    });
-
-    page.querySelector('[data-delete-confirm]')?.addEventListener('click', () => {
-        if (!deletingCard) {
-            return;
-        }
-
-        const product = deletingCard.dataset.product;
-        deletingCard.remove();
-        updateStats();
-        applyFilter();
-        setStatus(`Review for ${product} deleted.`, true);
-        deleteDialog.close();
-        deletingCard = null;
     });
 
     deleteDialog?.addEventListener('click', (event) => {
         if (event.target === deleteDialog) {
             deleteDialog.close();
-            deletingCard = null;
         }
     });
+
+    const openProductId = page.dataset.openWriteProductId;
+
+    if (openProductId) {
+        const button = page.querySelector(`[data-review-write][data-product-id="${openProductId}"]`);
+
+        if (button) {
+            openWriteDialog(button);
+        }
+    }
 
     sortCards();
     applyFilter();

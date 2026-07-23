@@ -131,7 +131,7 @@
                                                 Track order
                                             </x-ui.button>
                                         @else
-                                            <x-ui.button variant="secondary" size="sm">
+                                            <x-ui.button :href="route('account.reviews').'#ready-for-review'" variant="secondary" size="sm">
                                                 <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                                     <path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.3l-5.8 3.1 1.1-6.5L2.6 9.3l6.5-.9L12 2.5Z"/>
                                                 </svg>
