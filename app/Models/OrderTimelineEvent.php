@@ -16,6 +16,7 @@ class OrderTimelineEvent extends Model
         'status',
         'message',
         'author_name',
+        'changed_by',
     ];
 
     /**
@@ -34,5 +35,22 @@ class OrderTimelineEvent extends Model
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function changedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'changed_by');
+    }
+
+    public function updatedByLabel(): string
+    {
+        if ($this->changedBy) {
+            return $this->changedBy->name;
+        }
+
+        return $this->author_name ?: 'System';
     }
 }

@@ -5,9 +5,11 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\CustomerNotificationController;
+use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\TrackOrderController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -44,14 +46,23 @@ Route::middleware('customer.auth')->group(function (): void {
     Route::get('/account/notifications', [CustomerNotificationController::class, 'index'])->name('account.notifications');
     Route::patch('/account/notifications/{notification}/read', [CustomerNotificationController::class, 'markRead'])->name('account.notifications.read');
     Route::post('/account/notifications/mark-all-read', [CustomerNotificationController::class, 'markAllRead'])->name('account.notifications.mark-all-read');
+    Route::get('/account/orders', [CustomerOrderController::class, 'index'])->name('account.orders');
+    Route::get('/account/orders/{order:order_number}', [CustomerOrderController::class, 'show'])
+        ->middleware('order.tracking')
+        ->name('account.orders.show');
 });
 
+Route::get('/track-order', [TrackOrderController::class, 'create'])->name('track-order.create');
+Route::post('/track-order', [TrackOrderController::class, 'store'])->name('track-order.store');
+Route::get('/track-order/{order:order_number}', [TrackOrderController::class, 'show'])
+    ->middleware('order.tracking')
+    ->name('track-order.show');
+
 Route::view('/account', 'account')->name('account');
-Route::view('/account/orders', 'account-orders')->name('account.orders');
+Route::redirect('/track', '/track-order')->name('track');
 Route::view('/account/settings', 'account-settings')->name('account.settings');
 Route::view('/account/addresses', 'account-addresses')->name('account.addresses');
 Route::view('/account/reviews', 'account-reviews')->name('account.reviews');
-Route::view('/track', 'track')->name('track');
 Route::view('/login', 'login')->name('login');
 Route::view('/register', 'register')->name('register');
 Route::view('/forgot-password', 'forgot-password')->name('password.forgot');

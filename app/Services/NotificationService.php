@@ -131,7 +131,7 @@ class NotificationService
                 'Your order is on the way',
                 $message ?: "Order {$order->order_number} has shipped.",
                 'Track shipment',
-                route('track'),
+                route('track-order.create'),
             ],
             OrderStatus::Delivered => [
                 "Order {$order->order_number} delivered",
@@ -151,7 +151,7 @@ class NotificationService
                 'View order',
                 route('account.orders'),
             ],
-            OrderStatus::RefundReady => [
+            OrderStatus::Refunded => [
                 "Refund ready for {$order->order_number}",
                 $message ?: 'Your refund has been approved and will be issued soon.',
                 'View order',

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Middleware\EnsureAdminAuthenticated;
 use App\Http\Middleware\EnsureAdminPermission;
 use App\Http\Middleware\EnsureCustomerAuthenticated;
+use App\Http\Middleware\EnsureOrderTrackable;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -34,6 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.auth' => EnsureAdminAuthenticated::class,
             'admin.permission' => EnsureAdminPermission::class,
             'customer.auth' => EnsureCustomerAuthenticated::class,
+            'order.tracking' => EnsureOrderTrackable::class,
         ]);
 
         $middleware->redirectGuestsTo(fn (Request $request): ?string => $request->is('admin', 'admin/*')

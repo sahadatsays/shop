@@ -1,64 +1,8 @@
 @php
     $steps = ['Order placed', 'Packed', 'Shipped', 'Delivered'];
-
-    $orders = [
-        [
-            'number' => '#VS-10482',
-            'placed' => 'Jul 8, 2026',
-            'total' => '$572.40',
-            'status' => 'In transit',
-            'statusVariant' => 'bronze',
-            'progress' => 3,
-            'eta' => 'Arriving Wed, Jul 15',
-            'items' => [
-                ['name' => 'Ranger Field Jacket', 'image' => 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=200&q=70&auto=format&fit=crop'],
-                ['name' => 'Patriot Canvas Rucksack', 'image' => 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=200&q=70&auto=format&fit=crop'],
-                ['name' => 'Honor EDC Kit', 'image' => 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=200&q=70&auto=format&fit=crop'],
-            ],
-        ],
-        [
-            'number' => '#VS-10396',
-            'placed' => 'Jun 21, 2026',
-            'total' => '$229.00',
-            'status' => 'Delivered',
-            'statusVariant' => 'olive',
-            'progress' => 4,
-            'eta' => 'Delivered Jun 25',
-            'items' => [
-                ['name' => 'Sentinel Field Watch', 'image' => 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=200&q=70&auto=format&fit=crop'],
-            ],
-        ],
-        [
-            'number' => '#VS-10311',
-            'placed' => 'Jun 4, 2026',
-            'total' => '$117.00',
-            'status' => 'Delivered',
-            'statusVariant' => 'olive',
-            'progress' => 4,
-            'eta' => 'Delivered Jun 9',
-            'items' => [
-                ['name' => 'Everyday Leather Wallet', 'image' => 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=200&q=70&auto=format&fit=crop'],
-                ['name' => 'Garrison Heritage Tee', 'image' => 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200&q=70&auto=format&fit=crop'],
-            ],
-        ],
-        [
-            'number' => '#VS-10249',
-            'placed' => 'May 18, 2026',
-            'total' => '$120.00',
-            'status' => 'Processing',
-            'statusVariant' => 'navy',
-            'progress' => 1,
-            'eta' => 'Preparing your order',
-            'items' => [
-                ['name' => 'Anniversary Stitched Flag', 'image' => 'https://images.unsplash.com/photo-1520095972714-909e91b038e5?w=200&q=70&auto=format&fit=crop'],
-            ],
-        ],
-    ];
-
-    $filters = ['All', 'Processing', 'In transit', 'Delivered'];
 @endphp
 
-<x-layouts.app title="Order History" description="Every Valor Supply Co. order in one place — track shipments, download invoices, and reorder your favorites.">
+<x-layouts.app :title="$title" description="Every Valor Supply Co. order in one place — track shipments, download invoices, and reorder your favorites.">
 
     <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14" data-orders>
 
@@ -78,13 +22,13 @@
 
                 <div class="mt-4 flex flex-wrap items-baseline gap-3">
                     <h1 class="font-display text-3xl font-bold text-navy-900 sm:text-4xl">Order history</h1>
-                    <p class="text-navy-500" data-orders-count>4 orders</p>
+                    <p class="text-navy-500" data-orders-count>{{ $ordersCount }} {{ $ordersCount === 1 ? 'order' : 'orders' }}</p>
                 </div>
 
                 {{-- Status filters --}}
                 <div class="mt-6 flex flex-wrap gap-2" role="group" aria-label="Filter orders by status">
                     @foreach ($filters as $filter)
-                        <button type="button" data-orders-filter="{{ $filter }}" aria-pressed="{{ $filter === 'All' ? 'true' : 'false' }}"
+                        <button type="button" data-orders-filter="{{ $filter }}" aria-pressed="{{ $filter === $activeFilter ? 'true' : 'false' }}"
                                 class="rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-200
                                     aria-pressed:border-navy-900 aria-pressed:bg-navy-900 aria-pressed:text-white
                                     border-navy-200 bg-surface text-navy-700 hover:border-navy-300 hover:bg-navy-50">
@@ -114,7 +58,7 @@
                                     <p class="text-sm font-bold text-navy-900 tabular-nums">{{ $order['total'] }}</p>
                                 </div>
                                 <div class="ml-auto">
-                                    <x-ui.badge :variant="$order['statusVariant']">{{ $order['status'] }}</x-ui.badge>
+                                    <x-ui.badge :variant="$order['status_variant']">{{ $order['status'] }}</x-ui.badge>
                                 </div>
                             </header>
 
@@ -155,9 +99,11 @@
                                     <ul class="flex items-center gap-3" aria-label="Items in this order">
                                         @foreach ($order['items'] as $item)
                                             <li>
-                                                <a href="{{ route('product.show') }}" title="{{ $item['name'] }}"
+                                                <a href="{{ $item['url'] }}" title="{{ $item['name'] }}"
                                                    class="block size-14 overflow-hidden rounded-xl bg-navy-100 ring-1 ring-navy-900/5 transition-transform duration-200 hover:scale-105">
-                                                    <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" loading="lazy" class="size-full object-cover">
+                                                    @if ($item['image'])
+                                                        <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" loading="lazy" class="size-full object-cover">
+                                                    @endif
                                                 </a>
                                             </li>
                                         @endforeach
@@ -177,8 +123,8 @@
                                             </svg>
                                             Reorder
                                         </x-ui.button>
-                                        @if ($order['status'] !== 'Delivered')
-                                            <x-ui.button :href="route('track')" size="sm">
+                                        @if (! $order['is_delivered'])
+                                            <x-ui.button :href="$order['track_url']" size="sm">
                                                 <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                                     <path d="M12 21s-6-5.5-6-10a6 6 0 0 1 12 0c0 4.5-6 10-6 10Zm0-7.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
                                                 </svg>

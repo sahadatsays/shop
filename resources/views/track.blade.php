@@ -1,18 +1,7 @@
 @php
-    $timeline = [
-        ['label' => 'Order placed', 'meta' => 'Jul 8, 09:14 — valorsupply.co', 'state' => 'done'],
-        ['label' => 'Confirmed', 'meta' => 'Jul 8, 09:16 — Payment verified', 'state' => 'done'],
-        ['label' => 'Packed', 'meta' => 'Jul 9, 14:02 — Fort Worth, TX warehouse', 'state' => 'done'],
-        ['label' => 'Shipped', 'meta' => 'Jul 10, 08:47 — Handed to USPS', 'state' => 'done'],
-        ['label' => 'Out for delivery', 'meta' => 'Today, 07:32 — Springfield, IL', 'state' => 'current'],
-        ['label' => 'Delivered', 'meta' => 'Estimated today by 6:00 PM', 'state' => 'upcoming'],
-    ];
-
-    $orderItems = [
-        ['name' => 'Ranger Field Jacket', 'image' => 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=200&q=70&auto=format&fit=crop'],
-        ['name' => 'Patriot Canvas Rucksack', 'image' => 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=200&q=70&auto=format&fit=crop'],
-        ['name' => 'Honor EDC Kit', 'image' => 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=200&q=70&auto=format&fit=crop'],
-    ];
+    $timeline = $tracking['timeline'];
+    $orderItems = $tracking['items'];
+    $backUrl = $backUrl ?? route('account.orders');
 @endphp
 
 <x-layouts.app title="Track Shipment" description="Follow your Valor Supply Co. order in real time — live status, courier details, and estimated arrival.">
@@ -26,13 +15,13 @@
                 <li aria-hidden="true">/</li>
                 <li><a href="{{ route('account.orders') }}" class="transition-colors duration-200 hover:text-navy-900">Orders</a></li>
                 <li aria-hidden="true">/</li>
-                <li aria-current="page" class="font-medium text-navy-900">Track #VS-10482</li>
+                <li aria-current="page" class="font-medium text-navy-900">Track {{ $tracking['order_number_display'] }}</li>
             </ol>
         </nav>
 
         <div class="mt-4 flex flex-wrap items-baseline gap-3">
             <h1 class="font-display text-3xl font-bold text-navy-900 sm:text-4xl">Track your shipment</h1>
-            <p class="text-navy-500">Order #VS-10482</p>
+            <p class="text-navy-500">Order {{ $tracking['order_number_display'] }}</p>
         </div>
 
         {{-- Estimated arrival banner --}}
@@ -46,18 +35,18 @@
                             <span class="absolute inline-flex size-full animate-ping rounded-full bg-bronze-400 opacity-70"></span>
                             <span class="relative inline-flex size-2.5 rounded-full bg-bronze-400"></span>
                         </span>
-                        Out for delivery — estimated arrival
+                        {{ $tracking['eta_heading'] }}
                     </p>
-                    <p class="mt-2 font-display text-3xl font-extrabold sm:text-4xl">Today, 2:00 – 6:00 PM</p>
-                    <p class="mt-2 text-navy-200">Your package is 8 stops away. No signature required.</p>
+                    <p class="mt-2 font-display text-3xl font-extrabold sm:text-4xl">{{ $tracking['eta_detail'] }}</p>
+                    <p class="mt-2 text-navy-200">Placed {{ $tracking['placed_at'] }} · {{ $tracking['payment_status'] }} via {{ $tracking['payment_method'] }}</p>
                 </div>
                 <div class="w-full max-w-xs">
                     <div class="flex items-center justify-between text-xs font-medium text-navy-200">
-                        <span>5 of 6 steps</span>
-                        <span>83%</span>
+                        <span>{{ $tracking['progress_step'] }} of {{ $tracking['progress_total'] }} steps</span>
+                        <span>{{ $tracking['progress_percent'] }}%</span>
                     </div>
                     <div class="mt-2 h-2 overflow-hidden rounded-full bg-white/20">
-                        <div class="h-full w-[83%] rounded-full bg-bronze-400" aria-hidden="true"></div>
+                        <div class="h-full rounded-full bg-bronze-400" style="width: {{ $tracking['progress_percent'] }}%" aria-hidden="true"></div>
                     </div>
                 </div>
             </div>
@@ -131,14 +120,27 @@
                     <ul class="mt-3 flex items-center gap-3">
                         @foreach ($orderItems as $item)
                             <li>
-                                <a href="{{ route('product.show') }}" title="{{ $item['name'] }}"
+                                <a href="{{ $item['url'] }}" title="{{ $item['name'] }}"
                                    class="block size-14 overflow-hidden rounded-xl bg-navy-100 ring-1 ring-navy-900/5 transition-transform duration-200 hover:scale-105">
-                                    <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" loading="lazy" class="size-full object-cover">
+                                    @if ($item['image'])
+                                        <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" loading="lazy" class="size-full object-cover">
+                                    @endif
                                 </a>
                             </li>
                         @endforeach
-                        <li class="text-sm text-navy-500">3 items</li>
+                        <li class="text-sm text-navy-500">{{ $tracking['item_count'] }} {{ $tracking['item_count'] === 1 ? 'item' : 'items' }}</li>
                     </ul>
+                </div>
+
+                <div class="mt-6 border-t border-navy-100 pt-6">
+                    <h3 class="text-sm font-semibold text-navy-900">Order summary</h3>
+                    <dl class="mt-3 space-y-2 text-sm text-navy-700">
+                        <div class="flex justify-between"><dt>Subtotal</dt><dd class="tabular-nums">{{ $tracking['summary']['subtotal'] }}</dd></div>
+                        <div class="flex justify-between"><dt>Discount</dt><dd class="tabular-nums">{{ $tracking['summary']['discount'] }}</dd></div>
+                        <div class="flex justify-between"><dt>Shipping</dt><dd class="tabular-nums">{{ $tracking['summary']['shipping'] }}</dd></div>
+                        <div class="flex justify-between"><dt>Tax</dt><dd class="tabular-nums">{{ $tracking['summary']['tax'] }}</dd></div>
+                        <div class="flex justify-between border-t border-navy-100 pt-2 font-semibold text-navy-900"><dt>Total</dt><dd class="tabular-nums">{{ $tracking['summary']['total'] }}</dd></div>
+                    </dl>
                 </div>
             </section>
 
@@ -149,16 +151,12 @@
                 <section class="overflow-hidden rounded-card bg-surface shadow-soft" aria-label="Delivery route map">
                     <div class="relative">
                         <svg viewBox="0 0 800 420" class="block w-full" role="img" aria-label="Stylized map showing the courier en route between the distribution center and your address">
-                            {{-- Base --}}
                             <rect width="800" height="420" class="fill-navy-50"/>
-                            {{-- Parks --}}
                             <rect x="60" y="52" width="150" height="104" rx="12" class="fill-olive-100"/>
                             <rect x="580" y="260" width="150" height="110" rx="12" class="fill-olive-100"/>
                             <circle cx="135" cy="104" r="17" class="fill-olive-200"/>
                             <circle cx="655" cy="315" r="20" class="fill-olive-200"/>
-                            {{-- Water --}}
                             <path d="M0 330c90-40 140 30 230 0s130 40 210 16v74H0v-90Z" class="fill-navy-100"/>
-                            {{-- Streets --}}
                             <g class="stroke-white" stroke-width="14" stroke-linecap="round">
                                 <path d="M40 200h720"/>
                                 <path d="M240 30v360"/>
@@ -172,20 +170,16 @@
                                 <path d="M240 30v360"/>
                                 <path d="M470 30v360"/>
                             </g>
-                            {{-- Route --}}
                             <path id="route" d="M110 90 H240 V200 H470 V300 H620 V332" fill="none"
                                   class="stroke-navy-900" stroke-width="5" stroke-linecap="round" stroke-dasharray="14 10"/>
-                            {{-- Origin pin --}}
                             <g>
                                 <circle cx="110" cy="90" r="13" class="fill-olive-600"/>
                                 <circle cx="110" cy="90" r="5" class="fill-white"/>
                             </g>
-                            {{-- Destination pin --}}
                             <g>
                                 <path d="M620 302c-12 0-21 9-21 21 0 15 21 33 21 33s21-18 21-33c0-12-9-21-21-21Z" class="fill-bronze-500"/>
                                 <circle cx="620" cy="323" r="8" class="fill-white"/>
                             </g>
-                            {{-- Courier marker animating along the route --}}
                             <g>
                                 <circle r="15" class="fill-navy-900">
                                     <animateMotion dur="14s" repeatCount="indefinite" rotate="0" keyPoints="0;0.72;0.72;1;1" keyTimes="0;0.55;0.7;0.95;1" calcMode="linear">
@@ -202,7 +196,6 @@
                             </g>
                         </svg>
 
-                        {{-- Map legend --}}
                         <div class="absolute bottom-4 left-4 flex flex-wrap gap-x-5 gap-y-1.5 rounded-xl bg-white/90 px-4 py-2.5 text-xs font-medium text-navy-700 shadow-soft backdrop-blur-sm">
                             <span class="flex items-center gap-2"><span class="size-2.5 rounded-full bg-olive-600" aria-hidden="true"></span>Distribution center</span>
                             <span class="flex items-center gap-2"><span class="size-2.5 rounded-full bg-navy-900" aria-hidden="true"></span>Courier</span>
@@ -222,8 +215,8 @@
                                 </svg>
                             </span>
                             <div>
-                                <p class="font-semibold text-navy-900">USPS Priority Mail</p>
-                                <p class="text-sm text-navy-500">Driver: M. Alvarez</p>
+                                <p class="font-semibold text-navy-900">{{ $tracking['courier_name'] ?? 'Courier pending' }}</p>
+                                <p class="text-sm text-navy-500">{{ $tracking['status'] }}</p>
                             </div>
                         </div>
 
@@ -231,19 +224,23 @@
                             <div>
                                 <dt class="text-xs font-semibold tracking-wide text-navy-500 uppercase">Tracking number</dt>
                                 <dd class="mt-1 flex items-center gap-2">
-                                    <code class="rounded-lg bg-navy-50 px-2.5 py-1 font-mono text-xs font-semibold text-navy-800" data-tracking-number>9405 5036 9930 0421 8871 44</code>
-                                    <button type="button" data-copy-tracking aria-label="Copy tracking number"
-                                            class="flex size-8 items-center justify-center rounded-lg text-navy-500 transition-colors duration-200 hover:bg-navy-50 hover:text-navy-900">
-                                        <svg data-copy-icon class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                            <rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                                        </svg>
-                                        <svg data-copied-icon hidden class="size-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>
-                                    </button>
+                                    @if ($tracking['tracking_number_display'])
+                                        <code class="rounded-lg bg-navy-50 px-2.5 py-1 font-mono text-xs font-semibold text-navy-800" data-tracking-number>{{ $tracking['tracking_number_display'] }}</code>
+                                        <button type="button" data-copy-tracking aria-label="Copy tracking number"
+                                                class="flex size-8 items-center justify-center rounded-lg text-navy-500 transition-colors duration-200 hover:bg-navy-50 hover:text-navy-900">
+                                            <svg data-copy-icon class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                            </svg>
+                                            <svg data-copied-icon hidden class="size-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>
+                                        </button>
+                                    @else
+                                        <span class="text-navy-500">Available once your order ships.</span>
+                                    @endif
                                 </dd>
                             </div>
                             <div>
                                 <dt class="text-xs font-semibold tracking-wide text-navy-500 uppercase">Service</dt>
-                                <dd class="mt-1 text-navy-700">Express · Insured to $600</dd>
+                                <dd class="mt-1 text-navy-700">{{ $tracking['payment_method'] }} · {{ $tracking['payment_status'] }}</dd>
                             </div>
                         </dl>
 
@@ -261,24 +258,22 @@
                         <dl class="mt-5 space-y-4 text-sm">
                             <div>
                                 <dt class="text-xs font-semibold tracking-wide text-navy-500 uppercase">Deliver to</dt>
-                                <dd class="mt-1 leading-relaxed text-navy-700">
-                                    James Mitchell<br>
-                                    1400 Liberty Lane, Apt 4B<br>
-                                    Springfield, IL 62704
-                                </dd>
+                                <dd class="mt-1 leading-relaxed text-navy-700">{!! $tracking['shipping_address']['html'] !!}</dd>
                             </div>
+                            @if ($tracking['delivery_instructions'])
+                                <div>
+                                    <dt class="text-xs font-semibold tracking-wide text-navy-500 uppercase">Instructions</dt>
+                                    <dd class="mt-1 text-navy-700">{{ $tracking['delivery_instructions'] }}</dd>
+                                </div>
+                            @endif
                             <div>
-                                <dt class="text-xs font-semibold tracking-wide text-navy-500 uppercase">Instructions</dt>
-                                <dd class="mt-1 text-navy-700">Leave with front desk if no answer.</dd>
-                            </div>
-                            <div>
-                                <dt class="text-xs font-semibold tracking-wide text-navy-500 uppercase">Weight</dt>
-                                <dd class="mt-1 text-navy-700">4.6 lb · 1 box</dd>
+                                <dt class="text-xs font-semibold tracking-wide text-navy-500 uppercase">Billing</dt>
+                                <dd class="mt-1 leading-relaxed text-navy-700">{!! $tracking['billing_address']['html'] !!}</dd>
                             </div>
                         </dl>
                         <div class="mt-6 flex flex-col gap-2">
                             <x-ui.button variant="ghost" size="sm">Update delivery instructions</x-ui.button>
-                            <x-ui.button :href="route('account.orders')" variant="outline" size="sm">Back to orders</x-ui.button>
+                            <x-ui.button :href="$backUrl" variant="outline" size="sm">Back to orders</x-ui.button>
                         </div>
                     </section>
                 </div>

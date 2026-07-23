@@ -7,10 +7,13 @@ use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\OrderNote;
 use App\Models\OrderTimelineEvent;
+use App\Models\User;
 use App\Services\AuditService;
 use App\Services\NotificationService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class OrderService
 {
@@ -44,15 +47,24 @@ class OrderService
             return $order;
         }
 
+        if (! $order->status->canTransitionTo($status)) {
+            throw ValidationException::withMessages([
+                'status' => 'This order cannot move from '.$order->status->label().' to '.$status->label().'.',
+            ]);
+        }
+
         return DB::transaction(function () use ($order, $status, $message, $authorName): Order {
             $previousStatus = $order->status;
+            $admin = Auth::guard('admin')->user();
+            $changedBy = $admin instanceof User ? $admin->id : null;
 
             $this->orders->updateStatus($order, $status->value);
 
             $this->orders->createTimelineEvent($order, [
                 'status' => $status->value,
                 'message' => $message,
-                'author_name' => $authorName ?: 'Admin',
+                'author_name' => $authorName ?: ($admin instanceof User ? $admin->name : 'Admin'),
+                'changed_by' => $changedBy,
             ]);
 
             $updatedOrder = $this->orders->find($order->id);

@@ -10,6 +10,7 @@ use App\Contracts\Repositories\AdminOrderRepositoryInterface;
 use App\Contracts\Repositories\AdminProductRepositoryInterface;
 use App\Contracts\Repositories\CartRepositoryInterface;
 use App\Contracts\Repositories\CategoryRepositoryInterface;
+use App\Contracts\Repositories\CustomerOrderRepositoryInterface;
 use App\Contracts\Repositories\CustomerRepositoryInterface;
 use App\Contracts\Repositories\OrderRepositoryInterface;
 use App\Contracts\Repositories\ProductRepositoryInterface;
@@ -22,10 +23,12 @@ use App\Repositories\Eloquent\AdminOrderRepository;
 use App\Repositories\Eloquent\AdminProductRepository;
 use App\Repositories\Eloquent\CartRepository;
 use App\Repositories\Eloquent\CategoryRepository;
+use App\Repositories\Eloquent\CustomerOrderRepository;
 use App\Repositories\Eloquent\CustomerRepository;
 use App\Repositories\Eloquent\OrderRepository;
 use App\Repositories\Eloquent\ProductRepository;
 use App\Repositories\Eloquent\WishlistRepository;
+use App\Services\Notifications\OrderNotificationDispatcher;
 use App\Support\StoreSettings;
 use App\View\Composers\AdminNotificationComposer;
 use App\View\Composers\CartComposer;
@@ -44,6 +47,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(OrderRepositoryInterface::class, OrderRepository::class);
         $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
+        $this->app->bind(CustomerOrderRepositoryInterface::class, CustomerOrderRepository::class);
         $this->app->bind(CustomerRepositoryInterface::class, CustomerRepository::class);
         $this->app->bind(CategoryRepositoryInterface::class, CategoryRepository::class);
         $this->app->bind(AdminCategoryRepositoryInterface::class, AdminCategoryRepository::class);
@@ -54,6 +58,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AdminOrderRepositoryInterface::class, AdminOrderRepository::class);
         $this->app->bind(CartRepositoryInterface::class, CartRepository::class);
         $this->app->bind(WishlistRepositoryInterface::class, WishlistRepository::class);
+        $this->app->singleton(OrderNotificationDispatcher::class, fn (): OrderNotificationDispatcher => new OrderNotificationDispatcher(collect()));
     }
 
     /**
