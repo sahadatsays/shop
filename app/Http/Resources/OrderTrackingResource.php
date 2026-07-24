@@ -31,6 +31,7 @@ class OrderTrackingResource extends JsonResource
             'status' => $this->status->storefrontLabel(),
             'status_variant' => $this->status->storefrontBadgeVariant(),
             'status_enum' => $this->status->value,
+            'is_delivered' => $this->status === OrderStatus::Delivered,
             'payment_status' => ucfirst(str_replace('_', ' ', $this->payment_status ?? 'paid')),
             'payment_method' => $this->payment_method ?? 'Card',
             'estimated_delivery' => $this->estimatedDeliveryLabel(),

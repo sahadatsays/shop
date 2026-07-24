@@ -15,27 +15,6 @@ beforeEach(function (): void {
     $this->seed(CommerceSeeder::class);
 });
 
-function createDeliveredOrderForCustomer(Customer $customer, Product $product): Order
-{
-    $order = Order::factory()->create([
-        'customer_id' => $customer->id,
-        'status' => OrderStatus::Delivered,
-        'placed_at' => now()->subWeek(),
-        'subtotal_cents' => $product->price_cents,
-        'total_cents' => $product->price_cents,
-    ]);
-
-    OrderItem::factory()->create([
-        'order_id' => $order->id,
-        'product_id' => $product->id,
-        'quantity' => 1,
-        'unit_price_cents' => $product->price_cents,
-        'line_total_cents' => $product->price_cents,
-    ]);
-
-    return $order;
-}
-
 test('customer cannot review a product without a delivered order', function (): void {
     $customer = Customer::query()->active()->firstOrFail();
     $product = Product::query()->published()->firstOrFail();

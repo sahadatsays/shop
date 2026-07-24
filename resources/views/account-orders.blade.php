@@ -47,7 +47,9 @@
                             <header class="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-navy-100 bg-navy-50/60 px-7 py-5">
                                 <div>
                                     <p class="text-xs font-semibold tracking-wide text-navy-500 uppercase">Order</p>
-                                    <p class="font-display text-base font-bold text-navy-900">{{ $order['number'] }}</p>
+                                    <p class="font-display text-base font-bold text-navy-900">
+                                        <a href="{{ $order['track_url'] }}" class="transition-colors duration-200 hover:text-olive-700">{{ $order['number'] }}</a>
+                                    </p>
                                 </div>
                                 <div>
                                     <p class="text-xs font-semibold tracking-wide text-navy-500 uppercase">Placed</p>
@@ -111,6 +113,9 @@
                                     </ul>
 
                                     <div class="ml-auto flex flex-wrap gap-2">
+                                        <x-ui.button :href="$order['track_url']" variant="secondary" size="sm">
+                                            View order
+                                        </x-ui.button>
                                         <x-ui.button variant="ghost" size="sm">
                                             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                                 <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
@@ -123,14 +128,7 @@
                                             </svg>
                                             Reorder
                                         </x-ui.button>
-                                        @if (! $order['is_delivered'])
-                                            <x-ui.button :href="$order['track_url']" size="sm">
-                                                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                                    <path d="M12 21s-6-5.5-6-10a6 6 0 0 1 12 0c0 4.5-6 10-6 10Zm0-7.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
-                                                </svg>
-                                                Track order
-                                            </x-ui.button>
-                                        @else
+                                        @if ($order['is_delivered'])
                                             <x-ui.button :href="route('account.reviews').'#ready-for-review'" variant="secondary" size="sm">
                                                 <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                                     <path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.3l-5.8 3.1 1.1-6.5L2.6 9.3l6.5-.9L12 2.5Z"/>

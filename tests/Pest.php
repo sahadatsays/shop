@@ -1,6 +1,10 @@
 <?php
 
+use App\Enums\OrderStatus;
 use App\Models\Customer;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\User;
 use Database\Seeders\AdminAccessSeeder;
 use Tests\TestCase;
@@ -69,4 +73,25 @@ function actingAsCustomer(?Customer $customer = null): Customer
     test()->withSession(['customer_id' => $customer->id]);
 
     return $customer;
+}
+
+function createDeliveredOrderForCustomer(Customer $customer, Product $product): Order
+{
+    $order = Order::factory()->create([
+        'customer_id' => $customer->id,
+        'status' => OrderStatus::Delivered,
+        'placed_at' => now()->subWeek(),
+        'subtotal_cents' => $product->price_cents,
+        'total_cents' => $product->price_cents,
+    ]);
+
+    OrderItem::factory()->create([
+        'order_id' => $order->id,
+        'product_id' => $product->id,
+        'quantity' => 1,
+        'unit_price_cents' => $product->price_cents,
+        'line_total_cents' => $product->price_cents,
+    ]);
+
+    return $order;
 }

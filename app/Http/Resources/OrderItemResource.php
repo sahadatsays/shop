@@ -20,6 +20,7 @@ class OrderItemResource extends JsonResource
         return [
             'name' => $product?->name ?? 'Product',
             'sku' => $product?->sku,
+            'product_id' => $this->product_id,
             'quantity' => $this->quantity,
             'unit_price' => MoneyFormatter::format($this->unit_price_cents),
             'subtotal' => MoneyFormatter::format($this->line_total_cents),

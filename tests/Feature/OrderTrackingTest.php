@@ -4,6 +4,7 @@ use App\Enums\OrderStatus;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderTimelineEvent;
+use App\Models\Product;
 use Database\Seeders\AdminAccessSeeder;
 use Database\Seeders\CommerceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -58,7 +59,24 @@ test('logged in customer can view their order history and tracking page', functi
     $this->get(route('account.orders.show', $order))
         ->assertSuccessful()
         ->assertSee($order->order_number)
-        ->assertSee('Shipment progress');
+        ->assertSee('Order details')
+        ->assertSee('Account navigation', false)
+        ->assertSee('Shipment progress')
+        ->assertSee('Items in this order');
+});
+
+test('customer order details shows write review for delivered reviewable products', function (): void {
+    $customer = Customer::query()->active()->firstOrFail();
+    $product = Product::query()->published()->firstOrFail();
+
+    $order = createDeliveredOrderForCustomer($customer, $product);
+
+    actingAsCustomer($customer);
+
+    $this->get(route('account.orders.show', $order))
+        ->assertSuccessful()
+        ->assertSee('Write review')
+        ->assertSee($product->name);
 });
 
 test('logged in customer cannot view another customers order', function (): void {
