@@ -9,6 +9,7 @@ use App\Http\Controllers\CustomerNotificationController;
 use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\CustomerPasswordResetController;
 use App\Http\Controllers\CustomerProfileController;
+use App\Http\Controllers\CustomerRegistrationController;
 use App\Http\Controllers\CustomerReviewController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
