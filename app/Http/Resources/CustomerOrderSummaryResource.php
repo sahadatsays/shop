@@ -36,6 +36,8 @@ class CustomerOrderSummaryResource extends JsonResource
                 'image' => $item->product?->primaryImageUrl(),
                 'url' => $item->product ? route('product.show', $item->product) : route('shop'),
             ])->all(),
+            'item_count' => (int) $this->items->sum('quantity'),
+            'thumbnail' => $this->items->first()?->product?->primaryImageUrl(),
             'track_url' => route('account.orders.show', $this->resource),
             'is_delivered' => $this->status === OrderStatus::Delivered,
         ];

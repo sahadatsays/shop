@@ -5,6 +5,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CompareController;
 use App\Http\Controllers\CustomerAuthController;
+use App\Http\Controllers\CustomerDashboardController;
 use App\Http\Controllers\CustomerNotificationController;
 use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\CustomerPasswordResetController;
@@ -95,7 +96,7 @@ Route::middleware('customer.auth')->group(function (): void {
         ->middleware('order.tracking')
         ->name('account.orders.show');
 
-    Route::get('/account', fn () => view('account'))->name('account');
+    Route::get('/account', CustomerDashboardController::class)->name('account');
     Route::get('/account/settings', [CustomerProfileController::class, 'show'])->name('account.settings');
     Route::match(['put', 'patch', 'post'], '/account/settings', [CustomerProfileController::class, 'update'])->name('account.settings.update');
     Route::get('/profile', [CustomerProfileController::class, 'show'])->name('profile');

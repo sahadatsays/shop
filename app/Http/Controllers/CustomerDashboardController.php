@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Customer;
+use App\Services\CustomerAuthService;
+use App\Services\CustomerDashboardService;
+use Illuminate\View\View;
+
+class CustomerDashboardController extends Controller
+{
+    public function __construct(
+        private CustomerAuthService $auth,
+        private CustomerDashboardService $dashboard,
+    ) {}
+
+    public function __invoke(): View
+    {
+        $customer = $this->customer();
+
+        return view('account', [
+            'title' => 'My Account',
+            'dashboard' => $this->dashboard->data($customer),
+        ]);
+    }
+
+    private function customer(): Customer
+    {
+        $customerId = session('customer_id');
+
+        return Customer::query()->findOrFail($customerId);
+    }
+}
