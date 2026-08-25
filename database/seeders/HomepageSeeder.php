@@ -34,7 +34,7 @@ class HomepageSeeder extends Seeder
                 'hide_out_of_stock' => true,
                 'sections' => HomepageSetting::defaultSections(),
                 'popular_searches' => ['jackets', 'flags', 'challenge coins', 'boots', 'packs'],
-                'meta_title' => 'Valor Supply Co. — Veteran-Owned Premium Gear',
+                'meta_title' => 'Jackpot BD LTD — Veteran-Owned Premium Gear',
                 'meta_description' => 'Shop premium apparel, outdoor gear, and collectibles from a veteran-owned store built on honor, quality, and service.',
                 'meta_keywords' => 'veteran gear, outdoor apparel, challenge coins, flags',
             ],
@@ -191,11 +191,13 @@ class HomepageSeeder extends Seeder
             ]);
         }
 
-        foreach ([
-            ['Categories', 'categories', 1],
-            ['Our Story', 'about', 2],
-            ['Support', 'support', 3],
-        ] as [$label, $route, $order]) {
+        foreach (
+            [
+                ['Categories', 'categories', 1],
+                ['Our Story', 'about', 2],
+                ['Support', 'support', 3],
+            ] as [$label, $route, $order]
+        ) {
             MenuItem::query()->create([
                 'menu_id' => $primary->id,
                 'label' => $label,

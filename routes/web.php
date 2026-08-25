@@ -46,12 +46,14 @@ Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.s
 Route::get('/checkout/confirmation/{order:order_number}', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
 
 Route::middleware('customer.guest')->group(function (): void {
-    Route::view('/login', 'login')->name('login');
+    // Route::view('/login', 'login')->name('login');
+    Route::get('/login', [CustomerAuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [CustomerAuthController::class, 'login'])
         ->middleware('throttle:customer-login')
         ->name('login.store');
 
-    Route::view('/register', 'register')->name('register');
+    // Route::view('/register', 'register')->name('register');
+    Route::get('/register', [CustomerRegistrationController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [CustomerRegistrationController::class, 'store'])
         ->middleware('throttle:customer-register')
         ->name('register.store');
@@ -116,5 +118,5 @@ Route::get('/track-order/{order:order_number}', [TrackOrderController::class, 's
 
 Route::redirect('/track', '/track-order')->name('track');
 Route::view('/support', 'support')->name('support');
-Route::view('/about', 'about')->name('about');
+// Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');

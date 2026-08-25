@@ -1,6 +1,6 @@
 ---
 name: veteran-store-design
-description: "Apply the Valor Supply Co. design system whenever creating or editing any Blade view, page, layout, or UI component in this project. Triggers for all frontend work: new pages, product listings, cart, checkout, auth screens, emails rendered as HTML, and any Tailwind styling. Defines the brand's colors, typography, spacing, component usage, and accessibility rules. Skip for backend-only PHP, migrations, and tests."
+description: "Apply the Jackpot BD LTD design system whenever creating or editing any Blade view, page, layout, or UI component in this project. Triggers for all frontend work: new pages, product listings, cart, checkout, auth screens, emails rendered as HTML, and any Tailwind styling. Defines the brand's colors, typography, spacing, component usage, and accessibility rules. Skip for backend-only PHP, migrations, and tests."
 license: MIT
 ---
 

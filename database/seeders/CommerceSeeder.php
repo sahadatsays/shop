@@ -30,7 +30,7 @@ class CommerceSeeder extends Seeder
             'Flags',
             'Books',
             'Everyday Carry',
-        ])->map(fn (string $name) => Category::factory()->create([
+        ])->map(fn(string $name) => Category::factory()->create([
             'name' => $name,
             'slug' => str($name)->slug()->toString(),
             'sort_order' => fake()->numberBetween(1, 10),
@@ -42,12 +42,12 @@ class CommerceSeeder extends Seeder
         }
 
         $brands = collect([
-            'Valor Supply Co.',
+            'Jackpot BD LTD',
             'Garrison Works',
             'Sentinel & Sons',
             'Basecamp Provisions',
             'Old Glory Textiles',
-        ])->map(fn (string $name, int $index) => Brand::factory()->create([
+        ])->map(fn(string $name, int $index) => Brand::factory()->create([
             'name' => $name,
             'slug' => str($name)->slug()->toString(),
             'is_featured' => $index < 3,
@@ -81,14 +81,14 @@ class CommerceSeeder extends Seeder
 
             ProductImage::query()->create([
                 'product_id' => $product->id,
-                'path' => 'https://images.unsplash.com/photo-'.fake()->randomElement([
+                'path' => 'https://images.unsplash.com/photo-' . fake()->randomElement([
                     '1551028719-00167b16eac5',
                     '1553062407-98eeb64c6a62',
                     '1521572163474-6864f9cf17ab',
                     '1524592094714-0f0654e20314',
                     '1512436991641-6745cdb1723f',
                     '1512820790803-83ca734da794',
-                ]).'?w=800&q=70&auto=format&fit=crop',
+                ]) . '?w=800&q=70&auto=format&fit=crop',
                 'alt_text' => $product->name,
                 'sort_order' => 0,
                 'is_primary' => true,
@@ -272,7 +272,7 @@ class CommerceSeeder extends Seeder
         OrderTimelineEvent::query()->create([
             'order_id' => $order->id,
             'status' => $order->status->value,
-            'message' => 'Status updated to '.$order->status->label().'.',
+            'message' => 'Status updated to ' . $order->status->label() . '.',
             'author_name' => 'Admin',
             'created_at' => $order->placed_at?->copy()->addHours(fake()->numberBetween(1, 72)),
             'updated_at' => $order->placed_at?->copy()->addHours(fake()->numberBetween(1, 72)),

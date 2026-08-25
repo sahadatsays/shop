@@ -54,7 +54,7 @@ class HomepageSettings
             'hide_out_of_stock' => true,
             'sections' => HomepageSetting::defaultSections(),
             'popular_searches' => ['jackets', 'flags', 'challenge coins', 'boots', 'packs'],
-            'meta_title' => 'Valor Supply Co. — Veteran-Owned Premium Gear',
+            'meta_title' => 'Jackpot BD LTD — Veteran-Owned Premium Gear',
             'meta_description' => 'Shop premium apparel, outdoor gear, and collectibles from a veteran-owned store built on honor, quality, and service.',
             'meta_keywords' => 'veteran gear, outdoor apparel, challenge coins, flags',
         ]);

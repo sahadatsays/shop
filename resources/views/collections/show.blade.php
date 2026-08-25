@@ -1,4 +1,5 @@
-<x-layouts.app :title="$collection->name" :description="$collection->description ?? 'Shop curated products from the '.$collection->name.' collection at Valor Supply Co.'">
+<x-layouts.app :title="$collection->name" :description="$collection->description ??
+    'Shop curated products from the ' . $collection->name . ' collection at Jackpot BD LTD'">
 
     <div class="border-b border-navy-100 bg-surface">
         <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -27,30 +28,18 @@
                 <x-ui.button :href="route('shop')" variant="secondary" class="mt-8">Browse all products</x-ui.button>
             </div>
         @else
-            <p class="text-sm text-navy-500">{{ $collection->products->count() }} {{ Str::plural('product', $collection->products->count()) }}</p>
+            <p class="text-sm text-navy-500">{{ $collection->products->count() }}
+                {{ Str::plural('product', $collection->products->count()) }}</p>
 
             <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 @foreach ($collection->products as $product)
                     @php
                         $badge = $product->shopBadge();
                     @endphp
-                    <x-ui.product-card
-                        :name="$product->name"
-                        :brand="$product->brand?->name"
-                        :category="$product->category?->name"
-                        :short-description="$product->short_description"
-                        :price="$product->formattedPrice()"
-                        :old-price="$product->isOnSale() ? $product->formattedCompareAtPrice() : null"
-                        :badge="$badge['badge']"
-                        :badge-variant="$badge['variant']"
-                        :rating="$product->placeholderRating()"
-                        :reviews="$product->placeholderReviewCount()"
-                        :stock="$product->shopStockLabel()"
-                        :stock-percent="$product->shopStockPercent()"
-                        :image="$product->primaryImageUrl()"
-                        :href="route('product.show', $product)"
-                        :product-id="$product->id"
-                    />
+                    <x-ui.product-card :name="$product->name" :brand="$product->brand?->name" :category="$product->category?->name" :short-description="$product->short_description"
+                        :price="$product->formattedPrice()" :old-price="$product->isOnSale() ? $product->formattedCompareAtPrice() : null" :badge="$badge['badge']" :badge-variant="$badge['variant']" :rating="$product->placeholderRating()"
+                        :reviews="$product->placeholderReviewCount()" :stock="$product->shopStockLabel()" :stock-percent="$product->shopStockPercent()" :image="$product->primaryImageUrl()" :href="route('product.show', $product)"
+                        :product-id="$product->id" />
                 @endforeach
             </div>
         @endif

@@ -31,6 +31,14 @@ beforeEach(function (): void {
     ]);
 });
 
+test('login page uses the local login banner on desktop and mobile', function (): void {
+    $response = $this->get(route('login'));
+
+    $response->assertSuccessful();
+
+    expect(substr_count($response->getContent(), asset('storage/login/login-banner.png')))->toBe(2);
+});
+
 test('customer can register with email and password', function (): void {
     Event::fake([CustomerRegistered::class]);
 

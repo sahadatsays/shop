@@ -36,7 +36,7 @@ class StoreSettings
     public static function seedDefaults(): StoreSetting
     {
         return StoreSetting::query()->create([
-            'store_name' => config('app.name', 'Valor Supply Co.'),
+            'store_name' => config('app.name', 'Jackpot BD LTD'),
             'tagline' => 'Honor in every stitch and seam.',
             'description' => 'Premium gear and goods crafted with the honor, discipline, and quality of those who served. Veteran owned and operated since 2019.',
             'email' => 'hello@valorsupply.co',
@@ -48,13 +48,13 @@ class StoreSettings
                 'facebook' => 'https://facebook.com/valorsupplyco',
                 'youtube' => 'https://youtube.com/@valorsupplyco',
             ],
-            'currency' => 'USD',
+            'currency' => 'BDT',
             'timezone' => 'America/New_York',
-            'mail_from_name' => 'Valor Supply Co.',
+            'mail_from_name' => 'Jackpot BD LTD',
             'mail_from_address' => 'noreply@valorsupply.co',
             'utility_bar_message' => 'Free express shipping on orders over $75 • 5% of profits support veteran programs',
             'free_shipping_threshold_cents' => 7500,
-            'meta_title' => 'Valor Supply Co. — Veteran-Owned Premium Gear',
+            'meta_title' => 'Jackpot BD LTD — Veteran-Owned Premium Gear',
             'meta_description' => 'Premium apparel, outdoor gear, and collectibles from a veteran-owned store built on honor, quality, and service.',
             'theme_colors' => StoreSetting::defaultThemeColors(),
         ]);

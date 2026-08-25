@@ -43,7 +43,7 @@ class SearchService
             ];
         }
 
-        $like = '%'.$term.'%';
+        $like = '%' . $term . '%';
 
         $products = Product::query()
             ->published()
@@ -51,13 +51,13 @@ class SearchService
             ->where(function ($builder) use ($like): void {
                 $builder->where('name', 'like', $like)
                     ->orWhere('sku', 'like', $like)
-                    ->orWhereHas('brand', fn ($brand) => $brand->where('name', 'like', $like))
-                    ->orWhereHas('category', fn ($category) => $category->where('name', 'like', $like));
+                    ->orWhereHas('brand', fn($brand) => $brand->where('name', 'like', $like))
+                    ->orWhereHas('category', fn($category) => $category->where('name', 'like', $like));
             })
             ->with(['category', 'images'])
             ->limit($limit)
             ->get()
-            ->map(fn (Product $product): array => [
+            ->map(fn(Product $product): array => [
                 'id' => $product->id,
                 'name' => $product->name,
                 'sku' => $product->sku,
@@ -75,7 +75,7 @@ class SearchService
             ->ordered()
             ->limit(4)
             ->get(['id', 'name', 'slug'])
-            ->map(fn (Category $category): array => [
+            ->map(fn(Category $category): array => [
                 'name' => $category->name,
                 'url' => route('shop', ['category' => [$category->slug]]),
             ])
@@ -87,7 +87,7 @@ class SearchService
             ->ordered()
             ->limit(4)
             ->get(['id', 'name', 'slug'])
-            ->map(fn (Brand $brand): array => [
+            ->map(fn(Brand $brand): array => [
                 'name' => $brand->name,
                 'url' => route('shop', ['brand' => [$brand->slug]]),
             ])
@@ -106,6 +106,6 @@ class SearchService
     public function popularSearches(): array
     {
         return HomepageSettings::current()->popular_searches
-            ?? ['jackets', 'flags', 'challenge coins', 'boots', 'packs'];
+            ?? ['flags', 'challenge coins', 'boots', 'packs'];
     }
 }

@@ -19,7 +19,7 @@ class CustomerDashboardController extends Controller
         $customer = $this->customer();
 
         return view('account', [
-            'title' => 'My Account',
+            'title' => $customer->name . "'s Account",
             'dashboard' => $this->dashboard->data($customer),
         ]);
     }

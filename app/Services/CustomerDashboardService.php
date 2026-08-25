@@ -55,7 +55,7 @@ class CustomerDashboardService
     ): array {
         $firstName = Str::before(trim($customer->name), ' ') ?: $customer->name;
 
-        $message = 'Explore our latest gear and earn rewards on every purchase.';
+        $message = 'Explore our latest gear.';
         $highlight = null;
         $trackUrl = route('account.orders');
         $showTrackCta = false;
@@ -70,26 +70,26 @@ class CustomerDashboardService
                     'Your %s is on the move%s.',
                     $leadItem,
                     $spotlightOrder->estimated_delivery_at
-                        ? ' — arriving '.$spotlightOrder->estimated_delivery_at->format('l')
+                        ? ' — arriving ' . $spotlightOrder->estimated_delivery_at->format('l')
                         : '',
                 ),
                 OrderStatus::Delivered => sprintf('Your %s was delivered. Hope you love it.', $leadItem),
-                default => sprintf('Your order %s is being prepared.', '#'.$spotlightOrder->order_number),
+                default => sprintf('Your order %s is being prepared.', '#' . $spotlightOrder->order_number),
             };
         } elseif ($rewards['points_to_next_tier']) {
-            $highlight = number_format($rewards['points_to_next_tier']).' points';
+            $highlight = number_format($rewards['points_to_next_tier']) . ' points';
             $message = sprintf(
                 'You\'re %s away from %s.',
                 $highlight,
                 $rewards['next_tier'],
             );
         } elseif ($orders->isNotEmpty()) {
-            $message = 'Thanks for shopping with Valor. Browse new arrivals picked for you below.';
+            $message = 'Thanks for shopping with Jackpot. Browse new arrivals picked for you below.';
         }
 
         return [
             'date_label' => now()->format('l, F j'),
-            'headline' => 'Welcome back, '.$firstName,
+            'headline' => 'Welcome back, ' . $firstName,
             'message' => $message,
             'highlight' => $highlight,
             'track_url' => $trackUrl,
@@ -107,7 +107,7 @@ class CustomerDashboardService
     {
         $quarterStart = now()->startOfQuarter();
         $ordersThisQuarter = $orders->filter(
-            fn (Order $order): bool => $order->placed_at !== null && $order->placed_at->gte($quarterStart),
+            fn(Order $order): bool => $order->placed_at !== null && $order->placed_at->gte($quarterStart),
         )->count();
 
         $inTransit = $orders->where('status', OrderStatus::Shipped)->count();
@@ -118,7 +118,7 @@ class CustomerDashboardService
                 'label' => 'Total orders',
                 'value' => (string) $orders->count(),
                 'trend' => $ordersThisQuarter > 0
-                    ? '+'.$ordersThisQuarter.' this quarter'
+                    ? '+' . $ordersThisQuarter . ' this quarter'
                     : 'No orders this quarter',
                 'up' => $ordersThisQuarter > 0,
                 'icon' => 'M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7ZM9 10V6a3 3 0 0 1 6 0v4',
@@ -134,7 +134,7 @@ class CustomerDashboardService
             ],
             [
                 'label' => 'Reward points',
-                'value' => $rewards['points_label'],
+                'value' => 00,
                 'trend' => $rewards['last_order_points_label'],
                 'up' => $rewards['last_order_points'] > 0,
                 'icon' => 'M12 15a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 0 2.5 6.5L12 20l-2.5 1.5L12 15Z',
@@ -167,7 +167,7 @@ class CustomerDashboardService
      */
     private function spotlightOrder(Collection $orders): ?Order
     {
-        $active = $orders->filter(fn (Order $order): bool => ! in_array($order->status, [
+        $active = $orders->filter(fn(Order $order): bool => ! in_array($order->status, [
             OrderStatus::Cancelled,
             OrderStatus::Returned,
             OrderStatus::Refunded,
@@ -189,7 +189,7 @@ class CustomerDashboardService
         $timelineBuilder = app(OrderTimelineBuilder::class);
 
         return [
-            'number' => '#'.$trackable->order_number,
+            'number' => '#' . $trackable->order_number,
             'order_number' => $trackable->order_number,
             'status' => $trackable->status->storefrontLabel(),
             'track_url' => route('account.orders.show', $trackable),
@@ -209,11 +209,11 @@ class CustomerDashboardService
                 'href' => $spotlightTracking['track_url'] ?? route('track-order.create'),
                 'icon' => 'M12 21s-6-5.5-6-10a6 6 0 0 1 12 0c0 4.5-6 10-6 10Zm0-7.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z',
             ],
-            [
-                'label' => 'Start a return',
-                'href' => route('support'),
-                'icon' => 'M3 12a9 9 0 1 0 3-6.7M3 4v4h4',
-            ],
+            // [
+            //     'label' => 'Start a return',
+            //     'href' => route('support'),
+            //     'icon' => 'M3 12a9 9 0 1 0 3-6.7M3 4v4h4',
+            // ],
             [
                 'label' => 'Reorder favorites',
                 'href' => route('wishlist'),
@@ -229,11 +229,11 @@ class CustomerDashboardService
                 'href' => route('shop'),
                 'icon' => 'M3 8h18v4H3zM5 12v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8M12 8v13M12 8s-1.5-4-4-4a2 2 0 0 0 0 4h4Zm0 0s1.5-4 4-4a2 2 0 0 1 0 4h-4Z',
             ],
-            [
-                'label' => 'Size guide',
-                'href' => route('support'),
-                'icon' => 'M3 9h18v6H3zM7 9v3m4-3v2m4-2v3m4-3v2',
-            ],
+            // [
+            //     'label' => 'Size guide',
+            //     'href' => route('support'),
+            //     'icon' => 'M3 9h18v6H3zM7 9v3m4-3v2m4-2v3m4-3v2',
+            // ],
         ];
     }
 
@@ -244,13 +244,13 @@ class CustomerDashboardService
     private function recommendedProducts(Customer $customer, Collection $orders): Collection
     {
         $purchasedProductIds = $orders
-            ->flatMap(fn (Order $order) => $order->items->pluck('product_id'))
+            ->flatMap(fn(Order $order) => $order->items->pluck('product_id'))
             ->filter()
             ->unique()
             ->values();
 
         $categoryIds = $orders
-            ->flatMap(fn (Order $order) => $order->items->map(fn ($item) => $item->product?->category_id))
+            ->flatMap(fn(Order $order) => $order->items->map(fn($item) => $item->product?->category_id))
             ->filter()
             ->unique()
             ->values();
@@ -260,7 +260,7 @@ class CustomerDashboardService
             ->with(['category', 'images'])
             ->when(
                 $purchasedProductIds->isNotEmpty(),
-                fn ($builder) => $builder->whereNotIn('id', $purchasedProductIds),
+                fn($builder) => $builder->whereNotIn('id', $purchasedProductIds),
             );
 
         if ($categoryIds->isNotEmpty()) {

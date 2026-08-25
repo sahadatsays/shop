@@ -10,6 +10,7 @@ use App\Services\WishlistService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class CustomerAuthController extends Controller
 {
@@ -18,6 +19,20 @@ class CustomerAuthController extends Controller
         private CartService $cart,
         private WishlistService $wishlist,
     ) {}
+
+    public function showLoginForm(): View
+    {
+        $banner = [
+            'eyebrow' => 'BUILT FOR BRANDS',
+            'headline' => 'Packaging that makes your brand stand out.',
+            'description' => 'Premium custom packaging and printed essentials, crafted to elevate every brand presentation.',
+            'bottom_text' => 'Custom packaging. Premium printing. Reliable delivery.',
+            'image' => asset('storage/login/login-banner.png'),
+        ];
+        return view('login')->with([
+            'banner' => $banner,
+        ]);
+    }
 
     public function login(CustomerLoginRequest $request): JsonResponse|RedirectResponse
     {
@@ -51,7 +66,7 @@ class CustomerAuthController extends Controller
 
         return redirect()
             ->intended(route('account'))
-            ->with('success', 'Welcome back, '.$customer->name.'.');
+            ->with('success', 'Welcome back, ' . $customer->name . '.');
     }
 
     public function logout(Request $request): RedirectResponse

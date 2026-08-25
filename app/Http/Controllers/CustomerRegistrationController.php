@@ -8,6 +8,7 @@ use App\Services\CustomerAuthService;
 use App\Services\WishlistService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class CustomerRegistrationController extends Controller
 {
@@ -16,6 +17,14 @@ class CustomerRegistrationController extends Controller
         private CartService $cart,
         private WishlistService $wishlist,
     ) {}
+
+    public function showRegistrationForm(): View
+    {
+        $banner = asset('storage/login/login-banner.png');
+        return view('register')->with([
+            'banner' => $banner,
+        ]);
+    }
 
     public function store(RegisterCustomerRequest $request): JsonResponse|RedirectResponse
     {
@@ -40,6 +49,6 @@ class CustomerRegistrationController extends Controller
 
         return redirect()
             ->route('account')
-            ->with('success', 'Welcome to Valor, '.$customer->name.'.');
+            ->with('success', 'Welcome to Valor, ' . $customer->name . '.');
     }
 }
