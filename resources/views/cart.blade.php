@@ -10,7 +10,7 @@
 
     <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14" data-cart
         data-free-shipping-threshold="{{ $freeShippingThreshold }}" data-tax-rate="{{ $taxRate }}"
-        data-flat-shipping="{{ $flatShipping }}">
+        data-flat-shipping="{{ $flatShipping }}" data-discount-cents="{{ $summary->discountCents }}">
 
         {{-- Header --}}
         <nav aria-label="Breadcrumb">
@@ -188,7 +188,7 @@
                 @endif
 
                 {{-- Coupon --}}
-                {{-- <div data-coupon-section @if ($summary->isEmpty()) hidden @endif
+                <div data-coupon-section @if ($summary->isEmpty()) hidden @endif
                     class="mt-8 rounded-card bg-surface p-6 shadow-soft">
                     <h2 class="flex items-center gap-2 font-display text-base font-semibold text-navy-900">
                         <svg class="size-5 text-bronze-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -199,28 +199,27 @@
                         </svg>
                         Have a coupon?
                     </h2>
-                    <form data-coupon-form class="mt-4 flex flex-col gap-3 sm:flex-row">
+                    <form data-coupon-form class="mt-4 flex flex-col gap-3 sm:flex-row" @if ($summary->hasDiscount()) hidden @endif>
                         <label for="coupon-code" class="sr-only">Coupon code</label>
                         <input type="text" id="coupon-code" data-coupon-input
-                            placeholder="Enter code — try VALOR10"
+                            placeholder="Enter code"
                             class="w-full rounded-xl border border-navy-200 bg-canvas px-4 py-3 text-sm text-ink uppercase placeholder:normal-case placeholder:text-navy-400 transition-colors duration-200 hover:border-navy-300 focus:outline-2 focus:outline-offset-2 focus:outline-bronze-500">
                         <x-ui.button type="submit" variant="outline" class="shrink-0">Apply coupon</x-ui.button>
                     </form>
-                    <p data-coupon-error hidden class="mt-3 text-sm font-medium text-red-600">That code isn't valid.
-                        Try VALOR10.</p>
-                    <div data-coupon-applied hidden
+                    <p data-coupon-error hidden class="mt-3 text-sm font-medium text-red-600"></p>
+                    <div data-coupon-applied @if (! $summary->hasDiscount()) hidden @endif
                         class="mt-4 flex items-center justify-between rounded-xl bg-green-50 px-4 py-3">
                         <p class="flex items-center gap-2 text-sm font-semibold text-green-800">
                             <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="m5 13 4 4L19 7" />
                             </svg>
-                            VALOR10 applied — 10% off your order
+                            <span data-coupon-applied-label>{{ $summary->discountLabel() }}</span>
                         </p>
                         <button type="button" data-coupon-remove aria-label="Remove coupon"
                             class="text-sm font-medium text-green-700 underline-offset-4 hover:underline">Remove</button>
                     </div>
-                </div> --}}
+                </div>
             </div>
 
             {{-- ============ Order summary ============ --}}
@@ -235,9 +234,10 @@
                             <dd class="font-semibold text-navy-900 tabular-nums" data-summary-subtotal>
                                 {{ $summary->formattedSubtotal() }}</dd>
                         </div>
-                        <div class="flex items-center justify-between" data-summary-discount-row hidden>
-                            <dt class="text-navy-600">Coupon discount (10%)</dt>
-                            <dd class="font-semibold text-green-700 tabular-nums" data-summary-discount>−$0.00</dd>
+                        <div class="flex items-center justify-between" data-summary-discount-row @if (! $summary->hasDiscount()) hidden @endif>
+                            <dt class="text-navy-600" data-summary-discount-label>Coupon{{ $summary->discount?->code ? ' ('.$summary->discount->code.')' : '' }}</dt>
+                            <dd class="font-semibold text-green-700 tabular-nums" data-summary-discount>
+                                {{ $summary->hasDiscount() ? $summary->formattedDiscount() : '' }}</dd>
                         </div>
                         <div class="flex items-center justify-between">
                             <dt class="text-navy-600">Shipping</dt>

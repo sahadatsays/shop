@@ -10,13 +10,16 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Exceptions\Cart\CartValidationException;
 use App\Exceptions\Cart\InsufficientStockException;
+use App\Exceptions\Cart\InvalidCouponException;
 use App\Http\Requests\PlaceOrderRequest;
 use App\Models\Cart;
 use App\Models\Customer;
+use App\Models\Discount;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderTimelineEvent;
 use App\Models\Product;
+use App\Support\Checkout\OrderTotalsCalculator;
 use App\Support\MoneyFormatter;
 use App\Support\OrderNumberGenerator;
 use Illuminate\Support\Facades\DB;
@@ -27,8 +30,10 @@ class CheckoutService
     public function __construct(
         private CartService $cart,
         private CartRepositoryInterface $carts,
+        private CouponService $coupons,
         private CustomerAuthRepositoryInterface $customers,
         private NotificationService $notifications,
+        private OrderTotalsCalculator $totals,
     ) {}
 
     /**
@@ -74,15 +79,16 @@ class CheckoutService
             $summary->subtotalCents,
         );
 
-        $taxRate = (float) config('cart.tax_rate', 0.08);
-        $taxCents = (int) round($summary->subtotalCents * $taxRate);
-        $totalCents = $summary->subtotalCents + $shippingCents + $taxCents;
+        $discount = $summary->discount;
+        $totals = $this->totals->calculate($summary->subtotalCents, $shippingCents, $discount);
 
-        return DB::transaction(function () use ($request, $summary, $shippingCents, $taxCents, $totalCents): Order {
+        return DB::transaction(function () use ($request, $summary, $totals, $discount): Order {
             $customer = $this->resolveCustomer($request);
             $cart = $summary->cart;
 
             $this->lockAndValidateStock($cart);
+
+            $appliedDiscount = $this->resolveOrderDiscount($discount, $summary->subtotalCents);
 
             $order = Order::query()->create([
                 'customer_id' => $customer->id,
@@ -90,11 +96,13 @@ class CheckoutService
                 'status' => OrderStatus::Pending,
                 'payment_status' => PaymentStatus::Paid,
                 'payment_method' => $this->paymentMethodLabel($request->validated('payment_method')),
-                'subtotal_cents' => $summary->subtotalCents,
-                'discount_cents' => 0,
-                'shipping_cents' => $shippingCents,
-                'tax_cents' => $taxCents,
-                'total_cents' => $totalCents,
+                'subtotal_cents' => $totals->subtotalCents,
+                'discount_cents' => $totals->discountCents,
+                'discount_id' => $appliedDiscount?->id,
+                'coupon_code' => $appliedDiscount?->code,
+                'shipping_cents' => $totals->shippingCents,
+                'tax_cents' => $totals->taxCents,
+                'total_cents' => $totals->totalCents,
                 'shipping_address' => $request->shippingAddress(),
                 'billing_address' => $request->billingAddress(),
                 'placed_at' => now(),
@@ -135,6 +143,20 @@ class CheckoutService
 
             return $order->load(['items.product', 'customer']);
         });
+    }
+
+    /**
+     * @throws InvalidCouponException
+     */
+    private function resolveOrderDiscount(?Discount $discount, int $subtotalCents): ?Discount
+    {
+        if (! $discount instanceof Discount) {
+            return null;
+        }
+
+        $this->coupons->redeemForOrder($discount, $subtotalCents);
+
+        return $discount->fresh();
     }
 
     public function resolveShippingCostCents(string $method, int $subtotalCents): int

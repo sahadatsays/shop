@@ -28,6 +28,8 @@ class Order extends Model
         'payment_method',
         'subtotal_cents',
         'discount_cents',
+        'discount_id',
+        'coupon_code',
         'shipping_cents',
         'tax_cents',
         'total_cents',
@@ -85,6 +87,14 @@ class Order extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    /**
+     * @return BelongsTo<Discount, $this>
+     */
+    public function discount(): BelongsTo
+    {
+        return $this->belongsTo(Discount::class);
     }
 
     /**

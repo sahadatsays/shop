@@ -6,6 +6,7 @@ use App\Contracts\Repositories\CartRepositoryInterface;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Customer;
+use App\Models\Discount;
 
 class CartRepository implements CartRepositoryInterface
 {
@@ -58,6 +59,7 @@ class CartRepository implements CartRepositoryInterface
         return $cart->load([
             'items.product.images',
             'items.product.category',
+            'discount',
         ]);
     }
 
@@ -96,6 +98,7 @@ class CartRepository implements CartRepositoryInterface
     public function clearItems(Cart $cart): void
     {
         $cart->items()->delete();
+        $this->removeDiscount($cart);
     }
 
     public function markSaved(Cart $cart): Cart
@@ -104,6 +107,24 @@ class CartRepository implements CartRepositoryInterface
             'is_saved' => true,
             'saved_at' => now(),
         ]);
+
+        return $cart->fresh();
+    }
+
+    public function applyDiscount(Cart $cart, Discount $discount): Cart
+    {
+        $cart->update(['discount_id' => $discount->id]);
+
+        return $cart->fresh();
+    }
+
+    public function removeDiscount(Cart $cart): Cart
+    {
+        if ($cart->discount_id === null) {
+            return $cart;
+        }
+
+        $cart->update(['discount_id' => null]);
 
         return $cart->fresh();
     }

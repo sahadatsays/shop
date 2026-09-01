@@ -12,12 +12,15 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Customer;
 use App\Models\Product;
+use App\Support\Checkout\OrderTotalsCalculator;
 use Illuminate\Support\Facades\DB;
 
 class CartService
 {
     public function __construct(
         private CartRepositoryInterface $carts,
+        private CouponService $coupons,
+        private OrderTotalsCalculator $totals,
     ) {}
 
     public function resolve(): Cart
@@ -105,6 +108,10 @@ class CartService
                     $available,
                     $product->price_cents,
                 );
+            }
+
+            if ($source->discount_id && ! $target->discount_id) {
+                $target->update(['discount_id' => $source->discount_id]);
             }
 
             $this->carts->delete($source);
@@ -244,6 +251,24 @@ class CartService
         return $errors;
     }
 
+    public function applyCoupon(string $code): CartSummary
+    {
+        $cart = $this->resolve();
+        $subtotalCents = $this->subtotalCentsForCart($cart);
+
+        $this->coupons->apply($cart, $code, $subtotalCents);
+
+        return $this->summary($this->carts->loadWithItems($cart->fresh()));
+    }
+
+    public function removeCoupon(): CartSummary
+    {
+        $cart = $this->resolve();
+        $this->coupons->remove($cart);
+
+        return $this->summary($this->carts->loadWithItems($cart->fresh()));
+    }
+
     public function summary(?Cart $cart = null): CartSummary
     {
         $cart ??= $this->resolve();
@@ -256,26 +281,37 @@ class CartService
         $subtotalCents = $items->sum(fn (CartLineItem $line): int => $line->lineTotalCents());
         $itemCount = $items->sum(fn (CartLineItem $line): int => $line->cartItem->quantity);
 
+        $discount = $this->coupons->resolveApplied($cart, $subtotalCents);
+
         $freeShippingThreshold = (int) config('cart.free_shipping_threshold_cents', 7500);
         $flatShipping = (int) config('cart.flat_shipping_cents', 900);
-        $taxRate = (float) config('cart.tax_rate', 0.08);
 
         $shippingCents = $subtotalCents === 0 || $subtotalCents >= $freeShippingThreshold
             ? 0
             : $flatShipping;
 
-        $taxCents = (int) round($subtotalCents * $taxRate);
-        $totalCents = $subtotalCents + $shippingCents + $taxCents;
+        $totals = $this->totals->calculate($subtotalCents, $shippingCents, $discount);
 
         return new CartSummary(
             cart: $cart,
             items: $items,
             itemCount: $itemCount,
-            subtotalCents: $subtotalCents,
-            shippingCents: $shippingCents,
-            taxCents: $taxCents,
-            totalCents: $totalCents,
+            subtotalCents: $totals->subtotalCents,
+            discountCents: $totals->discountCents,
+            shippingCents: $totals->shippingCents,
+            taxCents: $totals->taxCents,
+            totalCents: $totals->totalCents,
+            discount: $totals->discount,
         );
+    }
+
+    private function subtotalCentsForCart(Cart $cart): int
+    {
+        $cart = $this->carts->loadWithItems($cart);
+
+        return (int) $cart->items
+            ->filter(fn (CartItem $item): bool => $item->product !== null)
+            ->sum(fn (CartItem $item): int => $item->quantity * $item->unit_price_cents);
     }
 
     public function itemCount(): int

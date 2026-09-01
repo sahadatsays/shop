@@ -32,7 +32,10 @@
     :minimal="true">
 
     <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8" data-checkout data-tax-rate="{{ $taxRate }}"
-        data-currency-symbol="{{ $currencySymbol }}" data-subtotal="{{ $summary->subtotalCents / 100 }}">
+        data-currency-symbol="{{ $currencySymbol }}" data-subtotal="{{ $summary->subtotalCents / 100 }}"
+        data-discount-cents="{{ $summary->discountCents }}"
+        data-discount-label="{{ $summary->discountLabel() }}"
+        data-coupon-code="{{ $summary->discount?->code }}">
 
         {{-- Progress indicator --}}
         <nav aria-label="Checkout progress" class="mx-auto max-w-xl">
@@ -337,28 +340,27 @@
                     </ul>
 
                     {{-- Promo code --}}
-                    {{-- <div class="mt-6 border-t border-navy-100 pt-6">
-                        <div class="flex gap-3">
+                    <div class="mt-6 border-t border-navy-100 pt-6" data-promo-section>
+                        <div class="flex gap-3" data-promo-form @if ($summary->hasDiscount()) hidden @endif>
                             <label for="promo-code" class="sr-only">Promo code</label>
                             <input type="text" id="promo-code" data-promo-input
-                                placeholder="Promo code — try VALOR10"
+                                placeholder="Promo code"
                                 class="w-full rounded-field border border-navy-200 bg-canvas px-4 py-2.5 text-sm text-ink uppercase placeholder:normal-case placeholder:text-navy-400 transition-colors duration-200 hover:border-navy-300 focus:outline-2 focus:outline-offset-2 focus:outline-bronze-500">
                             <x-ui.button type="button" variant="outline" size="sm" class="shrink-0"
                                 data-promo-apply>Apply</x-ui.button>
                         </div>
-                        <p data-promo-error hidden class="mt-2 text-sm font-medium text-red-600">That code isn't valid.
-                            Try VALOR10.</p>
-                        <p data-promo-applied hidden
+                        <p data-promo-error hidden class="mt-2 text-sm font-medium text-red-600"></p>
+                        <p data-promo-applied @if (! $summary->hasDiscount()) hidden @endif
                             class="mt-2 flex items-center gap-1.5 text-sm font-semibold text-green-700">
                             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="m5 13 4 4L19 7" />
                             </svg>
-                            VALOR10 applied — 10% off
+                            <span data-promo-applied-label>{{ $summary->discountLabel() }}</span>
                             <button type="button" data-promo-remove
                                 class="ml-auto font-medium text-navy-500 underline-offset-4 hover:underline">Remove</button>
                         </p>
-                    </div> --}}
+                    </div>
 
                     {{-- Totals --}}
                     <dl class="mt-6 space-y-3 border-t border-navy-100 pt-6 text-sm">
@@ -366,6 +368,11 @@
                             <dt class="text-navy-600">Subtotal</dt>
                             <dd class="font-semibold text-navy-900 tabular-nums" data-total-subtotal>
                                 {{ $summary->formattedSubtotal() }}</dd>
+                        </div>
+                        <div class="flex items-center justify-between" data-total-discount-row @if (! $summary->hasDiscount()) hidden @endif>
+                            <dt class="text-navy-600" data-total-discount-label>Coupon{{ $summary->discount?->code ? ' ('.$summary->discount->code.')' : '' }}</dt>
+                            <dd class="font-semibold text-green-700 tabular-nums" data-total-discount>
+                                {{ $summary->hasDiscount() ? $summary->formattedDiscount() : '' }}</dd>
                         </div>
                         <div class="flex items-center justify-between">
                             <dt class="text-navy-600">Shipping</dt>

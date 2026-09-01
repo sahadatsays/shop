@@ -1,7 +1,4 @@
-import { removeCartItem, saveCart, updateCartItem } from './cart-api';
-
-const COUPON_CODE = 'VALOR10';
-const COUPON_RATE = 0.1;
+import { applyCoupon, removeCoupon, removeCartItem, saveCart, updateCartItem } from './cart-api';
 
 const formatMoney = (value) => `$${value.toFixed(2)}`;
 
@@ -17,6 +14,37 @@ const showCartError = (cart, message) => {
 
     alert.textContent = message;
     alert.hidden = false;
+};
+
+const applyCartPayload = (cart, payload) => {
+    const summary = payload.cart;
+
+    if (!summary) {
+        return;
+    }
+
+    cart.dataset.discountCents = String(summary.discount_cents ?? 0);
+
+    const discountRow = cart.querySelector('[data-summary-discount-row]');
+    const discountLabel = cart.querySelector('[data-summary-discount-label]');
+    const discountValue = cart.querySelector('[data-summary-discount]');
+
+    if (discountRow) {
+        discountRow.hidden = !summary.discount_cents;
+    }
+
+    if (discountLabel && summary.coupon_code) {
+        discountLabel.textContent = `Coupon (${summary.coupon_code})`;
+    }
+
+    if (discountValue && summary.discount) {
+        discountValue.textContent = summary.discount;
+    }
+
+    cart.querySelector('[data-summary-subtotal]').textContent = summary.subtotal;
+    cart.querySelector('[data-summary-shipping]').textContent = summary.shipping;
+    cart.querySelector('[data-summary-tax]').textContent = summary.tax;
+    cart.querySelector('[data-summary-total]').textContent = summary.total;
 };
 
 export const initCartPage = () => {
@@ -37,12 +65,13 @@ export const initCartPage = () => {
     const couponInput = cart.querySelector('[data-coupon-input]');
     const couponError = cart.querySelector('[data-coupon-error]');
     const couponApplied = cart.querySelector('[data-coupon-applied]');
+    const couponAppliedLabel = cart.querySelector('[data-coupon-applied-label]');
     const shippingBar = cart.querySelector('[data-shipping-bar]');
     const shippingMessage = cart.querySelector('[data-shipping-message]');
     const shippingProgress = cart.querySelector('[data-shipping-progress]');
     const saveButton = cart.querySelector('[data-save-cart]');
 
-    let couponActive = false;
+    let discountCents = Number(cart.dataset.discountCents ?? 0);
 
     const items = () => [...itemsList.querySelectorAll('[data-cart-item]')];
 
@@ -74,7 +103,7 @@ export const initCartPage = () => {
             row.querySelector('[data-line-total]').textContent = formatMoney(lineTotal);
         });
 
-        const discount = couponActive ? subtotal * COUPON_RATE : 0;
+        const discount = discountCents / 100;
         const shipping = subtotal === 0 || subtotal >= threshold ? 0 : flatShipping;
         const tax = (subtotal - discount) * taxRate;
         const total = subtotal - discount + shipping + tax;
@@ -85,7 +114,7 @@ export const initCartPage = () => {
         cart.querySelector('[data-summary-count]').textContent = String(count);
         cart.querySelector('[data-summary-subtotal]').textContent = formatMoney(subtotal);
         cart.querySelector('[data-summary-discount]').textContent = `\u2212${formatMoney(discount)}`;
-        cart.querySelector('[data-summary-discount-row]').hidden = !couponActive;
+        cart.querySelector('[data-summary-discount-row]').hidden = discount <= 0;
         cart.querySelector('[data-summary-shipping]').textContent = shipping === 0 ? 'Free' : formatMoney(shipping);
         cart.querySelector('[data-summary-tax]').textContent = formatMoney(tax);
         cart.querySelector('[data-summary-total]').textContent = formatMoney(total);
@@ -108,10 +137,14 @@ export const initCartPage = () => {
 
         try {
             if (quantity <= 0) {
-                await removeCartItem(cartItemId);
+                const payload = await removeCartItem(cartItemId);
                 row.remove();
+                discountCents = payload.cart?.discount_cents ?? 0;
+                applyCartPayload(cart, payload);
             } else {
-                await updateCartItem(cartItemId, quantity);
+                const payload = await updateCartItem(cartItemId, quantity);
+                discountCents = payload.cart?.discount_cents ?? 0;
+                applyCartPayload(cart, payload);
             }
 
             recalculate();
@@ -145,29 +178,47 @@ export const initCartPage = () => {
         }
     });
 
-    couponForm?.addEventListener('submit', (event) => {
+    couponForm?.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        const code = couponInput.value.trim().toUpperCase();
-        const isValid = code === COUPON_CODE;
+        const code = couponInput.value.trim();
 
-        couponError.hidden = isValid || code === '';
-        couponApplied.hidden = !isValid;
-        couponForm.hidden = isValid;
+        if (!code) {
+            return;
+        }
 
-        if (isValid) {
-            couponActive = true;
+        couponError.hidden = true;
+
+        try {
+            const payload = await applyCoupon(code);
+            discountCents = payload.cart?.discount_cents ?? 0;
+
+            couponAppliedLabel.textContent = payload.cart?.discount_label ?? code;
+            couponApplied.hidden = false;
+            couponForm.hidden = true;
+            couponInput.value = '';
+            applyCartPayload(cart, payload);
             recalculate();
+        } catch (error) {
+            couponError.textContent = error.message;
+            couponError.hidden = false;
         }
     });
 
-    cart.querySelector('[data-coupon-remove]')?.addEventListener('click', () => {
-        couponActive = false;
-        couponApplied.hidden = true;
-        couponForm.hidden = false;
-        couponInput.value = '';
-        couponInput.focus();
-        recalculate();
+    cart.querySelector('[data-coupon-remove]')?.addEventListener('click', async () => {
+        try {
+            const payload = await removeCoupon();
+            discountCents = 0;
+
+            couponApplied.hidden = true;
+            couponForm.hidden = false;
+            couponInput.value = '';
+            couponInput.focus();
+            applyCartPayload(cart, payload);
+            recalculate();
+        } catch (error) {
+            showCartError(cart, error.message);
+        }
     });
 
     saveButton?.addEventListener('click', async () => {
