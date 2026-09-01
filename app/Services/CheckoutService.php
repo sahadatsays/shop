@@ -27,6 +27,7 @@ class CheckoutService
         private CartService $cart,
         private CartRepositoryInterface $carts,
         private CustomerAuthRepositoryInterface $customers,
+        private NotificationService $notifications,
     ) {}
 
     /**
@@ -120,6 +121,8 @@ class CheckoutService
                 'created_at' => $order->placed_at,
                 'updated_at' => $order->placed_at,
             ]);
+
+            $this->notifications->notifyOrderPlaced($order->load(['customer', 'items']));
 
             $this->carts->clearItems($cart);
 
