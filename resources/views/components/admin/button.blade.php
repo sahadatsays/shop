@@ -27,11 +27,11 @@
 @endphp
 
 @if ($href)
-    <a href="{{ $href }}" {{ $attributes->merge(['class' => "inline-flex items-center justify-center rounded-[var(--radius-admin)] font-medium whitespace-nowrap admin-focus-ring transition-all duration-150 active:scale-[0.98] {$classes} {$sizeClass}"]) }}>
+    <a href="{{ $href }}" {{ $attributes->merge(['class' => "inline-flex cursor-pointer items-center justify-center rounded-[var(--radius-admin)] font-medium whitespace-nowrap admin-focus-ring transition-all duration-150 active:scale-[0.98] {$classes} {$sizeClass}"]) }}>
         {{ $slot }}
     </a>
 @else
-    <button type="{{ $type }}" {{ $attributes->merge(['class' => "inline-flex items-center justify-center rounded-[var(--radius-admin)] font-medium whitespace-nowrap admin-focus-ring transition-all duration-150 active:scale-[0.98] {$classes} {$sizeClass}"]) }}>
+    <button type="{{ $type }}" {{ $attributes->merge(['class' => "inline-flex cursor-pointer items-center justify-center rounded-[var(--radius-admin)] font-medium whitespace-nowrap admin-focus-ring transition-all duration-150 active:scale-[0.98] disabled:cursor-not-allowed {$classes} {$sizeClass}"]) }}>
         {{ $slot }}
     </button>
 @endif
