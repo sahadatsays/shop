@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\PromoBannerController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SaleProductController;
 use App\Http\Controllers\Admin\StoreSettingsController;
+use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('logout', [AuthController::class, 'destroy'])->name('logout');
@@ -105,6 +106,10 @@ Route::middleware('admin.permission:orders.view')->group(function (): void {
     Route::post('orders/{order}/notes', [OrderController::class, 'storeNote'])
         ->middleware('admin.permission:orders.manage')
         ->name('orders.notes.store');
+});
+
+Route::middleware('admin.permission:users.view')->group(function (): void {
+    Route::resource('users', UserController::class);
 });
 
 Route::middleware('admin.permission:roles.view')->group(function (): void {

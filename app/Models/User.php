@@ -85,4 +85,17 @@ class User extends Authenticatable
     {
         return $this->primaryRole()?->name ?? 'Admin';
     }
+
+    public function initials(): string
+    {
+        $parts = preg_split('/\s+/', trim($this->name)) ?: [];
+
+        $initials = collect($parts)
+            ->filter()
+            ->take(2)
+            ->map(fn (string $part): string => strtoupper(substr($part, 0, 1)))
+            ->implode('');
+
+        return $initials !== '' ? $initials : 'AD';
+    }
 }

@@ -52,6 +52,8 @@ return [
             'notifications.view' => 'View notifications',
             'notifications.manage' => 'Manage notification broadcasts',
             'audit.view' => 'View audit logs',
+            'users.view' => 'View admin users',
+            'users.manage' => 'Manage admin users',
             'roles.view' => 'View roles',
             'roles.manage' => 'Manage roles',
             'permissions.view' => 'View permissions',
