@@ -7,6 +7,7 @@ use App\Models\AppNotification;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\User;
+use App\Services\NotificationService;
 use Database\Seeders\AdminAccessSeeder;
 use Database\Seeders\CommerceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -35,6 +36,45 @@ test('admin notifications history page renders', function (): void {
         ->assertSuccessful()
         ->assertSee('Notifications')
         ->assertSee('Maintenance scheduled');
+});
+
+test('admin notifications page shows newest notifications first', function (): void {
+    $admin = User::query()->where('email', 'owner@valorsupply.co')->firstOrFail();
+
+    AppNotification::query()->create([
+        'notifiable_type' => $admin->getMorphClass(),
+        'notifiable_id' => $admin->id,
+        'audience' => NotificationAudience::Admin,
+        'category' => NotificationCategory::SystemAlert,
+        'title' => 'Older alert',
+        'body' => 'From yesterday.',
+        'created_at' => now()->subDay(),
+        'updated_at' => now()->subDay(),
+    ]);
+
+    AppNotification::query()->create([
+        'notifiable_type' => $admin->getMorphClass(),
+        'notifiable_id' => $admin->id,
+        'audience' => NotificationAudience::Admin,
+        'category' => NotificationCategory::Inventory,
+        'title' => 'Latest alert',
+        'body' => 'Just now.',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $pageTitles = app(NotificationService::class)
+        ->paginateFor($admin)
+        ->pluck('title')
+        ->all();
+
+    $recentTitles = app(NotificationService::class)
+        ->recentFor($admin)
+        ->pluck('title')
+        ->all();
+
+    expect($pageTitles)->toBe(['Latest alert', 'Older alert'])
+        ->and($recentTitles)->toBe(['Latest alert', 'Older alert']);
 });
 
 test('admin can mark notification as read', function (): void {

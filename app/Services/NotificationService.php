@@ -193,7 +193,7 @@ class NotificationService
             $query->where('category', $category);
         }
 
-        return $query->paginate($perPage)->withQueryString();
+        return $query->latestFirst()->paginate($perPage)->withQueryString();
     }
 
     /**
@@ -203,6 +203,7 @@ class NotificationService
     {
         return AppNotification::query()
             ->forNotifiable($notifiable)
+            ->latestFirst()
             ->limit($limit)
             ->get();
     }
@@ -219,6 +220,7 @@ class NotificationService
         }
 
         return $query
+            ->latestFirst()
             ->get()
             ->groupBy(fn (AppNotification $notification): string => $notification->groupLabel());
     }
