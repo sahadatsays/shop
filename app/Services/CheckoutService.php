@@ -7,6 +7,7 @@ use App\Contracts\Repositories\CustomerAuthRepositoryInterface;
 use App\DTOs\Cart\CartSummary;
 use App\Enums\CustomerStatus;
 use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Exceptions\Cart\CartValidationException;
 use App\Exceptions\Cart\InsufficientStockException;
 use App\Http\Requests\PlaceOrderRequest;
@@ -87,7 +88,7 @@ class CheckoutService
                 'customer_id' => $customer->id,
                 'order_number' => OrderNumberGenerator::generate(),
                 'status' => OrderStatus::Pending,
-                'payment_status' => 'paid',
+                'payment_status' => PaymentStatus::Paid,
                 'payment_method' => $this->paymentMethodLabel($request->validated('payment_method')),
                 'subtotal_cents' => $summary->subtotalCents,
                 'discount_cents' => 0,

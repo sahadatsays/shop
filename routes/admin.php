@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\PermissionMatrixController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\PromoBannerController;
+use App\Http\Controllers\Admin\RefundController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SaleProductController;
 use App\Http\Controllers\Admin\StoreSettingsController;
@@ -111,6 +112,14 @@ Route::middleware('admin.permission:orders.view')->group(function (): void {
     Route::post('orders/{order}/notes', [OrderController::class, 'storeNote'])
         ->middleware('admin.permission:orders.manage')
         ->name('orders.notes.store');
+});
+
+Route::middleware('admin.permission:refunds.view')->group(function (): void {
+    Route::get('refunds', [RefundController::class, 'index'])->name('refunds.index');
+    Route::get('refunds/{refund}', [RefundController::class, 'show'])->name('refunds.show');
+    Route::post('orders/{order}/refunds', [RefundController::class, 'store'])
+        ->middleware('admin.permission:refunds.manage')
+        ->name('orders.refunds.store');
 });
 
 Route::middleware('admin.permission:users.view')->group(function (): void {

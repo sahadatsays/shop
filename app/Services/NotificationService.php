@@ -196,8 +196,8 @@ class NotificationService
                 route('account.orders'),
             ],
             OrderStatus::Refunded => [
-                "Refund ready for {$order->order_number}",
-                $message ?: 'Your refund has been approved and will be issued soon.',
+                "Refund issued for {$order->order_number}",
+                $message ?: 'Your refund has been processed and should appear on your statement within '.config('refunds.processing_days', '5–7 business days').'.',
                 'View order',
                 route('account.orders'),
             ],

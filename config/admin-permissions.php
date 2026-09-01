@@ -26,6 +26,8 @@ return [
         'Commerce' => [
             'orders.view' => 'View orders',
             'orders.manage' => 'Manage orders',
+            'refunds.view' => 'View refunds',
+            'refunds.manage' => 'Process refunds',
         ],
         'Marketing' => [
             'offers.view' => 'View offers',
@@ -111,6 +113,8 @@ return [
             'inventory.manage',
             'orders.view',
             'orders.manage',
+            'refunds.view',
+            'refunds.manage',
             'customers.view',
             'customers.manage',
             'offers.view',
@@ -168,6 +172,8 @@ return [
             'dashboard.view',
             'orders.view',
             'orders.manage',
+            'refunds.view',
+            'refunds.manage',
             'customers.view',
             'notifications.view',
         ],
@@ -176,6 +182,7 @@ return [
             'customers.view',
             'customers.manage',
             'orders.view',
+            'refunds.view',
             'notifications.view',
         ],
         'marketing_manager' => [

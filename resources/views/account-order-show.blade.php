@@ -7,6 +7,14 @@
 
 <x-layouts.app :title="$title" description="Order details for {{ $order['order_number_display'] }} — items, shipment progress, and delivery information.">
 
+    @if (session('success'))
+        <div class="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+            <div class="rounded-card border border-olive-200 bg-olive-50 px-4 py-3 text-sm text-olive-900" role="status">
+                {{ session('success') }}
+            </div>
+        </div>
+    @endif
+
     <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14" data-track>
 
         <div class="grid grid-cols-1 gap-10 lg:grid-cols-4">
@@ -221,7 +229,44 @@
                                     <div class="flex justify-between"><dt>Shipping</dt><dd class="tabular-nums">{{ $order['summary']['shipping'] }}</dd></div>
                                     <div class="flex justify-between"><dt>Tax</dt><dd class="tabular-nums">{{ $order['summary']['tax'] }}</dd></div>
                                     <div class="flex justify-between border-t border-navy-100 pt-3 font-semibold text-navy-900"><dt>Total</dt><dd class="tabular-nums">{{ $order['summary']['total'] }}</dd></div>
+                                    @if ($order['refunded_amount'])
+                                        <div class="flex justify-between text-navy-600"><dt>Refunded</dt><dd class="tabular-nums">−{{ $order['refunded_amount'] }}</dd></div>
+                                    @endif
                                 </dl>
+
+                                @if ($order['can_request_return'])
+                                    <section class="mt-6 rounded-xl border border-bronze-200 bg-bronze-50/60 p-5" aria-labelledby="return-heading">
+                                        <h3 id="return-heading" class="font-display text-base font-bold text-navy-900">Need to return something?</h3>
+                                        <p class="mt-2 text-sm text-navy-600">Returns are accepted within {{ $order['return_window_days'] }} days of delivery on unworn items in original packaging. We will email you a prepaid return label within 1 business day.</p>
+                                        <form method="POST" action="{{ route('account.orders.return', $order['order_number_route']) }}" class="mt-4 space-y-3">
+                                            @csrf
+                                            <label class="block">
+                                                <span class="text-sm font-medium text-navy-900">Why are you returning this order?</span>
+                                                <textarea
+                                                    name="reason"
+                                                    rows="3"
+                                                    required
+                                                    minlength="10"
+                                                    placeholder="Tell us what went wrong or which items you are sending back…"
+                                                    class="mt-2 block w-full rounded-xl border border-navy-200 bg-white px-3 py-2.5 text-sm text-navy-900 placeholder:text-navy-400 focus:border-olive-500 focus:outline-none focus:ring-2 focus:ring-olive-500/20"
+                                                >{{ old('reason') }}</textarea>
+                                            </label>
+                                            @error('reason')
+                                                <p class="text-sm text-red-600">{{ $message }}</p>
+                                            @enderror
+                                            <x-ui.button type="submit" variant="secondary" size="sm">Start return request</x-ui.button>
+                                        </form>
+                                    </section>
+                                @elseif ($order['return_requested_at'])
+                                    <div class="mt-6 rounded-xl border border-navy-200 bg-navy-50 p-4 text-sm text-navy-700">
+                                        Return requested on {{ $order['return_requested_at'] }}. We will email your prepaid label soon. Refunds are processed within {{ config('refunds.processing_days') }} after we receive your items.
+                                    </div>
+                                @elseif ($order['status_enum'] === 'refunded')
+                                    <div class="mt-6 rounded-xl border border-navy-200 bg-navy-50 p-4 text-sm text-navy-700">
+                                        This order has been refunded. Funds should appear on your original payment method within {{ config('refunds.processing_days') }}.
+                                    </div>
+                                @endif
+
                                 <div class="mt-6 flex flex-col gap-2">
                                     @if ($order['is_delivered'])
                                         <x-ui.button :href="route('account.reviews').'#ready-for-review'" variant="secondary" size="sm">

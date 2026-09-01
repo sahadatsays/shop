@@ -46,6 +46,7 @@ class CustomerOrderController extends Controller
         $order = $this->tracking->show($order);
         $tracking = OrderTrackingResource::make($order)->resolve();
         $tracking['items'] = OrderItemResource::collection($order->items)->resolve();
+        $tracking['order_number_route'] = $order->order_number;
 
         $reviewableProductIds = [];
 

@@ -35,7 +35,7 @@ class NavRegistry
                 icon: 'M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7ZM9 10V6a3 3 0 0 1 6 0v4',
                 children: [
                     new NavItem(label: 'Orders', route: 'admin.orders.index', routePrefix: 'admin.orders.', permission: 'orders.view'),
-                    new NavItem(label: 'Refunds', disabled: true),
+                    new NavItem(label: 'Refunds', route: 'admin.refunds.index', routePrefix: 'admin.refunds.', permission: 'refunds.view'),
                     new NavItem(label: 'Coupons', disabled: true),
                     new NavItem(label: 'Shipping', disabled: true),
                 ],
@@ -176,6 +176,7 @@ class NavRegistry
                     ['label' => 'Stock history', 'href' => route('admin.inventory.movements'), 'keywords' => 'inventory log movement audit'],
                     ['label' => 'Customers', 'href' => route('admin.customers.index'), 'keywords' => 'users accounts profiles'],
                     ['label' => 'Orders', 'href' => route('admin.orders.index'), 'keywords' => 'commerce sales fulfillment'],
+                    ['label' => 'Refunds', 'href' => route('admin.refunds.index'), 'keywords' => 'commerce returns payments'],
                     ['label' => 'Categories', 'href' => route('admin.categories.index'), 'keywords' => 'catalog organize'],
                     ['label' => 'Brands', 'href' => route('admin.brands.index'), 'keywords' => 'catalog brand logo'],
                     ['label' => 'Store settings', 'href' => route('admin.settings.edit'), 'keywords' => 'store configuration logo seo maintenance theme'],

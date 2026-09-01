@@ -38,6 +38,15 @@
                     <x-admin.detail-row label="Placed" :value="$order->placed_at?->format('M j, Y g:i A')" />
                     <x-admin.detail-row label="Subtotal" :value="MoneyFormatter::format($order->subtotal_cents)" />
                     <x-admin.detail-row label="Total" :value="MoneyFormatter::format($order->total_cents)" />
+                    <x-admin.detail-row label="Payment">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <x-admin.badge :variant="$order->payment_status->badgeVariant()" dot>{{ $order->payment_status->label() }}</x-admin.badge>
+                            <span class="text-sm admin-text-secondary">{{ $order->payment_method ?? 'Card' }}</span>
+                        </div>
+                    </x-admin.detail-row>
+                    @if ($order->refunded_cents > 0)
+                        <x-admin.detail-row label="Refunded" :value="MoneyFormatter::format($order->refunded_cents)" />
+                    @endif
                     <x-admin.detail-row label="Status">
                         <x-admin.badge :variant="$order->status->badgeVariant()" dot>{{ $order->status->label() }}</x-admin.badge>
                     </x-admin.detail-row>
@@ -131,6 +140,66 @@
                     <x-admin.button type="submit" size="sm" class="w-full">Save note</x-admin.button>
                 </form>
             </x-admin.form-card>
+
+            @if ($order->refunds->isNotEmpty())
+                <x-admin.form-card title="Refund history">
+                    <ul class="space-y-3">
+                        @foreach ($order->refunds as $refund)
+                            <li class="rounded-[var(--radius-admin)] border admin-border p-3">
+                                <div class="flex items-center justify-between gap-2">
+                                    <a href="{{ route('admin.refunds.show', $refund) }}" class="text-sm font-medium admin-text hover:text-admin-brand">
+                                        {{ MoneyFormatter::format($refund->amount_cents) }}
+                                    </a>
+                                    <x-admin.badge :variant="$refund->status->badgeVariant()" dot>{{ $refund->status->label() }}</x-admin.badge>
+                                </div>
+                                <p class="mt-1 text-xs admin-muted">{{ $refund->reason->label() }} · {{ $refund->processed_at?->format('M j, Y') }}</p>
+                            </li>
+                        @endforeach
+                    </ul>
+                </x-admin.form-card>
+            @endif
+
+            @if ($canRefund && auth('admin')->user()?->hasPermission('refunds.manage'))
+                <x-admin.form-card title="Issue refund" description="Refund is sent back to the customer's original payment method.">
+                    <form method="POST" action="{{ route('admin.orders.refunds.store', $order) }}" class="space-y-4">
+                        @csrf
+                        <x-admin.input
+                            label="Refund amount"
+                            name="refund_amount"
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            :value="old('refund_amount', $refundableAmountValue)"
+                            help="Remaining refundable balance: {{ $refundableAmount }}"
+                            required
+                        />
+                        <x-admin.select label="Reason" name="reason" required>
+                            @foreach ($refundReasons as $reason)
+                                <option value="{{ $reason->value }}" @selected(old('reason') === $reason->value)>{{ $reason->label() }}</option>
+                            @endforeach
+                        </x-admin.select>
+                        <x-admin.textarea
+                            label="Internal note"
+                            name="notes"
+                            rows="3"
+                            placeholder="Optional note for the refund record…"
+                        >{{ old('notes') }}</x-admin.textarea>
+                        <label class="flex items-center gap-3">
+                            <input type="hidden" name="restore_stock" value="0">
+                            <input
+                                type="checkbox"
+                                name="restore_stock"
+                                value="1"
+                                @checked(old('restore_stock', $order->refunded_cents === 0))
+                                class="size-4 rounded border admin-border accent-admin-brand admin-focus-ring"
+                            >
+                            <span class="text-sm admin-text">Restore product stock</span>
+                        </label>
+                        <p class="text-xs admin-muted">Refunds typically appear on the customer's statement within {{ config('refunds.processing_days') }}.</p>
+                        <x-admin.button type="submit" variant="secondary" class="w-full" onclick="return confirm('Process this refund? This cannot be undone.')">Process refund</x-admin.button>
+                    </form>
+                </x-admin.form-card>
+            @endif
 
             <x-admin.form-card title="Admin notes">
                 <ul class="space-y-4">

@@ -11,7 +11,7 @@ use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\CustomerPasswordResetController;
 use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\CustomerRegistrationController;
-use App\Http\Controllers\CustomerReviewController;
+use App\Http\Controllers\CustomerReturnController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SearchController;
@@ -97,6 +97,9 @@ Route::middleware('customer.auth')->group(function (): void {
     Route::get('/account/orders/{order:order_number}', [CustomerOrderController::class, 'show'])
         ->middleware('order.tracking')
         ->name('account.orders.show');
+    Route::post('/account/orders/{order:order_number}/return', [CustomerReturnController::class, 'store'])
+        ->middleware('order.tracking')
+        ->name('account.orders.return');
 
     Route::get('/account', CustomerDashboardController::class)->name('account');
     Route::get('/account/settings', [CustomerProfileController::class, 'show'])->name('account.settings');

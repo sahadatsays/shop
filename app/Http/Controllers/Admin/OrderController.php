@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\OrderStatus;
+use App\Enums\RefundReason;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreOrderNoteRequest;
 use App\Http\Requests\Admin\UpdateOrderStatusRequest;
 use App\Models\Order;
 use App\Services\Admin\OrderService;
+use App\Support\MoneyFormatter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -44,6 +46,10 @@ class OrderController extends Controller
             ],
             'order' => $order,
             'statuses' => OrderStatus::cases(),
+            'refundReasons' => RefundReason::cases(),
+            'canRefund' => $order->payment_status->isRefundable() && $order->refundableCents() > 0,
+            'refundableAmount' => MoneyFormatter::format($order->refundableCents()),
+            'refundableAmountValue' => number_format($order->refundableCents() / 100, 2, '.', ''),
         ]);
     }
 
