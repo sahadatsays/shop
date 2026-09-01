@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SaleProductController;
 use App\Http\Controllers\Admin\StoreSettingsController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('logout', [AuthController::class, 'destroy'])->name('logout');
@@ -71,6 +72,10 @@ Route::middleware('admin.permission:inventory.view')->group(function (): void {
     Route::post('inventory/{product}/adjust', [InventoryController::class, 'storeAdjustment'])
         ->middleware('admin.permission:inventory.manage')
         ->name('inventory.adjust.store');
+});
+
+Route::middleware('admin.permission:warehouses.view')->group(function (): void {
+    Route::resource('warehouses', WarehouseController::class);
 });
 
 Route::middleware('admin.permission:categories.view')->group(function (): void {

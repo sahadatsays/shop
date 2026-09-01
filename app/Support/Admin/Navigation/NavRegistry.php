@@ -27,6 +27,7 @@ class NavRegistry
                     new NavItem(label: 'Brands', route: 'admin.brands.index', routePrefix: 'admin.brands.', permission: 'brands.view'),
                     new NavItem(label: 'Collections', route: 'admin.collections.index', routePrefix: 'admin.collections.', permission: 'collections.view'),
                     new NavItem(label: 'Inventory', route: 'admin.inventory.index', routePrefix: 'admin.inventory.', permission: 'inventory.view'),
+                    new NavItem(label: 'Warehouses', route: 'admin.warehouses.index', routePrefix: 'admin.warehouses.', permission: 'warehouses.view'),
                 ],
             ),
             new NavItem(
@@ -171,6 +172,7 @@ class NavRegistry
                     ['label' => 'Dashboard', 'href' => route('admin.dashboard'), 'keywords' => 'home overview'],
                     ['label' => 'Products', 'href' => route('admin.products.index'), 'keywords' => 'catalog inventory sku'],
                     ['label' => 'Inventory', 'href' => route('admin.inventory.index'), 'keywords' => 'stock warehouse movement'],
+                    ['label' => 'Warehouses', 'href' => route('admin.warehouses.index'), 'keywords' => 'stock fulfillment location distribution'],
                     ['label' => 'Stock history', 'href' => route('admin.inventory.movements'), 'keywords' => 'inventory log movement audit'],
                     ['label' => 'Customers', 'href' => route('admin.customers.index'), 'keywords' => 'users accounts profiles'],
                     ['label' => 'Orders', 'href' => route('admin.orders.index'), 'keywords' => 'commerce sales fulfillment'],

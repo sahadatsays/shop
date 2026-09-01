@@ -20,6 +20,8 @@ return [
         'Inventory' => [
             'inventory.view' => 'View inventory',
             'inventory.manage' => 'Manage inventory',
+            'warehouses.view' => 'View warehouses',
+            'warehouses.manage' => 'Manage warehouses',
         ],
         'Commerce' => [
             'orders.view' => 'View orders',
@@ -158,6 +160,8 @@ return [
             'products.view',
             'inventory.view',
             'inventory.manage',
+            'warehouses.view',
+            'warehouses.manage',
             'notifications.view',
         ],
         'order_manager' => [
