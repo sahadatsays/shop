@@ -36,8 +36,6 @@ class NavRegistry
                 children: [
                     new NavItem(label: 'Orders', route: 'admin.orders.index', routePrefix: 'admin.orders.', permission: 'orders.view'),
                     new NavItem(label: 'Refunds', route: 'admin.refunds.index', routePrefix: 'admin.refunds.', permission: 'refunds.view'),
-                    new NavItem(label: 'Coupons', disabled: true),
-                    new NavItem(label: 'Shipping', disabled: true),
                 ],
             ),
             new NavItem(
