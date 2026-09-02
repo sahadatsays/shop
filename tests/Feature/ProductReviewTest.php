@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\OrderStatus;
+use App\Enums\ProductStatus;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -16,8 +17,8 @@ beforeEach(function (): void {
 });
 
 test('customer cannot review a product without a delivered order', function (): void {
-    $customer = Customer::query()->active()->firstOrFail();
-    $product = Product::query()->published()->firstOrFail();
+    $customer = Customer::factory()->create();
+    $product = Product::factory()->create(['status' => ProductStatus::Published]);
 
     actingAsCustomer($customer);
 
@@ -29,8 +30,8 @@ test('customer cannot review a product without a delivered order', function (): 
 });
 
 test('customer cannot review a product from a shipped but undelivered order', function (): void {
-    $customer = Customer::query()->active()->firstOrFail();
-    $product = Product::query()->published()->firstOrFail();
+    $customer = Customer::factory()->create();
+    $product = Product::factory()->create(['status' => ProductStatus::Published]);
 
     $order = Order::factory()->create([
         'customer_id' => $customer->id,
