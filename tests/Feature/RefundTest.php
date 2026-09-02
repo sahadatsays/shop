@@ -7,6 +7,8 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderTimelineEvent;
 use App\Models\Product;
+use App\Models\Warehouse;
+use App\Models\WarehouseStock;
 use App\Services\Admin\InventoryService;
 use Database\Seeders\AdminAccessSeeder;
 use Database\Seeders\CommerceSeeder;
@@ -52,7 +54,15 @@ test('processing a refund restores product stock when sale movement exists', fun
     actingAsAdmin();
 
     $product = Product::query()->published()->firstOrFail();
-    $stockBefore = $product->stock_quantity;
+    $product->update(['stock_quantity' => 10]);
+
+    $warehouse = Warehouse::query()->where('is_default', true)->firstOrFail();
+    WarehouseStock::query()->updateOrCreate(
+        ['product_id' => $product->id, 'warehouse_id' => $warehouse->id],
+        ['quantity' => 10],
+    );
+
+    $stockBefore = 10;
 
     $order = Order::factory()->create([
         'status' => OrderStatus::Returned,
@@ -69,8 +79,10 @@ test('processing a refund restores product stock when sale movement exists', fun
         'line_total_cents' => 2000,
     ]);
 
-    app(InventoryService::class)->deductForSale(
-        product: $product,
+    $inventory = app(InventoryService::class);
+
+    $inventory->deductForSale(
+        product: $product->fresh(),
         quantity: 2,
         reference: $order->order_number,
     );

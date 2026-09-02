@@ -91,6 +91,7 @@ test('customer login merges guest cart into customer cart', function (): void {
 
     $this->postJson(route('login.store'), [
         'email' => $customer->email,
+        'password' => 'password',
     ])->assertSuccessful()
         ->assertJsonPath('customer.id', $customer->id);
 

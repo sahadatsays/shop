@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
+use App\Support\OrderNumberGenerator;
 use Database\Factories\OrderFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,6 +17,15 @@ class Order extends Model
 {
     /** @use HasFactory<OrderFactory> */
     use HasFactory;
+
+    protected static function booted(): void
+    {
+        static::creating(function (Order $order): void {
+            if (blank($order->order_number)) {
+                $order->order_number = OrderNumberGenerator::generate();
+            }
+        });
+    }
 
     /**
      * @var list<string>
