@@ -56,7 +56,7 @@ test('invalid media upload returns descriptive json validation errors', function
         ],
     ])
         ->assertUnprocessable()
-        ->assertJsonPath('message', 'Only JPG, PNG, WebP, GIF, SVG, and PDF files are allowed.');
+        ->assertJsonPath('message', 'Only JPG, PNG, WebP, GIF, and PDF files are allowed.');
 });
 
 test('media metadata can be updated', function (): void {

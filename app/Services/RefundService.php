@@ -7,7 +7,6 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\RefundReason;
 use App\Enums\RefundStatus;
-use App\Enums\StockMovementType;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Refund;
@@ -155,8 +154,16 @@ class RefundService
         }
 
         return DB::transaction(function () use ($order, $amountCents, $reason, $notes, $restoreStock, $admin): Refund {
+            $lockedOrder = Order::query()->lockForUpdate()->findOrFail($order->id);
+
+            if ($amountCents > $lockedOrder->refundableCents()) {
+                throw ValidationException::withMessages([
+                    'amount_cents' => 'Refund amount exceeds the remaining refundable balance.',
+                ]);
+            }
+
             $refund = Refund::query()->create([
-                'order_id' => $order->id,
+                'order_id' => $lockedOrder->id,
                 'amount_cents' => $amountCents,
                 'reason' => $reason,
                 'status' => RefundStatus::Pending,
@@ -165,7 +172,7 @@ class RefundService
                 'processed_by' => $admin?->id,
             ]);
 
-            $paymentResult = $this->payments->refund($order, $amountCents);
+            $paymentResult = $this->payments->refund($lockedOrder, $amountCents);
 
             if (! $paymentResult['success']) {
                 $refund->update(['status' => RefundStatus::Failed]);
@@ -175,10 +182,10 @@ class RefundService
                 ]);
             }
 
-            $newRefundedTotal = $order->refunded_cents + $amountCents;
-            $isFullRefund = $newRefundedTotal >= $order->total_cents;
+            $newRefundedTotal = $lockedOrder->refunded_cents + $amountCents;
+            $isFullRefund = $newRefundedTotal >= $lockedOrder->total_cents;
 
-            $order->update([
+            $lockedOrder->update([
                 'refunded_cents' => $newRefundedTotal,
                 'payment_status' => $isFullRefund
                     ? PaymentStatus::Refunded
@@ -192,26 +199,26 @@ class RefundService
             ]);
 
             if ($restoreStock) {
-                $this->restoreOrderStock($order);
+                $this->restoreOrderStock($lockedOrder->fresh(['items.product']));
             }
 
-            if ($isFullRefund && $order->status !== OrderStatus::Refunded) {
-                if ($order->status->canTransitionTo(OrderStatus::Refunded)) {
+            if ($isFullRefund && $lockedOrder->status !== OrderStatus::Refunded) {
+                if ($lockedOrder->status->canTransitionTo(OrderStatus::Refunded)) {
                     $this->orders->updateStatus(
-                        $order->fresh(),
+                        $lockedOrder->fresh(),
                         OrderStatus::Refunded,
                         $paymentResult['message'] ?? 'Refund processed successfully.',
                         $admin?->name ?? 'Admin',
                     );
                 }
             } elseif ($notes) {
-                $this->orders->addNote($order, 'Refund issued: '.$notes, $admin?->name);
+                $this->orders->addNote($lockedOrder, 'Refund issued: '.$notes, $admin?->name);
             }
 
             $this->audit->log(
                 AuditAction::OrderRefundProcessed,
-                "Refund of {$amountCents} cents processed for order {$order->order_number}.",
-                subject: $order,
+                "Refund of {$amountCents} cents processed for order {$lockedOrder->order_number}.",
+                subject: $lockedOrder,
                 causer: $admin,
                 properties: [
                     'refund_id' => $refund->id,
@@ -240,6 +247,14 @@ class RefundService
 
     private function restoreOrderStock(Order $order): void
     {
+        if ($this->inventory->hasReturnMovement($order->order_number)) {
+            return;
+        }
+
+        if (! $this->inventory->hasSaleMovement($order->order_number)) {
+            return;
+        }
+
         $order->loadMissing('items.product');
 
         foreach ($order->items as $item) {
@@ -247,13 +262,10 @@ class RefundService
                 continue;
             }
 
-            $this->inventory->adjustStock(
+            $this->inventory->restoreForReturn(
                 product: $item->product,
-                warehouse: $this->inventory->defaultWarehouse(),
-                type: StockMovementType::AdjustmentIn,
                 quantity: $item->quantity,
                 reference: $order->order_number,
-                notes: 'Stock restored from refund on order '.$order->order_number.'.',
             );
         }
     }

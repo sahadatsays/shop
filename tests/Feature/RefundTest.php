@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderTimelineEvent;
 use App\Models\Product;
+use App\Services\Admin\InventoryService;
 use Database\Seeders\AdminAccessSeeder;
 use Database\Seeders\CommerceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -47,7 +48,7 @@ test('customer cannot request a return on a pending order', function (): void {
     ])->assertSessionHasErrors('reason');
 });
 
-test('processing a refund restores product stock', function (): void {
+test('processing a refund restores product stock when sale movement exists', function (): void {
     actingAsAdmin();
 
     $product = Product::query()->published()->firstOrFail();
@@ -68,13 +69,21 @@ test('processing a refund restores product stock', function (): void {
         'line_total_cents' => 2000,
     ]);
 
+    app(InventoryService::class)->deductForSale(
+        product: $product,
+        quantity: 2,
+        reference: $order->order_number,
+    );
+
+    expect($product->fresh()->stock_quantity)->toBe($stockBefore - 2);
+
     $this->post(route('admin.orders.refunds.store', $order), [
         'refund_amount' => '20.00',
         'reason' => 'customer_return',
         'restore_stock' => true,
     ])->assertRedirect();
 
-    expect($product->fresh()->stock_quantity)->toBe($stockBefore + 2);
+    expect($product->fresh()->stock_quantity)->toBe($stockBefore);
 });
 
 function createDeliveredOrderForRefund(Customer $customer, Product $product): Order

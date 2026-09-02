@@ -70,11 +70,12 @@ class CheckoutController extends Controller
 
     public function confirmation(Order $order): View|RedirectResponse
     {
-        if (session('checkout_order_id') !== $order->id) {
+        $canView = session('checkout_order_id') === $order->id
+            || (auth('customer')->check() && auth('customer')->id() === $order->customer_id);
+
+        if (! $canView) {
             return redirect()->route('track-order.create');
         }
-
-        session()->forget('checkout_order_id');
 
         $order->load(['items.product', 'customer']);
 

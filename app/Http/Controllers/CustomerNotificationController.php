@@ -68,10 +68,9 @@ class CustomerNotificationController extends Controller
 
     private function customer(): Customer
     {
-        $customerId = session('customer_id');
+        /** @var Customer $customer */
+        $customer = auth('customer')->user();
 
-        abort_unless($customerId, 403);
-
-        return Customer::query()->active()->findOrFail($customerId);
+        return $customer;
     }
 }

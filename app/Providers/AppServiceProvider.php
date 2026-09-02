@@ -176,6 +176,18 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('customer-register', fn (Request $request): Limit => Limit::perMinute(5)->by($request->ip()));
 
         RateLimiter::for('customer-password-reset', fn (Request $request): Limit => Limit::perMinute(3)->by($request->ip()));
+
+        RateLimiter::for('admin-login', function (Request $request): Limit {
+            $email = strtolower((string) $request->input('email'));
+
+            return Limit::perMinute(5)->by($request->ip().'|'.$email);
+        });
+
+        RateLimiter::for('checkout', fn (Request $request): Limit => Limit::perMinute(5)->by($request->session()->getId()));
+
+        RateLimiter::for('search-suggest', fn (Request $request): Limit => Limit::perMinute(30)->by($request->ip()));
+
+        RateLimiter::for('track-order', fn (Request $request): Limit => Limit::perMinute(10)->by($request->ip()));
     }
 
     private function registerCustomerAuthListeners(): void

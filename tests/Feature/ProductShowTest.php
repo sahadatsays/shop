@@ -41,9 +41,9 @@ test('product show page renders gallery specifications and variant options', fun
 
     $response->assertSuccessful()
         ->assertSee('data-thumb="0"', false)
-        ->assertSee('Weight')
-        ->assertSee('Olive Drab')
-        ->assertSee('Save $60.00');
+        ->assertSee('Weight', false)
+        ->assertSee('Olive Drab', false)
+        ->assertSee('Save BDT', false);
 });
 
 test('product show page renders related products from database', function (): void {

@@ -111,7 +111,7 @@ test('logged in customer can save cart', function (): void {
     $customer = Customer::query()->active()->firstOrFail();
     $product = Product::query()->published()->inStock()->firstOrFail();
 
-    $this->postJson(route('login.store'), ['email' => $customer->email]);
+    actingAsCustomer($customer);
 
     $this->postJson(route('cart.items.store'), [
         'product_id' => $product->id,

@@ -7,6 +7,7 @@ use App\Exceptions\Cart\InvalidCouponException;
 use App\Models\Cart;
 use App\Models\Discount;
 use App\Support\MoneyFormatter;
+use Illuminate\Support\Facades\DB;
 
 class CouponService
 {
@@ -91,10 +92,29 @@ class CouponService
      */
     public function redeemForOrder(Discount $discount, int $subtotalCents): int
     {
-        $this->validateForSubtotal($discount, $subtotalCents);
+        return DB::transaction(function () use ($discount, $subtotalCents): int {
+            $locked = Discount::query()->lockForUpdate()->find($discount->id);
 
-        $discount->increment('used_count');
+            if (! $locked instanceof Discount) {
+                throw new InvalidCouponException('This coupon is no longer available.');
+            }
 
-        return $discount->discountAmountCents($subtotalCents);
+            $this->validateForSubtotal($locked, $subtotalCents);
+
+            if ($locked->max_uses !== null) {
+                $updated = Discount::query()
+                    ->whereKey($locked->id)
+                    ->where('used_count', '<', $locked->max_uses)
+                    ->increment('used_count');
+
+                if ($updated === 0) {
+                    throw new InvalidCouponException('This coupon is no longer available.');
+                }
+            } else {
+                $locked->increment('used_count');
+            }
+
+            return $locked->discountAmountCents($subtotalCents);
+        });
     }
 }

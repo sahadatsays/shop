@@ -5,7 +5,6 @@ use App\Enums\CustomerStatus;
 use App\Events\CustomerLoggedIn;
 use App\Events\CustomerRegistered;
 use App\Events\PasswordChanged;
-use App\Events\ProviderLinked;
 use App\Models\Customer;
 use App\Models\CustomerProfile;
 use App\Models\CustomerSocialAccount;
@@ -145,10 +144,8 @@ test('google login creates a new customer account', function (): void {
     Event::assertDispatched(CustomerRegistered::class);
 });
 
-test('google login links an existing email account instead of creating a duplicate', function (): void {
-    Event::fake([ProviderLinked::class]);
-
-    $customer = Customer::factory()->create([
+test('google login requires password sign-in when email already exists', function (): void {
+    Customer::factory()->create([
         'email' => 'existing@example.com',
         'password' => 'Password123!',
     ]);
@@ -162,16 +159,15 @@ test('google login links an existing email account instead of creating a duplica
     Socialite::shouldReceive('user')->andReturn($socialUser);
 
     $this->get(route('auth.social.callback', 'google'))
-        ->assertRedirect(route('account'));
+        ->assertRedirect(route('login'))
+        ->assertSessionHas('error');
 
-    expect(Customer::query()->where('email', 'existing@example.com')->count())->toBe(1)
-        ->and(CustomerSocialAccount::query()->where('customer_id', $customer->id)->where('provider', AuthProvider::Google)->exists())->toBeTrue();
-
-    Event::assertDispatched(ProviderLinked::class);
+    expect(CustomerSocialAccount::query()->where('provider', AuthProvider::Google)->exists())->toBeFalse();
+    $this->assertGuest('customer');
 });
 
-test('facebook login links an existing email account', function (): void {
-    $customer = Customer::factory()->create([
+test('facebook login requires password sign-in when email already exists', function (): void {
+    Customer::factory()->create([
         'email' => 'facebook@example.com',
         'password' => 'Password123!',
     ]);
@@ -185,9 +181,10 @@ test('facebook login links an existing email account', function (): void {
     Socialite::shouldReceive('user')->andReturn($socialUser);
 
     $this->get(route('auth.social.callback', 'facebook'))
-        ->assertRedirect(route('account'));
+        ->assertRedirect(route('login'))
+        ->assertSessionHas('error');
 
-    expect(CustomerSocialAccount::query()->where('customer_id', $customer->id)->where('provider', AuthProvider::Facebook)->exists())->toBeTrue();
+    expect(CustomerSocialAccount::query()->where('provider', AuthProvider::Facebook)->exists())->toBeFalse();
 });
 
 test('customer can request a password reset link', function (): void {

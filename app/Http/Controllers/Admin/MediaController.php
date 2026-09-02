@@ -84,7 +84,7 @@ class MediaController extends Controller
             return response()->json([
                 'message' => 'Upload failed while processing the file.',
                 'errors' => [
-                    'files' => [$exception->getMessage()],
+                    'files' => ['Unable to upload one or more files. Please try again.'],
                 ],
             ], 422);
         }

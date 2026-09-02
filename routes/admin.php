@@ -59,7 +59,17 @@ Route::middleware('admin.permission:dashboard.widgets.view')->group(function ():
 });
 
 Route::middleware('admin.permission:products.view')->group(function (): void {
-    Route::resource('products', ProductController::class);
+    Route::get('products', [ProductController::class, 'index'])->name('products.index');
+    Route::get('products/{product}', [ProductController::class, 'show'])->name('products.show');
+});
+
+Route::middleware('admin.permission:products.manage')->group(function (): void {
+    Route::get('products/create', [ProductController::class, 'create'])->name('products.create');
+    Route::post('products', [ProductController::class, 'store'])->name('products.store');
+    Route::get('products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
+    Route::put('products/{product}', [ProductController::class, 'update'])->name('products.update');
+    Route::patch('products/{product}', [ProductController::class, 'update']);
+    Route::delete('products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
     Route::post('products/{product}/restore', [ProductController::class, 'restore'])
         ->name('products.restore')
         ->withTrashed();
@@ -76,31 +86,69 @@ Route::middleware('admin.permission:inventory.view')->group(function (): void {
 });
 
 Route::middleware('admin.permission:warehouses.view')->group(function (): void {
-    Route::resource('warehouses', WarehouseController::class);
+    Route::get('warehouses', [WarehouseController::class, 'index'])->name('warehouses.index');
+    Route::get('warehouses/{warehouse}', [WarehouseController::class, 'show'])->name('warehouses.show');
+});
+
+Route::middleware('admin.permission:warehouses.manage')->group(function (): void {
+    Route::get('warehouses/create', [WarehouseController::class, 'create'])->name('warehouses.create');
+    Route::post('warehouses', [WarehouseController::class, 'store'])->name('warehouses.store');
+    Route::get('warehouses/{warehouse}/edit', [WarehouseController::class, 'edit'])->name('warehouses.edit');
+    Route::put('warehouses/{warehouse}', [WarehouseController::class, 'update'])->name('warehouses.update');
+    Route::patch('warehouses/{warehouse}', [WarehouseController::class, 'update']);
+    Route::delete('warehouses/{warehouse}', [WarehouseController::class, 'destroy'])->name('warehouses.destroy');
 });
 
 Route::middleware('admin.permission:categories.view')->group(function (): void {
-    Route::resource('categories', CategoryController::class);
+    Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::get('categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
+});
+
+Route::middleware('admin.permission:categories.manage')->group(function (): void {
+    Route::get('categories/create', [CategoryController::class, 'create'])->name('categories.create');
+    Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::get('categories/{category}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
+    Route::put('categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
+    Route::patch('categories/{category}', [CategoryController::class, 'update']);
+    Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     Route::post('categories/{category}/restore', [CategoryController::class, 'restore'])
         ->name('categories.restore')
         ->withTrashed();
 });
 
 Route::middleware('admin.permission:brands.view')->group(function (): void {
-    Route::resource('brands', BrandController::class);
+    Route::get('brands', [BrandController::class, 'index'])->name('brands.index');
+    Route::get('brands/{brand}', [BrandController::class, 'show'])->name('brands.show');
+});
+
+Route::middleware('admin.permission:brands.manage')->group(function (): void {
+    Route::get('brands/create', [BrandController::class, 'create'])->name('brands.create');
+    Route::post('brands', [BrandController::class, 'store'])->name('brands.store');
+    Route::get('brands/{brand}/edit', [BrandController::class, 'edit'])->name('brands.edit');
+    Route::put('brands/{brand}', [BrandController::class, 'update'])->name('brands.update');
+    Route::patch('brands/{brand}', [BrandController::class, 'update']);
+    Route::delete('brands/{brand}', [BrandController::class, 'destroy'])->name('brands.destroy');
     Route::post('brands/{brand}/restore', [BrandController::class, 'restore'])
         ->name('brands.restore')
         ->withTrashed();
 });
 
 Route::middleware('admin.permission:customers.view')->group(function (): void {
-    Route::resource('customers', CustomerController::class);
+    Route::get('customers', [CustomerController::class, 'index'])->name('customers.index');
+    Route::get('customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
+});
+
+Route::middleware('admin.permission:customers.manage')->group(function (): void {
+    Route::get('customers/create', [CustomerController::class, 'create'])->name('customers.create');
+    Route::post('customers', [CustomerController::class, 'store'])->name('customers.store');
+    Route::get('customers/{customer}/edit', [CustomerController::class, 'edit'])->name('customers.edit');
+    Route::put('customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
+    Route::patch('customers/{customer}', [CustomerController::class, 'update']);
+    Route::delete('customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
     Route::post('customers/{customer}/restore', [CustomerController::class, 'restore'])
         ->name('customers.restore')
         ->withTrashed();
-    Route::post('customers/{customer}/notes', [CustomerController::class, 'storeNote'])
-        ->middleware('admin.permission:customers.manage')
-        ->name('customers.notes.store');
+    Route::post('customers/{customer}/notes', [CustomerController::class, 'storeNote'])->name('customers.notes.store');
 });
 
 Route::middleware('admin.permission:orders.view')->group(function (): void {

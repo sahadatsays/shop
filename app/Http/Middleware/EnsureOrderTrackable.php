@@ -3,11 +3,11 @@
 namespace App\Http\Middleware;
 
 use App\Exceptions\OrderTrackingException;
-use App\Models\Customer;
 use App\Models\Order;
 use App\Services\OrderTrackingService;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class EnsureOrderTrackable
@@ -19,8 +19,7 @@ class EnsureOrderTrackable
         /** @var Order $order */
         $order = $request->route('order');
 
-        $customerId = session('customer_id');
-        $customer = $customerId ? Customer::query()->find($customerId) : null;
+        $customer = Auth::guard('customer')->user();
 
         try {
             $this->tracking->authorizeView($order, $customer);

@@ -506,8 +506,8 @@
                 @foreach ($relatedProducts as $relatedProduct)
                     @php($relatedBadge = $relatedProduct->shopBadge())
                     <x-ui.product-card :name="$relatedProduct->name" :brand="$relatedProduct->brand?->name" :category="$relatedProduct->category?->name" :short-description="$relatedProduct->short_description"
-                        :price="$relatedProduct->formattedPrice()" :old-price="$relatedProduct->isOnSale() ? $relatedProduct->formattedCompareAtPrice() : null" :badge="$relatedBadge['badge']" :badge-variant="$relatedBadge['variant']" :rating="$relatedProduct->placeholderRating()"
-                        :reviews="$relatedProduct->placeholderReviewCount()" :stock="$relatedProduct->shopStockLabel()" :stock-percent="$relatedProduct->shopStockPercent()" :image="$relatedProduct->primaryImageUrl()" :href="route('product.show', $relatedProduct)"
+                        :price="$relatedProduct->formattedPrice()" :old-price="$relatedProduct->isOnSale() ? $relatedProduct->formattedCompareAtPrice() : null" :badge="$relatedBadge['badge']" :badge-variant="$relatedBadge['variant']" :rating="$relatedProduct->displayRating()"
+                        :reviews="$relatedProduct->displayReviewCount()" :stock="$relatedProduct->shopStockLabel()" :stock-percent="$relatedProduct->shopStockPercent()" :image="$relatedProduct->primaryImageUrl()" :href="route('product.show', $relatedProduct)"
                         :product-id="$relatedProduct->id" />
                 @endforeach
             </div>

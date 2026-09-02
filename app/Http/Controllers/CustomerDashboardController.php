@@ -19,15 +19,16 @@ class CustomerDashboardController extends Controller
         $customer = $this->customer();
 
         return view('account', [
-            'title' => $customer->name . "'s Account",
+            'title' => $customer->name."'s Account",
             'dashboard' => $this->dashboard->data($customer),
         ]);
     }
 
     private function customer(): Customer
     {
-        $customerId = session('customer_id');
+        /** @var Customer $customer */
+        $customer = $this->auth->currentCustomer();
 
-        return Customer::query()->findOrFail($customerId);
+        return $customer;
     }
 }

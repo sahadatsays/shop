@@ -117,11 +117,13 @@
                                         class="transition-colors duration-200 hover:text-olive-700">{{ $product->name }}</a>
                                 </h2>
 
-                                <div class="mt-2 flex items-center gap-2">
-                                    <x-ui.rating :value="$product->placeholderRating()" size="sm" />
-                                    <span class="text-xs text-navy-500">{{ $product->placeholderRating() }}
-                                        ({{ $product->placeholderReviewCount() }})</span>
-                                </div>
+                                @if ($product->displayReviewCount() > 0 && $product->displayRating() !== null)
+                                    <div class="mt-2 flex items-center gap-2">
+                                        <x-ui.rating :value="$product->displayRating()" size="sm" />
+                                        <span class="text-xs text-navy-500">{{ $product->displayRating() }}
+                                            ({{ $product->displayReviewCount() }})</span>
+                                    </div>
+                                @endif
 
                                 <p class="mt-3 flex items-baseline gap-2">
                                     <span

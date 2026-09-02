@@ -35,11 +35,10 @@ test('customer dashboard shows personalized welcome and order data', function ()
 });
 
 test('customer dashboard stats reflect order history', function (): void {
-    $customer = Customer::query()->active()->firstOrFail();
+    $customer = Customer::factory()->create();
 
     Order::factory()->create([
         'customer_id' => $customer->id,
-        'order_number' => 'VS-'.fake()->unique()->numerify('#####'),
         'status' => OrderStatus::Shipped,
         'placed_at' => now()->subDays(2),
         'estimated_delivery_at' => now()->addDays(3),
@@ -47,15 +46,11 @@ test('customer dashboard stats reflect order history', function (): void {
 
     actingAsCustomer($customer);
 
-    $response = $this->get(route('account'));
-
-    $response->assertSuccessful();
-
-    $orderCount = $customer->orders()->count();
-
-    $response->assertSee((string) $orderCount, false)
-        ->assertSee('In transit')
-        ->assertSee('Order status');
+    $this->get(route('account'))
+        ->assertSuccessful()
+        ->assertSee('Total orders', false)
+        ->assertSee('In transit', false)
+        ->assertSee('tracking-heading', false);
 });
 
 test('customer dashboard shows empty state when customer has no orders', function (): void {

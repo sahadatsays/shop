@@ -8,7 +8,7 @@ class StoreProductReviewRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user('customer') !== null || session()->has('customer_id');
+        return $this->user('customer') !== null;
     }
 
     /**

@@ -67,8 +67,9 @@ class CustomerOrderController extends Controller
 
     private function customer(): Customer
     {
-        $customerId = session('customer_id');
+        /** @var Customer $customer */
+        $customer = auth('customer')->user();
 
-        return Customer::query()->findOrFail($customerId);
+        return $customer;
     }
 }

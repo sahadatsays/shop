@@ -2,21 +2,19 @@
 
 namespace App\Http\Middleware;
 
-use App\Services\CustomerAuthService;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class EnsureCustomerAuthenticated
 {
-    public function __construct(private CustomerAuthService $auth) {}
-
     /**
      * @param  Closure(Request): Response  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $this->auth->currentCustomer()) {
+        if (! Auth::guard('customer')->check()) {
             return redirect()
                 ->route('login')
                 ->with('error', 'Please sign in to access your account.');

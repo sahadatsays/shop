@@ -3,7 +3,6 @@
 use App\Enums\OrderStatus;
 use App\Enums\ProductStatus;
 use App\Models\CartItem;
-use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
 use Database\Seeders\CommerceSeeder;
@@ -145,8 +144,7 @@ test('express shipping charge is applied to order total', function (): void {
 });
 
 test('confirmation page shows order details after checkout', function (): void {
-    $customer = Customer::factory()->create();
-    session(['customer_id' => $customer->id, 'checkout_order_id' => null]);
+    $customer = actingAsCustomer();
 
     $product = Product::query()->published()->inStock()->firstOrFail();
 
@@ -173,8 +171,6 @@ test('confirmation page shows order details after checkout', function (): void {
     ]);
 
     $order = Order::query()->where('customer_id', $customer->id)->latest('id')->firstOrFail();
-
-    session(['checkout_order_id' => $order->id]);
 
     $this->get(route('checkout.confirmation', $order))
         ->assertSuccessful()

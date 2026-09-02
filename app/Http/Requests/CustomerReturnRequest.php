@@ -8,7 +8,7 @@ class CustomerReturnRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return session()->has('customer_id');
+        return $this->user('customer') !== null;
     }
 
     /**

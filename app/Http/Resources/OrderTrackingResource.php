@@ -130,9 +130,9 @@ class OrderTrackingResource extends JsonResource
             ->values();
 
         return [
-            'name' => $name,
-            'lines' => $lines->implode("\n"),
-            'html' => $lines->implode('<br>'),
+            'name' => e($name),
+            'lines' => e($lines->implode("\n")),
+            'html' => $lines->map(fn (string $line): string => e($line))->implode('<br>'),
         ];
     }
 }

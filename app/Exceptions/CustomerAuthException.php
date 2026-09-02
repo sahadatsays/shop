@@ -41,6 +41,14 @@ class CustomerAuthException extends Exception
         return new self('This sign-in provider is not available.');
     }
 
+    public static function existingAccountRequiresLogin(): self
+    {
+        return new self(
+            'An account with this email already exists. Please sign in with your password to continue.',
+            'email',
+        );
+    }
+
     public function field(): string
     {
         return $this->field;

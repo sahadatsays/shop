@@ -60,7 +60,7 @@ test('placing an order notifies admins but skips customer when email is not noti
         'email' => 'google-user-1@oauth.local',
     ]);
 
-    session(['customer_id' => $customer->id]);
+    actingAsCustomer($customer);
 
     $product = Product::query()->published()->inStock()->firstOrFail();
     $admin = User::query()->where('email', 'owner@valorsupply.co')->firstOrFail();

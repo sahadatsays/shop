@@ -118,7 +118,7 @@
                 @foreach ($featuredProducts as $product)
                     @php $badge = $product->shopBadge(); @endphp
                     <x-ui.product-card :name="$product->name" :category="$product->category?->name" :price="$product->formattedPrice()" :old-price="$product->isOnSale() ? $product->formattedCompareAtPrice() : null"
-                        :badge="$badge['badge']" :badge-variant="$badge['variant']" :rating="$product->placeholderRating()" :reviews="$product->placeholderReviewCount()" :stock="$product->shopStockLabel()"
+                        :badge="$badge['badge']" :badge-variant="$badge['variant']" :rating="$product->displayRating()" :reviews="$product->displayReviewCount()" :stock="$product->shopStockLabel()"
                         :stock-percent="$product->shopStockPercent()" :image="$product->primaryImageUrl()" :href="route('product.show', $product)" :product-id="$product->id" />
                 @endforeach
             </div>
@@ -138,7 +138,7 @@
                     @foreach ($newArrivals as $product)
                         @php $badge = $product->shopBadge(); @endphp
                         <x-ui.product-card :name="$product->name" :category="$product->category?->name" :price="$product->formattedPrice()" :old-price="$product->isOnSale() ? $product->formattedCompareAtPrice() : null"
-                            :badge="$badge['badge']" :badge-variant="$badge['variant']" :rating="$product->placeholderRating()" :reviews="$product->placeholderReviewCount()"
+                            :badge="$badge['badge']" :badge-variant="$badge['variant']" :rating="$product->displayRating()" :reviews="$product->displayReviewCount()"
                             :stock="$product->shopStockLabel()" :stock-percent="$product->shopStockPercent()" :image="$product->primaryImageUrl()" :href="route('product.show', $product)"
                             :product-id="$product->id" />
                     @endforeach
@@ -159,7 +159,7 @@
                 @forelse ($bestSellers as $product)
                     @php $badge = $product->shopBadge(); @endphp
                     <x-ui.product-card :name="$product->name" :category="$product->category?->name" :price="$product->formattedPrice()" :old-price="$product->isOnSale() ? $product->formattedCompareAtPrice() : null"
-                        :badge="$badge['badge']" :badge-variant="$badge['variant']" :rating="$product->placeholderRating()" :reviews="$product->placeholderReviewCount()" :stock="$product->shopStockLabel()"
+                        :badge="$badge['badge']" :badge-variant="$badge['variant']" :rating="$product->displayRating()" :reviews="$product->displayReviewCount()" :stock="$product->shopStockLabel()"
                         :stock-percent="$product->shopStockPercent()" :image="$product->primaryImageUrl()" :href="route('product.show', $product)" :product-id="$product->id" />
                 @empty
                     <p class="col-span-full text-center text-navy-600">Best sellers will appear once delivered orders

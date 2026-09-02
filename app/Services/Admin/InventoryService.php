@@ -136,6 +136,72 @@ class InventoryService
         );
     }
 
+    public function deductForSale(Product $product, int $quantity, string $reference, ?string $notes = null): StockMovement
+    {
+        if ($quantity <= 0) {
+            throw new InvalidArgumentException('Quantity must be greater than zero.');
+        }
+
+        $warehouse = $this->defaultWarehouse();
+        $warehouseStock = $this->warehouseStock($product, $warehouse);
+
+        if ($warehouseStock->quantity === 0 && $product->stock_quantity > 0) {
+            $warehouseStock->update(['quantity' => $product->stock_quantity]);
+            $warehouseStock->refresh();
+        }
+
+        $current = $warehouseStock->quantity;
+
+        if ($quantity > $current) {
+            throw new InvalidArgumentException('Insufficient warehouse stock for sale.');
+        }
+
+        return $this->recordMovement(
+            product: $product,
+            warehouse: $warehouse,
+            type: StockMovementType::Sale,
+            targetQuantity: $current - $quantity,
+            reference: $reference,
+            notes: $notes ?? 'Stock deducted for order '.$reference.'.',
+        );
+    }
+
+    public function restoreForReturn(Product $product, int $quantity, string $reference, ?string $notes = null): StockMovement
+    {
+        if ($quantity <= 0) {
+            throw new InvalidArgumentException('Quantity must be greater than zero.');
+        }
+
+        $warehouse = $this->defaultWarehouse();
+        $warehouseStock = $this->warehouseStock($product, $warehouse);
+        $current = $warehouseStock->quantity;
+
+        return $this->recordMovement(
+            product: $product,
+            warehouse: $warehouse,
+            type: StockMovementType::Return,
+            targetQuantity: $current + $quantity,
+            reference: $reference,
+            notes: $notes ?? 'Stock restored from return on order '.$reference.'.',
+        );
+    }
+
+    public function hasSaleMovement(string $reference): bool
+    {
+        return StockMovement::query()
+            ->where('reference', $reference)
+            ->where('type', StockMovementType::Sale)
+            ->exists();
+    }
+
+    public function hasReturnMovement(string $reference): bool
+    {
+        return StockMovement::query()
+            ->where('reference', $reference)
+            ->where('type', StockMovementType::Return)
+            ->exists();
+    }
+
     private function recordMovement(
         Product $product,
         Warehouse $warehouse,

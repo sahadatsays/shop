@@ -2,8 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Customer;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class PlaceOrderRequest extends FormRequest
 {
@@ -30,7 +33,14 @@ class PlaceOrderRequest extends FormRequest
             'shipping.state' => ['required', 'string', 'max:120'],
             'shipping.postal_code' => ['required', 'string', 'max:20'],
             'shipping.country' => ['required', 'string', 'max:120'],
-            'shipping.phone' => ['nullable', 'string', 'max:30'],
+            'shipping.phone' => [
+                'nullable',
+                'string',
+                'max:30',
+                Rule::unique('customers', 'phone')
+                    ->whereNotNull('phone')
+                    ->ignore(Auth::guard('customer')->id()),
+            ],
             'billing_same_as_shipping' => ['sometimes', 'boolean'],
             'billing' => [Rule::requiredIf($billingRequired), 'nullable', 'array'],
             'billing.first_name' => [Rule::requiredIf($billingRequired), 'nullable', 'string', 'max:100'],
@@ -47,6 +57,36 @@ class PlaceOrderRequest extends FormRequest
         ];
     }
 
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            /** @var Customer|null $customer */
+            $customer = Auth::guard('customer')->user();
+
+            if ($customer instanceof Customer) {
+                $email = strtolower((string) $this->input('email'));
+
+                if ($customer->email !== $email) {
+                    $validator->errors()->add(
+                        'email',
+                        'Checkout must use your account email. Update it from your profile if needed.',
+                    );
+                }
+
+                return;
+            }
+
+            $email = strtolower((string) $this->input('email'));
+
+            if (Customer::query()->where('email', $email)->exists()) {
+                $validator->errors()->add(
+                    'email',
+                    'An account with this email already exists. Please sign in to complete your order.',
+                );
+            }
+        });
+    }
+
     /**
      * @return array<string, string>
      */
@@ -54,6 +94,7 @@ class PlaceOrderRequest extends FormRequest
     {
         return [
             'terms_accepted.accepted' => 'You must accept the terms and policies before placing your order.',
+            'shipping.phone.unique' => 'This phone number is already associated with another account.',
         ];
     }
 

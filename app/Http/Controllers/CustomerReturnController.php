@@ -18,7 +18,8 @@ class CustomerReturnController extends Controller
 
     public function store(CustomerReturnRequest $request, Order $order): RedirectResponse
     {
-        $customer = Customer::query()->findOrFail(session('customer_id'));
+        /** @var Customer $customer */
+        $customer = auth('customer')->user();
         $this->tracking->authorizeView($order, $customer);
 
         $this->refunds->requestReturn(

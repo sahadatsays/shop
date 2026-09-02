@@ -12,6 +12,7 @@ use App\Http\Controllers\CustomerPasswordResetController;
 use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\CustomerRegistrationController;
 use App\Http\Controllers\CustomerReturnController;
+use App\Http\Controllers\CustomerReviewController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SearchController;
@@ -27,7 +28,9 @@ Route::get('/collections/{collection:slug}', [CollectionController::class, 'show
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 Route::view('/categories', 'categories')->name('categories');
 Route::get('/search', [SearchController::class, 'index'])->name('search');
-Route::get('/search/suggest', [SearchController::class, 'suggest'])->name('search.suggest');
+Route::get('/search/suggest', [SearchController::class, 'suggest'])
+    ->middleware('throttle:search-suggest')
+    ->name('search.suggest');
 Route::post('/newsletter', SubscribeNewsletterController::class)
     ->middleware('throttle:6,1')
     ->name('newsletter.subscribe');
@@ -44,7 +47,9 @@ Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.
 Route::delete('/cart/coupon', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
-Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::post('/checkout', [CheckoutController::class, 'store'])
+    ->middleware('throttle:checkout')
+    ->name('checkout.store');
 Route::get('/checkout/confirmation/{order:order_number}', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
 
 Route::middleware('customer.guest')->group(function (): void {
@@ -116,12 +121,14 @@ Route::middleware('customer.auth')->group(function (): void {
 });
 
 Route::get('/track-order', [TrackOrderController::class, 'create'])->name('track-order.create');
-Route::post('/track-order', [TrackOrderController::class, 'store'])->name('track-order.store');
+Route::post('/track-order', [TrackOrderController::class, 'store'])
+    ->middleware('throttle:track-order')
+    ->name('track-order.store');
 Route::get('/track-order/{order:order_number}', [TrackOrderController::class, 'show'])
     ->middleware('order.tracking')
     ->name('track-order.show');
 
 Route::redirect('/track', '/track-order')->name('track');
 Route::view('/support', 'support')->name('support');
-// Route::view('/about', 'about')->name('about');
+Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');

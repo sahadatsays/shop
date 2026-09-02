@@ -24,7 +24,9 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->group(function (): void {
                     Route::middleware('guest:admin')->group(function (): void {
                         Route::get('login', [AuthController::class, 'create'])->name('login');
-                        Route::post('login', [AuthController::class, 'store'])->name('login.store');
+                        Route::post('login', [AuthController::class, 'store'])
+                            ->middleware('throttle:admin-login')
+                            ->name('login.store');
                     });
 
                     Route::middleware('admin.auth')->group(base_path('routes/admin.php'));

@@ -60,6 +60,9 @@ class CustomerReviewController extends Controller
 
     private function customer(): Customer
     {
-        return Customer::query()->findOrFail(session('customer_id'));
+        /** @var Customer $customer */
+        $customer = auth('customer')->user();
+
+        return $customer;
     }
 }

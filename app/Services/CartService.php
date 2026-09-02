@@ -13,6 +13,7 @@ use App\Models\CartItem;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Support\Checkout\OrderTotalsCalculator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CartService
@@ -25,7 +26,7 @@ class CartService
 
     public function resolve(): Cart
     {
-        $customerId = session('customer_id');
+        $customerId = Auth::guard('customer')->id();
 
         if ($customerId) {
             return $this->resolveCustomerCart((int) $customerId);

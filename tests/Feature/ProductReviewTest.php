@@ -55,7 +55,15 @@ test('customer cannot review a product from a shipped but undelivered order', fu
     ])->assertSessionHasErrors('product');
 });
 
-test('customer can submit a review using session customer id without guard user', function (): void {
+test('session customer id alone cannot access account routes', function (): void {
+    $customer = Customer::factory()->create();
+
+    $this->withSession(['customer_id' => $customer->id])
+        ->get(route('account'))
+        ->assertRedirect(route('login'));
+});
+
+test('customer cannot submit a review using session customer id without guard user', function (): void {
     $customer = Customer::query()->active()->firstOrFail();
     $product = Product::query()->published()->firstOrFail();
 
@@ -64,15 +72,14 @@ test('customer can submit a review using session customer id without guard user'
     $this->withSession(['customer_id' => $customer->id])
         ->post(route('product.reviews.store', $product), [
             'rating' => 5,
-            'title' => 'Session auth works',
+            'title' => 'Session auth should fail',
             'body' => 'Submitted with session customer id only.',
             'redirect' => 'account',
         ])
-        ->assertRedirect(route('account.reviews'))
-        ->assertSessionHasNoErrors();
+        ->assertRedirect(route('login'));
 
     expect(Review::query()->where('customer_id', $customer->id)->where('product_id', $product->id)->exists())
-        ->toBeTrue();
+        ->toBeFalse();
 });
 
 test('customer can submit a review after delivery', function (): void {
@@ -98,7 +105,7 @@ test('customer can submit a review after delivery', function (): void {
 
     expect($review)->not->toBeNull()
         ->and($review->order_id)->not->toBeNull()
-        ->and($review->is_approved)->toBeTrue()
+        ->and($review->is_approved)->toBeFalse()
         ->and($review->title)->toBe('Built to last');
 });
 
@@ -208,17 +215,20 @@ test('account reviews page shows write review controls for delivered products', 
 });
 
 test('product page shows write review form for eligible customer', function (): void {
-    $customer = Customer::query()->active()->firstOrFail();
-    $product = Product::query()->published()->firstOrFail();
+    $customer = Customer::factory()->create();
+    $product = Product::factory()->create(['status' => \App\Enums\ProductStatus::Published]);
 
     createDeliveredOrderForCustomer($customer, $product);
 
     actingAsCustomer($customer);
 
+    expect(auth('customer')->check())->toBeTrue()
+        ->and(app(\App\Services\ProductReviewService::class)->canReview($customer, $product))->toBeTrue();
+
     $this->get(route('product.show', $product))
         ->assertSuccessful()
-        ->assertSee('Write a review')
-        ->assertSee('Submit review')
+        ->assertSee('Write a review', false)
+        ->assertSee('Submit', false)
         ->assertSee(route('product.reviews.store', $product), false);
 });
 

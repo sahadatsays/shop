@@ -13,6 +13,7 @@ use App\Models\CompareItem;
 use App\Models\CompareList;
 use App\Models\Customer;
 use App\Models\Product;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CompareService
@@ -23,7 +24,7 @@ class CompareService
 
     public function resolve(): CompareList
     {
-        $customerId = session('customer_id');
+        $customerId = Auth::guard('customer')->id();
 
         if ($customerId) {
             return $this->resolveCustomerCompareList((int) $customerId);

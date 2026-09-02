@@ -106,6 +106,14 @@ class CustomerAuthService
             $existingByEmail = $email !== '' ? $this->customers->findByEmail($email) : null;
 
             if ($existingByEmail) {
+                if ($existingByEmail->usesPasswordAuthentication()) {
+                    throw CustomerAuthException::existingAccountRequiresLogin();
+                }
+
+                if ($provider === AuthProvider::Facebook || ! $this->socialEmailIsVerified($provider, $socialUser)) {
+                    throw CustomerAuthException::existingAccountRequiresLogin();
+                }
+
                 $this->assertCanLogin($existingByEmail);
                 $this->customers->linkSocialAccount($existingByEmail, $provider, $providerId, $avatar);
                 ProviderLinked::dispatch($existingByEmail, $provider);
@@ -215,13 +223,18 @@ class CustomerAuthService
         /** @var Customer|null $customer */
         $customer = Auth::guard('customer')->user();
 
-        if ($customer instanceof Customer) {
-            return $customer;
+        return $customer instanceof Customer ? $customer : null;
+    }
+
+    private function socialEmailIsVerified(AuthProvider $provider, SocialiteUser $socialUser): bool
+    {
+        if ($provider === AuthProvider::Google) {
+            $raw = $socialUser->getRaw();
+
+            return (bool) ($raw['email_verified'] ?? $raw['verified_email'] ?? false);
         }
 
-        $customerId = session('customer_id');
-
-        return $customerId ? Customer::query()->find($customerId) : null;
+        return false;
     }
 
     private function establishSession(Customer $customer, bool $remember, Request $request): void

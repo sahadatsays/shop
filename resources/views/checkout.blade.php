@@ -104,9 +104,7 @@
                                 placeholder="you@example.com" hint="Order updates and your receipt go here."
                                 :value="old(
                                     'email',
-                                    session('customer_id')
-                                        ? \App\Models\Customer::find(session('customer_id'))?->email
-                                        : null,
+                                    auth('customer')->user()?->email,
                                 )" required />
                         </div>
                         @foreach ($addressFields('shipping') as $field)

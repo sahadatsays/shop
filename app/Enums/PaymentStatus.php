@@ -4,6 +4,7 @@ namespace App\Enums;
 
 enum PaymentStatus: string
 {
+    case Pending = 'pending';
     case Paid = 'paid';
     case PartiallyRefunded = 'partially_refunded';
     case Refunded = 'refunded';
@@ -11,6 +12,7 @@ enum PaymentStatus: string
     public function label(): string
     {
         return match ($this) {
+            self::Pending => 'Pending',
             self::Paid => 'Paid',
             self::PartiallyRefunded => 'Partially refunded',
             self::Refunded => 'Refunded',
@@ -20,6 +22,7 @@ enum PaymentStatus: string
     public function badgeVariant(): string
     {
         return match ($this) {
+            self::Pending => 'warning',
             self::Paid => 'success',
             self::PartiallyRefunded => 'warning',
             self::Refunded => 'muted',
@@ -29,6 +32,7 @@ enum PaymentStatus: string
     public function storefrontLabel(): string
     {
         return match ($this) {
+            self::Pending => 'Payment pending',
             self::Paid => 'Paid',
             self::PartiallyRefunded => 'Partially refunded',
             self::Refunded => 'Refunded',

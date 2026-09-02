@@ -187,7 +187,7 @@
                     </svg>
                     <span data-compare-count-badge @class(['absolute -top-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-olive-600 text-[0.65rem] font-bold text-white', 'hidden' => ($compareItemCount ?? 0) <= 0])>{{ $compareItemCount ?? 0 }}</span>
                 </a>
-                <a href="{{ session('customer_id') ? route('account') : route('login') }}" aria-label="{{ session('customer_id') ? 'Account' : 'Sign in' }}"
+                <a href="{{ auth('customer')->check() ? route('account') : route('login') }}" aria-label="{{ auth('customer')->check() ? 'Account' : 'Sign in' }}"
                    class="site-header-icon hidden size-10 items-center justify-center rounded-xl transition-colors duration-200 hover:bg-white/10 hover:text-white sm:flex">
                     <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
                         <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/>
@@ -247,7 +247,7 @@
                 @endforeach
             @endforelse
             <a href="{{ route('wishlist') }}" class="block rounded-xl px-4 py-3 text-base font-medium text-navy-800 transition-colors duration-200 hover:bg-navy-900/5">Wishlist</a>
-            <a href="{{ session('customer_id') ? route('account') : route('login') }}" class="block rounded-xl px-4 py-3 text-base font-medium text-navy-800 transition-colors duration-200 hover:bg-navy-900/5">{{ session('customer_id') ? 'Account' : 'Sign in' }}</a>
+            <a href="{{ auth('customer')->check() ? route('account') : route('login') }}" class="block rounded-xl px-4 py-3 text-base font-medium text-navy-800 transition-colors duration-200 hover:bg-navy-900/5">{{ auth('customer')->check() ? 'Account' : 'Sign in' }}</a>
         </nav>
     </header>
     </div>

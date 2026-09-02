@@ -11,6 +11,7 @@ use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Wishlist;
 use App\Models\WishlistItem;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class WishlistService
@@ -22,7 +23,7 @@ class WishlistService
 
     public function resolve(): Wishlist
     {
-        $customerId = session('customer_id');
+        $customerId = Auth::guard('customer')->id();
 
         if ($customerId) {
             return $this->resolveCustomerWishlist((int) $customerId);

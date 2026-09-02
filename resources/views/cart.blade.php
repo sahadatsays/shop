@@ -178,7 +178,7 @@
                     <x-ui.button :href="route('shop')" variant="secondary" class="mt-6">Continue shopping</x-ui.button>
                 </div>
 
-                @if (session('customer_id'))
+                @if (auth('customer')->check())
                     <div class="mt-8 flex justify-end">
                         <button type="button" data-save-cart
                             class="text-sm font-medium text-olive-700 underline-offset-4 hover:underline">

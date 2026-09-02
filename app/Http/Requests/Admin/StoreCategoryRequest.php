@@ -2,8 +2,15 @@
 
 namespace App\Http\Requests\Admin;
 
+use Illuminate\Support\Facades\Auth;
+
 class StoreCategoryRequest extends CategoryRequest
 {
+    public function authorize(): bool
+    {
+        return Auth::guard('admin')->user()?->hasPermission('categories.manage') ?? false;
+    }
+
     /**
      * @return array<string, mixed>
      */

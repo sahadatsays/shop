@@ -83,6 +83,10 @@ class AdminAccessSeeder extends Seeder
      */
     private function seedUsers(array $roles): void
     {
+        if (! app()->environment('local', 'testing')) {
+            return;
+        }
+
         foreach (config('admin-permissions.default_users', []) as $userData) {
             $user = User::query()->updateOrCreate(
                 ['email' => $userData['email']],
