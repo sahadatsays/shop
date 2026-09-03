@@ -130,13 +130,13 @@
             @endif
 
             {{-- Rating --}}
-            <div class="mt-4 flex flex-wrap items-center gap-3">
+            {{-- <div class="mt-4 flex flex-wrap items-center gap-3">
                 <x-ui.rating :value="$displayRating" />
                 <span class="text-sm font-semibold text-navy-900">{{ $displayRating }}</span>
                 <a href="#reviews"
                     class="text-sm text-navy-500 underline-offset-4 transition-colors duration-200 hover:text-navy-900 hover:underline">{{ $displayReviewCount }}
                     {{ Str::plural('review', $displayReviewCount) }}</a>
-            </div>
+            </div> --}}
 
             {{-- Price --}}
             <div class="mt-6 flex flex-wrap items-baseline gap-3">
@@ -308,7 +308,7 @@
             </div> --}}
 
             {{-- Secure payment badges --}}
-            <div class="mt-6">
+            {{-- <div class="mt-6">
                 <p class="flex items-center gap-2 text-xs font-semibold tracking-wide text-navy-500 uppercase">
                     <svg class="size-4 text-olive-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -324,7 +324,7 @@
                             {{ $method }}</li>
                     @endforeach
                 </ul>
-            </div>
+            </div> --}}
 
             {{-- Accordion --}}
             <div class="mt-10 border-t border-navy-100">
@@ -375,7 +375,7 @@
     </section>
 
     {{-- ============ Customer reviews ============ --}}
-    <section id="reviews" class="bg-surface py-20" data-reveal>
+    {{-- <section id="reviews" class="bg-surface py-20" data-reveal>
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <x-ui.section-heading align="left" eyebrow="Customer reviews" title="What the community says" />
 
@@ -491,7 +491,7 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> --}}
 
     {{-- ============ Related products ============ --}}
     @if ($relatedProducts->isNotEmpty())
