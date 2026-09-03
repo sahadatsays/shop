@@ -57,6 +57,7 @@ test('customer can register with email and password', function (): void {
 
     expect($customer)->not->toBeNull()
         ->and($customer->status)->toBe(CustomerStatus::Active)
+        ->and($customer->hasVerifiedEmail())->toBeFalse()
         ->and($customer->newsletter_subscribed)->toBeTrue()
         ->and(Hash::check('Password123!', $customer->password))->toBeTrue()
         ->and(CustomerProfile::query()->where('customer_id', $customer->id)->exists())->toBeTrue()
@@ -265,7 +266,7 @@ test('guest account pages redirect to login', function (): void {
     $this->get(route('profile'))->assertRedirect(route('login'));
 });
 
-function mockSocialUser(string $id, string $name, string $email): SocialiteUser
+function mockSocialUser(string $id, string $name, string $email, bool $emailVerified = true): SocialiteUser
 {
     $user = Mockery::mock(SocialiteUser::class);
     $user->shouldReceive('getId')->andReturn($id);
@@ -273,6 +274,10 @@ function mockSocialUser(string $id, string $name, string $email): SocialiteUser
     $user->shouldReceive('getNickname')->andReturn(null);
     $user->shouldReceive('getEmail')->andReturn($email);
     $user->shouldReceive('getAvatar')->andReturn('https://example.com/avatar.jpg');
+    $user->shouldReceive('getRaw')->andReturn([
+        'email_verified' => $emailVerified,
+        'verified_email' => $emailVerified,
+    ]);
 
     return $user;
 }

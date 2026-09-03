@@ -13,9 +13,7 @@ class WishlistComposer
 
     public function compose(View $view): void
     {
-        $summary = $this->wishlist->summary();
-
-        $view->with('wishlistItemCount', $summary->itemCount);
-        $view->with('wishlistProductIds', $summary->productIds());
+        $view->with('wishlistItemCount', $this->wishlist->itemCount());
+        $view->with('wishlistProductIds', $this->wishlist->productIds());
     }
 }

@@ -99,7 +99,7 @@ class CheckoutService
                 'order_number' => OrderNumberGenerator::generate(),
                 'status' => OrderStatus::Pending,
                 'payment_status' => PaymentStatus::Pending,
-                'payment_method' => $this->paymentMethodLabel($request->validated('payment_method')),
+                'payment_method' => $this->payments->labelFor($request->validated('payment_method')),
                 'subtotal_cents' => $totals->subtotalCents,
                 'discount_cents' => $totals->discountCents,
                 'discount_id' => $appliedDiscount?->id,
@@ -122,13 +122,19 @@ class CheckoutService
                 ]);
             }
 
-            $capture = $this->payments->capture($order);
+            $method = $request->validated('payment_method');
+            $capture = $this->payments->capture($order, $method);
 
             if (! $capture['success']) {
                 throw new CartValidationException($capture['message'] ?? 'Payment could not be processed.');
             }
 
-            $order->update(['payment_status' => PaymentStatus::Paid]);
+            $order->update([
+                'payment_status' => ($capture['mark_paid'] ?? false)
+                    ? PaymentStatus::Paid
+                    : PaymentStatus::Pending,
+                'payment_reference' => $capture['reference'],
+            ]);
 
             foreach ($summary->items as $line) {
                 $this->inventory->deductForSale(
@@ -138,10 +144,14 @@ class CheckoutService
                 );
             }
 
+            $timelineMessage = $this->payments->isCashOnDelivery($method)
+                ? 'Order placed with cash on delivery. Payment pending until delivery.'
+                : 'Order placed.';
+
             OrderTimelineEvent::query()->create([
                 'order_id' => $order->id,
                 'status' => OrderStatus::Pending->value,
-                'message' => 'Order placed.',
+                'message' => $timelineMessage,
                 'author_name' => $customer->name,
                 'created_at' => $order->placed_at,
                 'updated_at' => $order->placed_at,
@@ -252,14 +262,5 @@ class CheckoutService
                 );
             }
         }
-    }
-
-    private function paymentMethodLabel(string $method): string
-    {
-        return match ($method) {
-            'paypal' => 'PayPal',
-            'applepay' => 'Apple Pay',
-            default => 'Card',
-        };
     }
 }

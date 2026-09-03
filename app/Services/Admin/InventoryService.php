@@ -136,54 +136,158 @@ class InventoryService
         );
     }
 
-    public function deductForSale(Product $product, int $quantity, string $reference, ?string $notes = null): StockMovement
+    /**
+     * Deduct sale quantity from warehouses that actually hold stock (default first).
+     *
+     * @return Collection<int, StockMovement>
+     */
+    public function deductForSale(Product $product, int $quantity, string $reference, ?string $notes = null): Collection
     {
         if ($quantity <= 0) {
             throw new InvalidArgumentException('Quantity must be greater than zero.');
         }
 
-        $warehouse = $this->defaultWarehouse();
-        $warehouseStock = $this->warehouseStock($product, $warehouse);
+        return DB::transaction(function () use ($product, $quantity, $reference, $notes): Collection {
+            $this->ensureWarehouseStockInitialized($product);
 
-        if ($warehouseStock->quantity === 0 && $product->stock_quantity > 0) {
-            $warehouseStock->update(['quantity' => $product->stock_quantity]);
-            $warehouseStock->refresh();
-        }
+            $defaultWarehouseId = $this->defaultWarehouse()->id;
 
-        $current = $warehouseStock->quantity;
+            $stocks = WarehouseStock::query()
+                ->where('product_id', $product->id)
+                ->where('quantity', '>', 0)
+                ->lockForUpdate()
+                ->get()
+                ->sortBy(fn (WarehouseStock $stock): int => $stock->warehouse_id === $defaultWarehouseId ? 0 : 1)
+                ->values();
 
-        if ($quantity > $current) {
-            throw new InvalidArgumentException('Insufficient warehouse stock for sale.');
-        }
+            $available = (int) $stocks->sum('quantity');
 
-        return $this->recordMovement(
-            product: $product,
-            warehouse: $warehouse,
-            type: StockMovementType::Sale,
-            targetQuantity: $current - $quantity,
-            reference: $reference,
-            notes: $notes ?? 'Stock deducted for order '.$reference.'.',
-        );
+            if ($quantity > $available) {
+                throw new InvalidArgumentException('Insufficient warehouse stock for sale.');
+            }
+
+            $remaining = $quantity;
+            $movements = collect();
+
+            foreach ($stocks as $stock) {
+                if ($remaining <= 0) {
+                    break;
+                }
+
+                $take = min($remaining, $stock->quantity);
+                $warehouse = Warehouse::query()->findOrFail($stock->warehouse_id);
+
+                $movements->push($this->recordMovement(
+                    product: $product,
+                    warehouse: $warehouse,
+                    type: StockMovementType::Sale,
+                    targetQuantity: $stock->quantity - $take,
+                    reference: $reference,
+                    notes: $notes ?? 'Stock deducted for order '.$reference.'.',
+                ));
+
+                $remaining -= $take;
+            }
+
+            return $movements;
+        });
     }
 
-    public function restoreForReturn(Product $product, int $quantity, string $reference, ?string $notes = null): StockMovement
+    /**
+     * Restore returned quantity into the warehouses that originally sold for this reference.
+     *
+     * @return Collection<int, StockMovement>
+     */
+    public function restoreForReturn(Product $product, int $quantity, string $reference, ?string $notes = null): Collection
     {
         if ($quantity <= 0) {
             throw new InvalidArgumentException('Quantity must be greater than zero.');
         }
 
-        $warehouse = $this->defaultWarehouse();
-        $warehouseStock = $this->warehouseStock($product, $warehouse);
-        $current = $warehouseStock->quantity;
+        return DB::transaction(function () use ($product, $quantity, $reference, $notes): Collection {
+            $saleMovements = StockMovement::query()
+                ->where('product_id', $product->id)
+                ->where('reference', $reference)
+                ->where('type', StockMovementType::Sale)
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
 
-        return $this->recordMovement(
-            product: $product,
-            warehouse: $warehouse,
-            type: StockMovementType::Return,
-            targetQuantity: $current + $quantity,
-            reference: $reference,
-            notes: $notes ?? 'Stock restored from return on order '.$reference.'.',
-        );
+            if ($saleMovements->isEmpty()) {
+                throw new InvalidArgumentException('No sale movement found to restore stock against.');
+            }
+
+            $alreadyRestored = (int) abs((float) StockMovement::query()
+                ->where('product_id', $product->id)
+                ->where('reference', $reference)
+                ->where('type', StockMovementType::Return)
+                ->sum('quantity_change'));
+
+            $sold = (int) abs((float) $saleMovements->sum('quantity_change'));
+            $restorable = max(0, $sold - $alreadyRestored);
+
+            if ($quantity > $restorable) {
+                throw new InvalidArgumentException('Cannot restore more stock than was sold for this order.');
+            }
+
+            $remaining = $quantity;
+            $movements = collect();
+
+            foreach ($saleMovements as $sale) {
+                if ($remaining <= 0) {
+                    break;
+                }
+
+                $soldFromWarehouse = (int) abs($sale->quantity_change);
+                $restoredForWarehouse = (int) abs((float) StockMovement::query()
+                    ->where('product_id', $product->id)
+                    ->where('warehouse_id', $sale->warehouse_id)
+                    ->where('reference', $reference)
+                    ->where('type', StockMovementType::Return)
+                    ->sum('quantity_change'));
+
+                $capacity = max(0, $soldFromWarehouse - $restoredForWarehouse);
+
+                if ($capacity <= 0) {
+                    continue;
+                }
+
+                $putBack = min($remaining, $capacity);
+                $warehouse = Warehouse::query()->findOrFail($sale->warehouse_id);
+                $warehouseStock = $this->warehouseStock($product, $warehouse);
+
+                $movements->push($this->recordMovement(
+                    product: $product,
+                    warehouse: $warehouse,
+                    type: StockMovementType::Return,
+                    targetQuantity: $warehouseStock->quantity + $putBack,
+                    reference: $reference,
+                    notes: $notes ?? 'Stock restored from return on order '.$reference.'.',
+                ));
+
+                $remaining -= $putBack;
+            }
+
+            return $movements;
+        });
+    }
+
+    public function soldQuantityForReference(Product $product, string $reference): int
+    {
+        return (int) abs((float) StockMovement::query()
+            ->where('product_id', $product->id)
+            ->where('reference', $reference)
+            ->where('type', StockMovementType::Sale)
+            ->sum('quantity_change'));
+    }
+
+    public function restoredQuantityForReference(Product $product, string $reference): int
+    {
+        return (int) abs((float) StockMovement::query()
+            ->where('product_id', $product->id)
+            ->where('reference', $reference)
+            ->where('type', StockMovementType::Return)
+            ->sum('quantity_change'));
     }
 
     public function hasSaleMovement(string $reference): bool
@@ -200,6 +304,19 @@ class InventoryService
             ->where('reference', $reference)
             ->where('type', StockMovementType::Return)
             ->exists();
+    }
+
+    private function ensureWarehouseStockInitialized(Product $product): void
+    {
+        $hasRows = WarehouseStock::query()
+            ->where('product_id', $product->id)
+            ->exists();
+
+        if ($hasRows || $product->stock_quantity <= 0) {
+            return;
+        }
+
+        $this->initializeStock($product, $product->stock_quantity);
     }
 
     private function recordMovement(

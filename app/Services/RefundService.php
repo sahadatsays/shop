@@ -199,7 +199,10 @@ class RefundService
             ]);
 
             if ($restoreStock) {
-                $this->restoreOrderStock($lockedOrder->fresh(['items.product']));
+                $this->restoreOrderStock(
+                    $lockedOrder->fresh(['items.product']),
+                    $newRefundedTotal,
+                );
             }
 
             if ($isFullRefund && $lockedOrder->status !== OrderStatus::Refunded) {
@@ -245,26 +248,37 @@ class RefundService
         ], true);
     }
 
-    private function restoreOrderStock(Order $order): void
+    private function restoreOrderStock(Order $order, int $cumulativeRefundedCents): void
     {
-        if ($this->inventory->hasReturnMovement($order->order_number)) {
-            return;
-        }
-
         if (! $this->inventory->hasSaleMovement($order->order_number)) {
             return;
         }
 
         $order->loadMissing('items.product');
+        $totalCents = max(1, $order->total_cents);
 
         foreach ($order->items as $item) {
             if (! $item->product) {
                 continue;
             }
 
+            $sold = $this->inventory->soldQuantityForReference($item->product, $order->order_number);
+
+            if ($sold <= 0) {
+                continue;
+            }
+
+            $targetRestored = (int) floor(($sold * $cumulativeRefundedCents) / $totalCents);
+            $alreadyRestored = $this->inventory->restoredQuantityForReference($item->product, $order->order_number);
+            $toRestore = max(0, $targetRestored - $alreadyRestored);
+
+            if ($toRestore <= 0) {
+                continue;
+            }
+
             $this->inventory->restoreForReturn(
                 product: $item->product,
-                quantity: $item->quantity,
+                quantity: $toRestore,
                 reference: $order->order_number,
             );
         }

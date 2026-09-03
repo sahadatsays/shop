@@ -42,7 +42,7 @@ test('guest checkout with existing customer email is rejected', function (): voi
             ],
             'billing_same_as_shipping' => '1',
             'delivery_method' => 'standard',
-            'payment_method' => 'card',
+            'payment_method' => 'cod',
             'terms_accepted' => '1',
         ])
         ->assertRedirect(route('checkout'))
@@ -73,7 +73,7 @@ test('guest checkout does not set customer session after order', function (): vo
         ],
         'billing_same_as_shipping' => '1',
         'delivery_method' => 'standard',
-        'payment_method' => 'card',
+        'payment_method' => 'cod',
         'terms_accepted' => '1',
     ])->assertRedirect();
 
@@ -172,7 +172,7 @@ test('customers with orders cannot be deleted', function (): void {
     expect(Customer::query()->find($customer->id))->not->toBeNull();
 });
 
-test('placed orders are marked paid only after payment capture', function (): void {
+test('placed cod orders remain payment pending', function (): void {
     $product = Product::query()->published()->inStock()->firstOrFail();
 
     $this->postJson(route('cart.items.store'), [
@@ -193,11 +193,11 @@ test('placed orders are marked paid only after payment capture', function (): vo
         ],
         'billing_same_as_shipping' => '1',
         'delivery_method' => 'standard',
-        'payment_method' => 'card',
+        'payment_method' => 'cod',
         'terms_accepted' => '1',
     ])->assertRedirect();
 
     $order = Order::query()->whereHas('customer', fn ($q) => $q->where('email', 'paid-flow@example.com'))->firstOrFail();
 
-    expect($order->payment_status)->toBe(PaymentStatus::Paid);
+    expect($order->payment_status)->toBe(PaymentStatus::Pending);
 });

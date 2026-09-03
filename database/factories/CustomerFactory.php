@@ -23,6 +23,7 @@ class CustomerFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'phone' => fake()->unique()->numerify('+1##########'),
             'password' => 'password',
+            'email_verified_at' => now(),
             'status' => CustomerStatus::Active,
             'internal_notes' => fake()->optional(0.2)->sentence(),
         ];

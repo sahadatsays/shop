@@ -219,7 +219,7 @@ class CompareService
 
     public function itemCount(): int
     {
-        return $this->summary()->itemCount;
+        return $this->resolveForCounts()->items()->count();
     }
 
     /**
@@ -227,7 +227,29 @@ class CompareService
      */
     public function productIds(): array
     {
-        return $this->summary()->productIds();
+        return $this->resolveForCounts()
+            ->items()
+            ->pluck('product_id')
+            ->map(fn ($id): int => (int) $id)
+            ->all();
+    }
+
+    private function resolveForCounts(): CompareList
+    {
+        $customerId = Auth::guard('customer')->id();
+
+        if ($customerId) {
+            return $this->compareLists->findOrCreateForCustomer((int) $customerId);
+        }
+
+        if ($compareList = $this->resolveGuestFromSession()) {
+            return $compareList;
+        }
+
+        $compareList = $this->compareLists->findOrCreateGuest(session()->getId());
+        session(['compare_list_id' => $compareList->id]);
+
+        return $compareList;
     }
 
     public function contains(int $productId): bool

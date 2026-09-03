@@ -6,6 +6,8 @@ use App\Enums\CustomerStatus;
 use App\Models\Concerns\HasAppNotifications;
 use App\Notifications\CustomerResetPasswordNotification;
 use Database\Factories\CustomerFactory;
+use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -16,10 +18,10 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
-class Customer extends Authenticatable
+class Customer extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<CustomerFactory> */
-    use HasAppNotifications, HasFactory, Notifiable, SoftDeletes;
+    use HasAppNotifications, HasFactory, MustVerifyEmailTrait, Notifiable, SoftDeletes;
 
     /**
      * @var list<string>

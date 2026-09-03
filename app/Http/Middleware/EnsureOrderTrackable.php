@@ -24,7 +24,7 @@ class EnsureOrderTrackable
         try {
             $this->tracking->authorizeView($order, $customer);
         } catch (OrderTrackingException) {
-            abort(403, 'You do not have permission to view this order.');
+            abort(404);
         }
 
         return $next($request);

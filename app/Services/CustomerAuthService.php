@@ -9,7 +9,6 @@ use App\Events\CustomerLoggedIn;
 use App\Events\CustomerLoggedOut;
 use App\Events\CustomerRegistered;
 use App\Events\PasswordChanged;
-use App\Events\ProviderLinked;
 use App\Exceptions\CustomerAuthException;
 use App\Models\Customer;
 use Illuminate\Auth\Events\PasswordReset;
@@ -51,6 +50,7 @@ class CustomerAuthService
 
             CustomerRegistered::dispatch($customer);
             $this->establishSession($customer, false, $request);
+            $customer->sendEmailVerificationNotification();
 
             return $customer;
         });
@@ -106,20 +106,7 @@ class CustomerAuthService
             $existingByEmail = $email !== '' ? $this->customers->findByEmail($email) : null;
 
             if ($existingByEmail) {
-                if ($existingByEmail->usesPasswordAuthentication()) {
-                    throw CustomerAuthException::existingAccountRequiresLogin();
-                }
-
-                if ($provider === AuthProvider::Facebook || ! $this->socialEmailIsVerified($provider, $socialUser)) {
-                    throw CustomerAuthException::existingAccountRequiresLogin();
-                }
-
-                $this->assertCanLogin($existingByEmail);
-                $this->customers->linkSocialAccount($existingByEmail, $provider, $providerId, $avatar);
-                ProviderLinked::dispatch($existingByEmail, $provider);
-                $this->establishSession($existingByEmail, true, $request);
-
-                return $existingByEmail;
+                throw CustomerAuthException::existingAccountRequiresLogin();
             }
 
             if ($name === '') {
@@ -134,6 +121,7 @@ class CustomerAuthService
                 'avatar' => $avatar,
                 'provider' => $provider->value,
                 'provider_id' => $providerId,
+                'email_verified_at' => $this->socialEmailIsVerified($provider, $socialUser) ? now() : null,
                 'status' => CustomerStatus::Active,
             ]);
 
@@ -228,13 +216,21 @@ class CustomerAuthService
 
     private function socialEmailIsVerified(AuthProvider $provider, SocialiteUser $socialUser): bool
     {
-        if ($provider === AuthProvider::Google) {
-            $raw = $socialUser->getRaw();
-
-            return (bool) ($raw['email_verified'] ?? $raw['verified_email'] ?? false);
+        if ($provider !== AuthProvider::Google) {
+            return false;
         }
 
-        return false;
+        try {
+            $raw = $socialUser->getRaw();
+        } catch (\Throwable) {
+            return false;
+        }
+
+        if (! is_array($raw)) {
+            return false;
+        }
+
+        return (bool) ($raw['email_verified'] ?? $raw['verified_email'] ?? false);
     }
 
     private function establishSession(Customer $customer, bool $remember, Request $request): void

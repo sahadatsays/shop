@@ -6,6 +6,7 @@ use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CompareController;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\CustomerDashboardController;
+use App\Http\Controllers\CustomerEmailVerificationController;
 use App\Http\Controllers\CustomerNotificationController;
 use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\CustomerPasswordResetController;
@@ -83,6 +84,17 @@ Route::post('/logout', [CustomerAuthController::class, 'logout'])
     ->middleware('customer.auth')
     ->name('logout');
 
+Route::middleware('customer.auth')->group(function (): void {
+    Route::get('/email/verify', [CustomerEmailVerificationController::class, 'notice'])
+        ->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [CustomerEmailVerificationController::class, 'verify'])
+        ->middleware('signed')
+        ->name('verification.verify');
+    Route::post('/email/verification-notification', [CustomerEmailVerificationController::class, 'resend'])
+        ->middleware('throttle:6,1')
+        ->name('verification.send');
+});
+
 Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
 Route::post('/wishlist/items', [WishlistController::class, 'store'])->name('wishlist.items.store');
 Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
@@ -96,7 +108,7 @@ Route::post('/compare/toggle', [CompareController::class, 'toggle'])->name('comp
 Route::delete('/compare/items/{compareItem}', [CompareController::class, 'destroy'])->name('compare.items.destroy');
 Route::delete('/compare', [CompareController::class, 'clear'])->name('compare.clear');
 
-Route::middleware('customer.auth')->group(function (): void {
+Route::middleware(['customer.auth', 'customer.verified'])->group(function (): void {
     Route::get('/account/notifications', [CustomerNotificationController::class, 'index'])->name('account.notifications');
     Route::patch('/account/notifications/{notification}/read', [CustomerNotificationController::class, 'markRead'])->name('account.notifications.read');
     Route::post('/account/notifications/mark-all-read', [CustomerNotificationController::class, 'markAllRead'])->name('account.notifications.mark-all-read');
@@ -113,7 +125,7 @@ Route::middleware('customer.auth')->group(function (): void {
     Route::match(['put', 'patch', 'post'], '/account/settings', [CustomerProfileController::class, 'update'])->name('account.settings.update');
     Route::get('/profile', [CustomerProfileController::class, 'show'])->name('profile');
     Route::match(['put', 'patch', 'post'], '/profile', [CustomerProfileController::class, 'update'])->name('profile.update');
-    Route::view('/account/addresses', 'account-addresses')->name('account.addresses');
+    Route::get('/account/addresses', [CustomerProfileController::class, 'addresses'])->name('account.addresses');
     Route::get('/account/reviews', [CustomerReviewController::class, 'index'])->name('account.reviews');
     Route::patch('/account/reviews/{review}', [CustomerReviewController::class, 'update'])->name('account.reviews.update');
     Route::delete('/account/reviews/{review}', [CustomerReviewController::class, 'destroy'])->name('account.reviews.destroy');

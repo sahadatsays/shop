@@ -115,7 +115,7 @@ test('checkout applies coupon discount to order total', function (): void {
         ],
         'billing_same_as_shipping' => '1',
         'delivery_method' => 'standard',
-        'payment_method' => 'card',
+        'payment_method' => 'cod',
         'terms_accepted' => '1',
     ])->assertRedirect();
 

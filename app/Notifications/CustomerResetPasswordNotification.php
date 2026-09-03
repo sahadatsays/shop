@@ -2,15 +2,11 @@
 
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class CustomerResetPasswordNotification extends Notification implements ShouldQueue
+class CustomerResetPasswordNotification extends Notification
 {
-    use Queueable;
-
     public function __construct(private readonly string $token) {}
 
     /**

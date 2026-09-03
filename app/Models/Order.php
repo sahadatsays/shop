@@ -36,6 +36,7 @@ class Order extends Model
         'status',
         'payment_status',
         'payment_method',
+        'payment_reference',
         'subtotal_cents',
         'discount_cents',
         'discount_id',

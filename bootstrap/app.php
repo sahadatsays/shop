@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Middleware\EnsureAdminAuthenticated;
 use App\Http\Middleware\EnsureAdminPermission;
 use App\Http\Middleware\EnsureCustomerAuthenticated;
+use App\Http\Middleware\EnsureCustomerEmailIsVerified;
 use App\Http\Middleware\EnsureCustomerGuest;
 use App\Http\Middleware\EnsureOrderTrackable;
 use Illuminate\Foundation\Application;
@@ -39,6 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.permission' => EnsureAdminPermission::class,
             'customer.auth' => EnsureCustomerAuthenticated::class,
             'customer.guest' => EnsureCustomerGuest::class,
+            'customer.verified' => EnsureCustomerEmailIsVerified::class,
             'order.tracking' => EnsureOrderTrackable::class,
         ]);
 
