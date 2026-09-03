@@ -17,20 +17,15 @@ return [
     |
     */
     'shipping_methods' => [
-        'standard' => [
-            'label' => 'Standard shipping',
-            'description' => 'Arrives in 5–7 business days',
-            'cost_cents' => null,
+        'insideDhaka' => [
+            'label' => 'Inside Dhaka',
+            'description' => 'Arrives in 1–3 business days',
+            'cost_cents' => 15000,
         ],
-        'express' => [
-            'label' => 'Express shipping',
-            'description' => 'Arrives in 2–3 business days',
-            'cost_cents' => 1200,
-        ],
-        'overnight' => [
-            'label' => 'Overnight shipping',
-            'description' => 'Next business day by 5 PM',
-            'cost_cents' => 2400,
-        ],
+        'outsideDhaka' => [
+            'label' => 'Outside Dhaka',
+            'description' => 'Arrives in 3–5 business days',
+            'cost_cents' => 15000,
+        ]
     ],
 ];
