@@ -22,7 +22,6 @@ class OrderTrackingResource extends JsonResource
         $timelineBuilder = app(OrderTimelineBuilder::class);
 
         $shippingAddress = $this->shipping_address ?? [];
-        $billingAddress = $this->billing_address ?? $shippingAddress;
 
         return [
             'order_number' => $this->order_number,
@@ -64,7 +63,6 @@ class OrderTrackingResource extends JsonResource
             'tracking_number_display' => $this->tracking_number_display,
             'delivery_instructions' => $this->delivery_instructions,
             'shipping_address' => $this->formatAddress($shippingAddress),
-            'billing_address' => $this->formatAddress($billingAddress),
             'customer_name' => $this->customer?->name,
             'summary' => [
                 'subtotal' => MoneyFormatter::format($this->subtotal_cents),

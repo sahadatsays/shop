@@ -6,6 +6,7 @@ use App\Contracts\Repositories\CartRepositoryInterface;
 use App\Contracts\Repositories\CustomerAuthRepositoryInterface;
 use App\DTOs\Cart\CartSummary;
 use App\Enums\CustomerStatus;
+use App\Enums\OrderSource;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Exceptions\Cart\CartValidationException;
@@ -97,6 +98,7 @@ class CheckoutService
             $order = Order::query()->create([
                 'customer_id' => $customer->id,
                 'order_number' => OrderNumberGenerator::generate(),
+                'source' => OrderSource::Website,
                 'status' => OrderStatus::Pending,
                 'payment_status' => PaymentStatus::Pending,
                 'payment_method' => $this->payments->labelFor($request->validated('payment_method')),
@@ -105,10 +107,11 @@ class CheckoutService
                 'discount_id' => $appliedDiscount?->id,
                 'coupon_code' => $appliedDiscount?->code,
                 'shipping_cents' => $totals->shippingCents,
+                'shipping_method' => $request->validated('delivery_method'),
                 'tax_cents' => $totals->taxCents,
                 'total_cents' => $totals->totalCents,
+                'paid_cents' => 0,
                 'shipping_address' => $request->shippingAddress(),
-                'billing_address' => $request->billingAddress(),
                 'placed_at' => now(),
             ]);
 
@@ -116,8 +119,11 @@ class CheckoutService
                 OrderItem::query()->create([
                     'order_id' => $order->id,
                     'product_id' => $line->product->id,
+                    'product_name' => $line->product->name,
+                    'sku' => $line->product->sku,
                     'quantity' => $line->cartItem->quantity,
                     'unit_price_cents' => $line->cartItem->unit_price_cents,
+                    'discount_cents' => 0,
                     'line_total_cents' => $line->lineTotalCents(),
                 ]);
             }
@@ -129,11 +135,12 @@ class CheckoutService
                 throw new CartValidationException($capture['message'] ?? 'Payment could not be processed.');
             }
 
+            $markPaid = (bool) ($capture['mark_paid'] ?? false);
+
             $order->update([
-                'payment_status' => ($capture['mark_paid'] ?? false)
-                    ? PaymentStatus::Paid
-                    : PaymentStatus::Pending,
+                'payment_status' => $markPaid ? PaymentStatus::Paid : PaymentStatus::Pending,
                 'payment_reference' => $capture['reference'],
+                'paid_cents' => $markPaid ? $order->total_cents : 0,
             ]);
 
             foreach ($summary->items as $line) {

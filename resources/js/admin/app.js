@@ -3,6 +3,7 @@ import { Alpine, registerDashboardAlpine, initAdminDashboard } from './dashboard
 import { registerCategoryForm } from './category-form';
 import { registerProductForm } from './product-form';
 import { registerCustomerForm } from './customer-form';
+import { registerOrderCreateForm } from './order-create-form';
 import { registerMediaLibrary } from './media-library';
 import { initAdminTheme } from './stores/theme';
 import { initAdminSidebar } from './stores/sidebar';
@@ -17,6 +18,7 @@ registerDashboardAlpine();
 registerCategoryForm(Alpine);
 registerProductForm(Alpine);
 registerCustomerForm(Alpine);
+registerOrderCreateForm(Alpine);
 registerMediaLibrary(Alpine);
 window.adminCopyText = copyTextToClipboard;
 window.Alpine = Alpine;

@@ -39,6 +39,9 @@ class AdminOrderRepository implements AdminOrderRepositoryInterface
             ->with([
                 'customer',
                 'items.product',
+                'payments.receivedBy',
+                'invoice',
+                'createdBy',
                 'timelineEvents' => fn ($query) => $query->oldest(),
                 'notes',
                 'refunds.processedBy',

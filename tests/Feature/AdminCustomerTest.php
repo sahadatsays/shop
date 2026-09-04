@@ -90,7 +90,7 @@ test('customer can be updated and note can be added from profile', function (): 
         'addresses' => [
             [
                 'label' => 'Office',
-                'type' => AddressType::Both->value,
+                'type' => AddressType::Shipping->value,
                 'name' => 'Updated Name',
                 'line1' => '200 Main St',
                 'city' => 'Dallas',

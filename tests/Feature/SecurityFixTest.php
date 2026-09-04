@@ -40,8 +40,7 @@ test('guest checkout with existing customer email is rejected', function (): voi
                 'postal_code' => '43215',
                 'country' => 'United States',
             ],
-            'billing_same_as_shipping' => '1',
-            'delivery_method' => 'standard',
+            'delivery_method' => 'insideDhaka',
             'payment_method' => 'cod',
             'terms_accepted' => '1',
         ])
@@ -71,8 +70,7 @@ test('guest checkout does not set customer session after order', function (): vo
             'postal_code' => '43215',
             'country' => 'United States',
         ],
-        'billing_same_as_shipping' => '1',
-        'delivery_method' => 'standard',
+        'delivery_method' => 'insideDhaka',
         'payment_method' => 'cod',
         'terms_accepted' => '1',
     ])->assertRedirect();
@@ -132,15 +130,6 @@ test('order address html escapes xss payloads', function (): void {
             'postal_code' => '43215',
             'country' => 'United States',
         ],
-        'billing_address' => [
-            'first_name' => 'Test',
-            'last_name' => 'User',
-            'line1' => '<img src=x onerror=alert(1)>',
-            'city' => 'Columbus',
-            'state' => 'OH',
-            'postal_code' => '43215',
-            'country' => 'United States',
-        ],
     ]);
 
     $payload = OrderTrackingResource::make($order)->resolve();
@@ -148,9 +137,7 @@ test('order address html escapes xss payloads', function (): void {
     expect($payload['shipping_address']['html'])
         ->not->toContain('<script>')
         ->toContain('&lt;script&gt;alert(1)&lt;/script&gt;')
-        ->and($payload['billing_address']['html'])
-        ->toContain('&lt;img')
-        ->not->toContain('<img');
+        ->and($payload)->not->toHaveKey('billing_address');
 });
 
 test('account reviews route boots for authenticated customers', function (): void {
@@ -191,8 +178,7 @@ test('placed cod orders remain payment pending', function (): void {
             'postal_code' => '43215',
             'country' => 'United States',
         ],
-        'billing_same_as_shipping' => '1',
-        'delivery_method' => 'standard',
+        'delivery_method' => 'insideDhaka',
         'payment_method' => 'cod',
         'terms_accepted' => '1',
     ])->assertRedirect();

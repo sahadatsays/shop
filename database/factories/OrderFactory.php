@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Models\Customer;
 use App\Models\Order;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -24,8 +25,10 @@ class OrderFactory extends Factory
         return [
             'customer_id' => Customer::factory(),
             'status' => fake()->randomElement(OrderStatus::cases()),
+            'payment_status' => PaymentStatus::Paid,
             'subtotal_cents' => $subtotal,
             'total_cents' => $subtotal,
+            'paid_cents' => $subtotal,
             'placed_at' => fake()->dateTimeBetween('-6 months', 'now'),
         ];
     }

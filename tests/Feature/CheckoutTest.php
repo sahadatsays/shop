@@ -28,9 +28,9 @@ test('checkout page renders with cart summary', function (): void {
         ->assertSuccessful()
         ->assertSee('Checkout')
         ->assertSee('Shipping address')
-        ->assertSee('Billing address')
         ->assertSee('Order summary')
-        ->assertSee($product->name);
+        ->assertSee($product->name)
+        ->assertDontSee('Billing address');
 });
 
 test('empty cart redirects away from checkout', function (): void {
@@ -38,7 +38,7 @@ test('empty cart redirects away from checkout', function (): void {
         ->assertRedirect(route('cart'));
 });
 
-test('guest can place order with shipping billing and terms', function (): void {
+test('guest can place order with shipping and terms', function (): void {
     $product = Product::query()->published()->inStock()->firstOrFail();
     $initialStock = $product->stock_quantity;
 
@@ -60,24 +60,17 @@ test('guest can place order with shipping billing and terms', function (): void 
             'country' => 'United States',
             'phone' => '555-0100',
         ],
-        'billing_same_as_shipping' => '1',
-<<<<<<< HEAD
         'delivery_method' => 'insideDhaka',
-        'payment_method' => 'card',
-=======
-        'delivery_method' => 'standard',
         'payment_method' => 'cod',
->>>>>>> 5ce19e0ea147421877f58a530c4bdde903459f94
         'terms_accepted' => '1',
     ]);
 
-    $order = Order::query()->whereHas('customer', fn($q) => $q->where('email', 'checkout-guest@example.com'))->first();
+    $order = Order::query()->whereHas('customer', fn ($q) => $q->where('email', 'checkout-guest@example.com'))->first();
 
     expect($order)->not->toBeNull()
         ->and($order->status)->toBe(OrderStatus::Pending)
         ->and($order->items)->toHaveCount(1)
-        ->and($order->shipping_address['city'])->toBe('Columbus')
-        ->and($order->billing_address['city'])->toBe('Columbus');
+        ->and($order->shipping_address['city'])->toBe('Columbus');
 
     $response->assertRedirect(route('checkout.confirmation', $order));
 
@@ -105,19 +98,13 @@ test('place order requires terms acceptance', function (): void {
                 'postal_code' => '78701',
                 'country' => 'United States',
             ],
-            'billing_same_as_shipping' => '1',
-<<<<<<< HEAD
             'delivery_method' => 'insideDhaka',
-            'payment_method' => 'card',
-=======
-            'delivery_method' => 'standard',
             'payment_method' => 'cod',
->>>>>>> 5ce19e0ea147421877f58a530c4bdde903459f94
         ])
         ->assertRedirect(route('checkout'))
         ->assertSessionHasErrors('terms_accepted');
 
-    expect(Order::query()->whereHas('customer', fn($q) => $q->where('email', 'terms-test@example.com'))->count())->toBe(0);
+    expect(Order::query()->whereHas('customer', fn ($q) => $q->where('email', 'terms-test@example.com'))->count())->toBe(0);
 });
 
 test('express shipping charge is applied to order total', function (): void {
@@ -149,21 +136,15 @@ test('express shipping charge is applied to order total', function (): void {
             'postal_code' => '80202',
             'country' => 'United States',
         ],
-        'billing_same_as_shipping' => '1',
-<<<<<<< HEAD
         'delivery_method' => 'outsideDhaka',
-        'payment_method' => 'card',
-=======
-        'delivery_method' => 'express',
         'payment_method' => 'cod',
->>>>>>> 5ce19e0ea147421877f58a530c4bdde903459f94
         'terms_accepted' => '1',
     ])->assertRedirect();
 
     $order = Order::query()->latest('id')->first();
 
-    expect($order->shipping_cents)->toBe(1200)
-        ->and($order->total_cents)->toBe($order->subtotal_cents + 1200 + $order->tax_cents);
+    expect($order->shipping_cents)->toBe(15000)
+        ->and($order->total_cents)->toBe($order->subtotal_cents + 15000 + $order->tax_cents);
 });
 
 test('confirmation page shows order details after checkout', function (): void {
@@ -187,14 +168,8 @@ test('confirmation page shows order details after checkout', function (): void {
             'postal_code' => '43215',
             'country' => 'United States',
         ],
-        'billing_same_as_shipping' => '1',
-<<<<<<< HEAD
         'delivery_method' => 'insideDhaka',
-        'payment_method' => 'card',
-=======
-        'delivery_method' => 'standard',
         'payment_method' => 'cod',
->>>>>>> 5ce19e0ea147421877f58a530c4bdde903459f94
         'terms_accepted' => '1',
     ]);
 

@@ -23,6 +23,14 @@
     @endif
 
     <x-admin.page-header title="Orders" description="Manage order lifecycle, fulfillment status, and internal notes.">
+        <x-slot:actions>
+            @if (auth('admin')->user()?->hasPermission('orders.manage'))
+                <x-admin.button size="sm" :href="route('admin.orders.create')">
+                    <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                    Create order
+                </x-admin.button>
+            @endif
+        </x-slot:actions>
     </x-admin.page-header>
 
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

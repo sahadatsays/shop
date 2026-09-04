@@ -15,6 +15,8 @@ enum AuditAction: string
     case ProductRestored = 'product.restored';
     case StockChanged = 'inventory.stock_changed';
     case OrderStatusUpdated = 'order.status_updated';
+    case OrderCreated = 'order.created';
+    case OrderPaymentRecorded = 'order.payment_recorded';
     case OrderRefundProcessed = 'order.refund_processed';
     case OrderNoteAdded = 'order.note_added';
     case CustomerCreated = 'customer.created';
@@ -37,6 +39,8 @@ enum AuditAction: string
             self::ProductRestored => 'Product restored',
             self::StockChanged => 'Stock changed',
             self::OrderStatusUpdated => 'Order status updated',
+            self::OrderCreated => 'Order created',
+            self::OrderPaymentRecorded => 'Order payment recorded',
             self::OrderRefundProcessed => 'Order refund processed',
             self::OrderNoteAdded => 'Order note added',
             self::CustomerCreated => 'Customer created',
@@ -54,7 +58,8 @@ enum AuditAction: string
             self::CustomerLogin, self::CustomerLogout => AuditCategory::Auth,
             self::ProductCreated, self::ProductUpdated, self::ProductDeleted, self::ProductRestored => AuditCategory::Product,
             self::StockChanged => AuditCategory::Inventory,
-            self::OrderStatusUpdated, self::OrderRefundProcessed, self::OrderNoteAdded => AuditCategory::Order,
+            self::OrderStatusUpdated, self::OrderCreated, self::OrderPaymentRecorded,
+            self::OrderRefundProcessed, self::OrderNoteAdded => AuditCategory::Order,
             self::CustomerCreated, self::CustomerUpdated, self::CustomerDeleted,
             self::CustomerRestored, self::CustomerNoteAdded => AuditCategory::Customer,
         };

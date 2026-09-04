@@ -213,10 +213,6 @@
                                             <dd class="mt-1 text-navy-700">{{ $order['delivery_instructions'] }}</dd>
                                         </div>
                                     @endif
-                                    <div>
-                                        <dt class="text-xs font-semibold tracking-wide text-navy-500 uppercase">Billing</dt>
-                                        <dd class="mt-1 leading-relaxed text-navy-700">{!! $order['billing_address']['html'] !!}</dd>
-                                    </div>
                                 </dl>
                             </section>
 

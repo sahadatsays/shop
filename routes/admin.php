@@ -153,7 +153,24 @@ Route::middleware('admin.permission:customers.manage')->group(function (): void 
 
 Route::middleware('admin.permission:orders.view')->group(function (): void {
     Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('orders/create', [OrderController::class, 'create'])
+        ->middleware('admin.permission:orders.manage')
+        ->name('orders.create');
+    Route::post('orders', [OrderController::class, 'store'])
+        ->middleware('admin.permission:orders.manage')
+        ->name('orders.store');
+    Route::get('orders/search/customers', [OrderController::class, 'searchCustomers'])
+        ->middleware('admin.permission:orders.manage')
+        ->name('orders.search.customers');
+    Route::get('orders/search/products', [OrderController::class, 'searchProducts'])
+        ->middleware('admin.permission:orders.manage')
+        ->name('orders.search.products');
     Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::get('orders/{order}/invoice', [OrderController::class, 'invoice'])
+        ->name('orders.invoice');
+    Route::post('orders/{order}/payments', [OrderController::class, 'storePayment'])
+        ->middleware('admin.permission:orders.manage')
+        ->name('orders.payments.store');
     Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus'])
         ->middleware('admin.permission:orders.manage')
         ->name('orders.status.update');

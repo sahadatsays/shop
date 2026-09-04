@@ -32,7 +32,7 @@
 @endphp
 
 <x-layouts.app title="Saved Addresses"
-    description="Manage shipping and billing addresses for your Jackpot BD LTD account.">
+    description="Manage shipping addresses for your Jackpot BD LTD account.">
 
     <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14" data-addresses>
 
@@ -205,7 +205,7 @@
                         </span>
                         <span>
                             <span class="block font-display text-lg font-bold text-navy-900">Add address</span>
-                            <span class="mt-1 block text-sm text-navy-500">Save a new shipping or billing
+                            <span class="mt-1 block text-sm text-navy-500">Save a new shipping
                                 location</span>
                         </span>
                     </button>

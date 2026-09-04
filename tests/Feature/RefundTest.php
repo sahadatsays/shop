@@ -68,6 +68,7 @@ test('processing a refund restores product stock when sale movement exists', fun
         'status' => OrderStatus::Returned,
         'payment_status' => PaymentStatus::Paid,
         'total_cents' => 2000,
+        'paid_cents' => 2000,
         'refunded_cents' => 0,
     ]);
 

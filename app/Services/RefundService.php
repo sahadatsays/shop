@@ -183,7 +183,10 @@ class RefundService
             }
 
             $newRefundedTotal = $lockedOrder->refunded_cents + $amountCents;
-            $isFullRefund = $newRefundedTotal >= $lockedOrder->total_cents;
+            $collectedCents = $lockedOrder->collectedCents();
+            $isFullRefund = $collectedCents > 0
+                ? $newRefundedTotal >= $collectedCents
+                : $newRefundedTotal >= $lockedOrder->total_cents;
 
             $lockedOrder->update([
                 'refunded_cents' => $newRefundedTotal,

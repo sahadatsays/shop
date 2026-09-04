@@ -20,8 +20,6 @@ class PlaceOrderRequest extends FormRequest
      */
     public function rules(): array
     {
-        $billingRequired = ! $this->boolean('billing_same_as_shipping');
-
         return [
             'email' => ['required', 'email', 'max:255'],
             'shipping' => ['required', 'array'],
@@ -41,16 +39,6 @@ class PlaceOrderRequest extends FormRequest
                     ->whereNotNull('phone')
                     ->ignore(Auth::guard('customer')->id()),
             ],
-            'billing_same_as_shipping' => ['sometimes', 'boolean'],
-            'billing' => [Rule::requiredIf($billingRequired), 'nullable', 'array'],
-            'billing.first_name' => [Rule::requiredIf($billingRequired), 'nullable', 'string', 'max:100'],
-            'billing.last_name' => [Rule::requiredIf($billingRequired), 'nullable', 'string', 'max:100'],
-            'billing.line1' => [Rule::requiredIf($billingRequired), 'nullable', 'string', 'max:255'],
-            'billing.line2' => ['nullable', 'string', 'max:255'],
-            'billing.city' => [Rule::requiredIf($billingRequired), 'nullable', 'string', 'max:120'],
-            'billing.state' => [Rule::requiredIf($billingRequired), 'nullable', 'string', 'max:120'],
-            'billing.postal_code' => [Rule::requiredIf($billingRequired), 'nullable', 'string', 'max:20'],
-            'billing.country' => [Rule::requiredIf($billingRequired), 'nullable', 'string', 'max:120'],
             'delivery_method' => ['required', 'string', Rule::in(array_keys(config('cart.shipping_methods', [])))],
             'payment_method' => ['required', 'string', Rule::in(['cod'])],
             'terms_accepted' => ['accepted'],
@@ -117,32 +105,6 @@ class PlaceOrderRequest extends FormRequest
             'country' => $shipping['country'],
             'phone' => $shipping['phone'] ?? null,
             'email' => $this->validated('email'),
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function billingAddress(): array
-    {
-        if ($this->boolean('billing_same_as_shipping')) {
-            $address = $this->shippingAddress();
-            unset($address['email'], $address['phone']);
-
-            return $address;
-        }
-
-        $billing = $this->validated('billing');
-
-        return [
-            'first_name' => $billing['first_name'],
-            'last_name' => $billing['last_name'],
-            'line1' => $billing['line1'],
-            'line2' => $billing['line2'] ?? null,
-            'city' => $billing['city'],
-            'state' => $billing['state'],
-            'postal_code' => $billing['postal_code'],
-            'country' => $billing['country'],
         ];
     }
 }

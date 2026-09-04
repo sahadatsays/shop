@@ -128,49 +128,12 @@
                     </div>
                 </section>
 
-                {{-- 2. Billing address --}}
-                <section class="rounded-card bg-surface p-7 shadow-soft" aria-labelledby="billing-heading">
-                    <h2 id="billing-heading"
-                        class="flex items-center gap-3 font-display text-lg font-bold text-navy-900">
-                        <span
-                            class="flex size-8 items-center justify-center rounded-full bg-navy-900 text-sm font-bold text-white">2</span>
-                        Billing address
-                    </h2>
-
-                    <label class="mt-6 flex cursor-pointer items-center gap-3">
-                        <input type="checkbox" name="billing_same_as_shipping" value="1" data-billing-same
-                            @checked(old('billing_same_as_shipping', true))
-                            class="size-4.5 rounded border-navy-300 text-olive-600 accent-olive-600 focus:outline-2 focus:outline-offset-2 focus:outline-bronze-500">
-                        <span class="text-sm font-medium text-navy-800">Same as shipping address</span>
-                    </label>
-
-                    <div data-billing-fields @class([
-                        'mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2',
-                        'hidden' => old('billing_same_as_shipping', '1') === '1',
-                    ])>
-                        @foreach ($addressFields('billing') as $field)
-                            <div @class(['sm:col-span-2' => $field['span']])>
-                                <x-ui.input :name="$field['name']" :label="$field['label']" :autocomplete="'billing ' . $field['autocomplete']" :value="old($field['old_key'])" />
-                            </div>
-                        @endforeach
-                        <div class="space-y-1.5 sm:col-span-2">
-                            <label for="billing-country" class="block text-sm font-medium text-navy-900">Country</label>
-                            <select id="billing-country" name="billing[country]" autocomplete="billing country-name"
-                                class="block w-full rounded-field border border-navy-200 bg-surface px-4 py-3 text-sm text-ink shadow-soft transition-colors duration-200 hover:border-navy-300 focus:outline-2 focus:outline-offset-2 focus:outline-bronze-500">
-                                @foreach (['United States', 'Canada', 'United Kingdom', 'Australia', 'Bangladesh', 'India'] as $country)
-                                    <option @selected(old('billing.country') === $country)>{{ $country }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                </section>
-
-                {{-- 3. Delivery method --}}
+                {{-- 2. Delivery method --}}
                 <section class="rounded-card bg-surface p-7 shadow-soft" aria-labelledby="delivery-heading">
                     <h2 id="delivery-heading"
                         class="flex items-center gap-3 font-display text-lg font-bold text-navy-900">
                         <span
-                            class="flex size-8 items-center justify-center rounded-full bg-navy-900 text-sm font-bold text-white">3</span>
+                            class="flex size-8 items-center justify-center rounded-full bg-navy-900 text-sm font-bold text-white">2</span>
                         Delivery method
                     </h2>
 
@@ -194,13 +157,13 @@
                     </div>
                 </section>
 
-                {{-- 4. Payment method --}}
+                {{-- 3. Payment method --}}
                 <section class="rounded-card bg-surface p-7 shadow-soft" aria-labelledby="payment-heading">
                     <div class="flex flex-wrap items-center justify-between gap-3">
                         <h2 id="payment-heading"
                             class="flex items-center gap-3 font-display text-lg font-bold text-navy-900">
                             <span
-                                class="flex size-8 items-center justify-center rounded-full bg-navy-900 text-sm font-bold text-white">4</span>
+                                class="flex size-8 items-center justify-center rounded-full bg-navy-900 text-sm font-bold text-white">3</span>
                             Payment method
                         </h2>
                         <p class="flex items-center gap-1.5 text-xs font-medium text-navy-500">

@@ -29,6 +29,7 @@ test('admin can process a full refund and update payment status', function (): v
         'status' => OrderStatus::Cancelled,
         'payment_status' => PaymentStatus::Paid,
         'total_cents' => 5000,
+        'paid_cents' => 5000,
         'refunded_cents' => 0,
     ]);
 
@@ -57,6 +58,7 @@ test('refund amount cannot exceed remaining balance', function (): void {
         'status' => OrderStatus::Returned,
         'payment_status' => PaymentStatus::Paid,
         'total_cents' => 3000,
+        'paid_cents' => 3000,
         'refunded_cents' => 1000,
     ]);
 

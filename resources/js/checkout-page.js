@@ -94,13 +94,6 @@ export const initCheckoutPage = () => {
         }
     };
 
-    const billingSame = checkout.querySelector('[data-billing-same]');
-    const billingFields = checkout.querySelector('[data-billing-fields]');
-
-    billingSame?.addEventListener('change', () => {
-        billingFields.hidden = billingSame.checked;
-    });
-
     checkout.querySelectorAll('[data-delivery-option]').forEach((radio) => {
         radio.addEventListener('change', recalculate);
     });

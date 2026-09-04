@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\OrderSource;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Support\OrderNumberGenerator;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 class Order extends Model
@@ -32,7 +34,9 @@ class Order extends Model
      */
     protected $fillable = [
         'customer_id',
+        'created_by',
         'order_number',
+        'source',
         'status',
         'payment_status',
         'payment_method',
@@ -42,15 +46,18 @@ class Order extends Model
         'discount_id',
         'coupon_code',
         'shipping_cents',
+        'shipping_method',
         'tax_cents',
         'total_cents',
+        'paid_cents',
         'refunded_cents',
         'shipping_address',
-        'billing_address',
         'courier_name',
         'tracking_number',
         'estimated_delivery_at',
         'delivery_instructions',
+        'admin_notes',
+        'idempotency_key',
         'placed_at',
         'return_requested_at',
         'return_reason',
@@ -63,15 +70,16 @@ class Order extends Model
     {
         return [
             'status' => OrderStatus::class,
+            'source' => OrderSource::class,
             'payment_status' => PaymentStatus::class,
             'subtotal_cents' => 'integer',
             'discount_cents' => 'integer',
             'shipping_cents' => 'integer',
             'tax_cents' => 'integer',
             'total_cents' => 'integer',
+            'paid_cents' => 'integer',
             'refunded_cents' => 'integer',
             'shipping_address' => 'array',
-            'billing_address' => 'array',
             'estimated_delivery_at' => 'datetime',
             'placed_at' => 'datetime',
             'return_requested_at' => 'datetime',
@@ -101,6 +109,14 @@ class Order extends Model
     }
 
     /**
+     * @return BelongsTo<User, $this>
+     */
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
      * @return BelongsTo<Discount, $this>
      */
     public function discount(): BelongsTo
@@ -114,6 +130,22 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * @return HasMany<Payment, $this>
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class)->latest('paid_at');
+    }
+
+    /**
+     * @return HasOne<Invoice, $this>
+     */
+    public function invoice(): HasOne
+    {
+        return $this->hasOne(Invoice::class);
     }
 
     /**
@@ -141,15 +173,6 @@ class Order extends Model
     }
 
     /**
-     * @param  Builder<Order>  $query
-     * @return Builder<Order>
-     */
-    public function scopePending(Builder $query): Builder
-    {
-        return $query->whereIn('status', OrderStatus::pendingStatuses());
-    }
-
-    /**
      * @return HasMany<Refund, $this>
      */
     public function refunds(): HasMany
@@ -157,14 +180,38 @@ class Order extends Model
         return $this->hasMany(Refund::class)->latest();
     }
 
+    public function dueCents(): int
+    {
+        return max(0, $this->total_cents - $this->paid_cents);
+    }
+
     public function refundableCents(): int
     {
-        return max(0, $this->total_cents - $this->refunded_cents);
+        $collected = $this->collectedCents();
+
+        return max(0, $collected - $this->refunded_cents);
+    }
+
+    public function collectedCents(): int
+    {
+        if ($this->paid_cents > 0) {
+            return $this->paid_cents;
+        }
+
+        if (in_array($this->payment_status, [
+            PaymentStatus::Paid,
+            PaymentStatus::PartiallyRefunded,
+            PaymentStatus::Refunded,
+        ], true)) {
+            return $this->total_cents;
+        }
+
+        return 0;
     }
 
     public function isFullyRefunded(): bool
     {
-        return $this->refunded_cents >= $this->total_cents
+        return $this->refunded_cents >= $this->paid_cents
             || $this->payment_status === PaymentStatus::Refunded;
     }
 
@@ -204,12 +251,22 @@ class Order extends Model
      * @param  Builder<Order>  $query
      * @return Builder<Order>
      */
+    public function scopePending(Builder $query): Builder
+    {
+        return $query->whereIn('status', OrderStatus::pendingStatuses());
+    }
+
+    /**
+     * @param  Builder<Order>  $query
+     * @return Builder<Order>
+     */
     public function scopeRefundable(Builder $query): Builder
     {
         return $query->whereIn('payment_status', [
             PaymentStatus::Paid->value,
+            PaymentStatus::PartiallyPaid->value,
             PaymentStatus::PartiallyRefunded->value,
-        ]);
+        ])->whereColumn('paid_cents', '>', 'refunded_cents');
     }
 
     /**
@@ -223,6 +280,7 @@ class Order extends Model
                 ->orWhereNotNull('return_requested_at');
         })->whereIn('payment_status', [
             PaymentStatus::Paid->value,
+            PaymentStatus::PartiallyPaid->value,
             PaymentStatus::PartiallyRefunded->value,
         ]);
     }

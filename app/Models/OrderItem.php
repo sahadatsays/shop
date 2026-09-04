@@ -18,8 +18,11 @@ class OrderItem extends Model
     protected $fillable = [
         'order_id',
         'product_id',
+        'product_name',
+        'sku',
         'quantity',
         'unit_price_cents',
+        'discount_cents',
         'line_total_cents',
     ];
 
@@ -31,8 +34,19 @@ class OrderItem extends Model
         return [
             'quantity' => 'integer',
             'unit_price_cents' => 'integer',
+            'discount_cents' => 'integer',
             'line_total_cents' => 'integer',
         ];
+    }
+
+    public function displayName(): string
+    {
+        return $this->product_name ?: ($this->product?->name ?? 'Product removed');
+    }
+
+    public function displaySku(): ?string
+    {
+        return $this->sku ?: $this->product?->sku;
     }
 
     /**

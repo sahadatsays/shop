@@ -345,10 +345,6 @@
                                     <dd class="mt-1 text-navy-700">{{ $tracking['delivery_instructions'] }}</dd>
                                 </div>
                             @endif
-                            <div>
-                                <dt class="text-xs font-semibold tracking-wide text-navy-500 uppercase">Billing</dt>
-                                <dd class="mt-1 leading-relaxed text-navy-700">{!! $tracking['billing_address']['html'] !!}</dd>
-                            </div>
                         </dl>
                         <div class="mt-6 flex flex-col gap-2">
                             <x-ui.button variant="ghost" size="sm">Update delivery instructions</x-ui.button>
