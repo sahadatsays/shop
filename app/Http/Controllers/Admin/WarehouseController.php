@@ -28,7 +28,9 @@ class WarehouseController extends Controller
             ],
             'warehouses' => $this->warehouses->list([
                 'search' => $request->string('search')->toString() ?: null,
-                'is_active' => $request->string('is_active')->toString() ?: null,
+                'is_active' => $request->has('is_active') && $request->input('is_active') !== ''
+                    ? $request->string('is_active')->toString()
+                    : null,
             ]),
             'filters' => $request->only(['search', 'is_active']),
         ]);

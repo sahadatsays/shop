@@ -23,6 +23,51 @@ test('warehouses index lists seeded warehouse', function (): void {
         ->assertSee('FTW-01');
 });
 
+test('warehouses index filters by active and inactive status', function (): void {
+    $active = Warehouse::factory()->create([
+        'name' => 'Active Filter Warehouse',
+        'code' => 'ACT-01',
+        'is_active' => true,
+        'is_default' => false,
+    ]);
+
+    $inactive = Warehouse::factory()->create([
+        'name' => 'Inactive Filter Warehouse',
+        'code' => 'INA-01',
+        'is_active' => false,
+        'is_default' => false,
+    ]);
+
+    $this->get(route('admin.warehouses.index', ['is_active' => 1]))
+        ->assertSuccessful()
+        ->assertSee($active->name)
+        ->assertDontSee($inactive->name);
+
+    $this->get(route('admin.warehouses.index', ['is_active' => 0]))
+        ->assertSuccessful()
+        ->assertSee($inactive->name)
+        ->assertDontSee($active->name);
+});
+
+test('warehouses index search finds matching warehouses', function (): void {
+    $match = Warehouse::factory()->create([
+        'name' => 'Phoenix Search Hub',
+        'code' => 'PHX-99',
+        'is_default' => false,
+    ]);
+
+    $other = Warehouse::factory()->create([
+        'name' => 'Seattle Storage',
+        'code' => 'SEA-99',
+        'is_default' => false,
+    ]);
+
+    $this->get(route('admin.warehouses.index', ['search' => 'Phoenix']))
+        ->assertSuccessful()
+        ->assertSee($match->name)
+        ->assertDontSee($other->name);
+});
+
 test('warehouse can be created', function (): void {
     $this->post(route('admin.warehouses.store'), [
         'name' => 'Dallas Fulfillment Hub',
