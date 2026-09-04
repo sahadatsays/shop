@@ -2,13 +2,14 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\Customer;
 use Illuminate\Support\Facades\Auth;
 
 class StoreCustomerRequest extends CustomerRequest
 {
     public function authorize(): bool
     {
-        return Auth::guard('admin')->user()?->hasPermission('customers.manage') ?? false;
+        return Auth::guard('admin')->user()?->can('create', Customer::class) ?? false;
     }
 
     /**

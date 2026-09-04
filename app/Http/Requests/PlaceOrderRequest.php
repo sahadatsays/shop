@@ -52,7 +52,7 @@ class PlaceOrderRequest extends FormRequest
             'billing.postal_code' => [Rule::requiredIf($billingRequired), 'nullable', 'string', 'max:20'],
             'billing.country' => [Rule::requiredIf($billingRequired), 'nullable', 'string', 'max:120'],
             'delivery_method' => ['required', 'string', Rule::in(array_keys(config('cart.shipping_methods', [])))],
-            'payment_method' => ['required', 'string', Rule::in(['card', 'paypal', 'applepay'])],
+            'payment_method' => ['required', 'string', Rule::in(['cod'])],
             'terms_accepted' => ['accepted'],
         ];
     }
@@ -93,6 +93,7 @@ class PlaceOrderRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'payment_method.in' => 'Online payment is under construction. Please choose cash on delivery.',
             'terms_accepted.accepted' => 'You must accept the terms and policies before placing your order.',
             'shipping.phone.unique' => 'This phone number is already associated with another account.',
         ];

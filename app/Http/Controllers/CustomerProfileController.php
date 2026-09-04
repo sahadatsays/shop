@@ -63,4 +63,18 @@ class CustomerProfileController extends Controller
 
         return back()->with('success', 'Your profile has been updated successfully.');
     }
+
+    public function addresses(): View|RedirectResponse
+    {
+        $customer = $this->auth->currentCustomer();
+
+        if (! $customer) {
+            return redirect()->route('login');
+        }
+
+        return view('account-addresses', [
+            'customer' => $customer,
+            'addresses' => $customer->addresses()->orderByDesc('is_default')->orderBy('id')->get(),
+        ]);
+    }
 }

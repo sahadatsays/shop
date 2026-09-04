@@ -8,7 +8,7 @@ class UpdateCustomerRequest extends CustomerRequest
 {
     public function authorize(): bool
     {
-        return Auth::guard('admin')->user()?->hasPermission('customers.manage') ?? false;
+        return Auth::guard('admin')->user()?->can('update', $this->route('customer')) ?? false;
     }
 
     /**

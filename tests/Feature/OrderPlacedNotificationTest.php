@@ -40,7 +40,7 @@ test('placing an order notifies admins and customers with a valid email', functi
         ],
         'billing_same_as_shipping' => '1',
         'delivery_method' => 'standard',
-        'payment_method' => 'card',
+        'payment_method' => 'cod',
         'terms_accepted' => '1',
     ])->assertRedirect();
 
@@ -83,7 +83,7 @@ test('placing an order notifies admins but skips customer when email is not noti
         ],
         'billing_same_as_shipping' => '1',
         'delivery_method' => 'standard',
-        'payment_method' => 'card',
+        'payment_method' => 'cod',
         'terms_accepted' => '1',
     ])->assertRedirect();
 

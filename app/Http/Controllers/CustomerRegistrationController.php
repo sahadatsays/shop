@@ -21,6 +21,7 @@ class CustomerRegistrationController extends Controller
     public function showRegistrationForm(): View
     {
         $banner = asset('storage/login/login-banner.png');
+
         return view('register')->with([
             'banner' => $banner,
         ]);
@@ -48,7 +49,7 @@ class CustomerRegistrationController extends Controller
         }
 
         return redirect()
-            ->route('account')
-            ->with('success', 'Welcome to Valor, ' . $customer->name . '.');
+            ->route('verification.notice')
+            ->with('success', 'Welcome! Please verify your email to access your account.');
     }
 }

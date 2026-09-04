@@ -5,6 +5,8 @@ use App\Enums\ProductStatus;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Warehouse;
+use App\Models\WarehouseStock;
 use Database\Seeders\CommerceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -59,8 +61,13 @@ test('guest can place order with shipping billing and terms', function (): void 
             'phone' => '555-0100',
         ],
         'billing_same_as_shipping' => '1',
+<<<<<<< HEAD
         'delivery_method' => 'insideDhaka',
         'payment_method' => 'card',
+=======
+        'delivery_method' => 'standard',
+        'payment_method' => 'cod',
+>>>>>>> 5ce19e0ea147421877f58a530c4bdde903459f94
         'terms_accepted' => '1',
     ]);
 
@@ -99,8 +106,13 @@ test('place order requires terms acceptance', function (): void {
                 'country' => 'United States',
             ],
             'billing_same_as_shipping' => '1',
+<<<<<<< HEAD
             'delivery_method' => 'insideDhaka',
             'payment_method' => 'card',
+=======
+            'delivery_method' => 'standard',
+            'payment_method' => 'cod',
+>>>>>>> 5ce19e0ea147421877f58a530c4bdde903459f94
         ])
         ->assertRedirect(route('checkout'))
         ->assertSessionHasErrors('terms_accepted');
@@ -114,6 +126,12 @@ test('express shipping charge is applied to order total', function (): void {
         'stock_quantity' => 10,
         'price_cents' => 10000,
     ]);
+
+    $warehouse = Warehouse::query()->where('is_default', true)->firstOrFail();
+    WarehouseStock::query()->updateOrCreate(
+        ['product_id' => $product->id, 'warehouse_id' => $warehouse->id],
+        ['quantity' => 10],
+    );
 
     $this->postJson(route('cart.items.store'), [
         'product_id' => $product->id,
@@ -132,8 +150,13 @@ test('express shipping charge is applied to order total', function (): void {
             'country' => 'United States',
         ],
         'billing_same_as_shipping' => '1',
+<<<<<<< HEAD
         'delivery_method' => 'outsideDhaka',
         'payment_method' => 'card',
+=======
+        'delivery_method' => 'express',
+        'payment_method' => 'cod',
+>>>>>>> 5ce19e0ea147421877f58a530c4bdde903459f94
         'terms_accepted' => '1',
     ])->assertRedirect();
 
@@ -165,8 +188,13 @@ test('confirmation page shows order details after checkout', function (): void {
             'country' => 'United States',
         ],
         'billing_same_as_shipping' => '1',
+<<<<<<< HEAD
         'delivery_method' => 'insideDhaka',
         'payment_method' => 'card',
+=======
+        'delivery_method' => 'standard',
+        'payment_method' => 'cod',
+>>>>>>> 5ce19e0ea147421877f58a530c4bdde903459f94
         'terms_accepted' => '1',
     ]);
 

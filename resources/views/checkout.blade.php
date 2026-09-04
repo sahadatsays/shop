@@ -214,48 +214,43 @@
                         </p>
                     </div>
 
-                    <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3" role="radiogroup"
+                    <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2" role="radiogroup"
                         aria-label="Payment method">
-                        @foreach ([['value' => 'card', 'label' => 'Card', 'checked' => true, 'icon' => 'M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm0 3h18M7 15h4'], ['value' => 'paypal', 'label' => 'PayPal', 'checked' => false, 'icon' => 'M7 21l1-6h3.5c3.5 0 6-2 6.5-5.5C18.4 6 16.5 4 13 4H8L5.5 18H9'], ['value' => 'applepay', 'label' => 'Apple Pay', 'checked' => false, 'icon' => 'M16 5c-.8 1-2 1.7-3.1 1.6-.2-1.2.4-2.5 1-3.3.8-1 2.1-1.7 3.2-1.7.1 1.2-.3 2.4-1.1 3.4Zm1 2.2c-1.7-.1-3.2 1-4 1-.9 0-2.1-1-3.5-.9-1.8 0-3.5 1-4.4 2.7-1.9 3.3-.5 8.1 1.3 10.8.9 1.3 2 2.8 3.4 2.7 1.3-.1 1.9-.9 3.5-.9s2.1.9 3.5.9c1.5 0 2.4-1.3 3.3-2.6.7-1 1.3-2.2 1.6-3.4-2.2-.9-3.2-3.3-2.6-5.4.4-1.5 1.4-2.6 2.4-3.2-1-1.4-2.5-1.7-3.5-1.7Z']] as $payment)
-                            <label
-                                class="flex cursor-pointer items-center justify-center gap-2.5 rounded-field border border-navy-200 px-4 py-4 transition-all duration-200 hover:border-navy-300 has-checked:border-navy-900 has-checked:bg-navy-900 has-checked:text-white">
-                                <input type="radio" name="payment_method" value="{{ $payment['value'] }}"
-                                    data-payment-option @checked(old('payment_method', 'card') === $payment['value']) class="sr-only">
-                                <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
-                                    aria-hidden="true">
-                                    <path d="{{ $payment['icon'] }}" />
-                                </svg>
-                                <span class="text-sm font-semibold">{{ $payment['label'] }}</span>
-                            </label>
-                        @endforeach
-                    </div>
+                        <label
+                            class="flex cursor-pointer items-center justify-center gap-2.5 rounded-field border border-navy-200 px-4 py-4 transition-all duration-200 hover:border-navy-300 has-checked:border-navy-900 has-checked:bg-navy-900 has-checked:text-white">
+                            <input type="radio" name="payment_method" value="cod" data-payment-option
+                                @checked(old('payment_method', 'cod') === 'cod') class="sr-only">
+                            <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M12 3v18M5 8h10a3 3 0 0 1 0 6H7a3 3 0 0 0 0 6h12" />
+                            </svg>
+                            <span class="text-sm font-semibold">Cash on delivery</span>
+                        </label>
 
-                    <div data-payment-panel="card" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <div class="sm:col-span-2">
-                            <x-ui.input name="card-number" label="Card number" inputmode="numeric"
-                                autocomplete="cc-number" placeholder="1234 5678 9012 3456" data-card-number
-                                maxlength="19" />
+                        <div
+                            class="relative flex items-center justify-center gap-2.5 rounded-field border border-dashed border-navy-200 bg-navy-50/70 px-4 py-4 text-navy-500"
+                            aria-disabled="true" title="Online payment is under construction">
+                            <input type="radio" name="payment_method_disabled" value="card" disabled class="sr-only"
+                                tabindex="-1">
+                            <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm0 3h18M7 15h4" />
+                            </svg>
+                            <span class="text-sm font-semibold">Pay online</span>
+                            <span
+                                class="absolute top-2 right-2 rounded-md bg-bronze-100 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-bronze-700 uppercase">Coming
+                                soon</span>
                         </div>
-                        <div class="sm:col-span-2">
-                            <x-ui.input name="card-name" label="Name on card" autocomplete="cc-name" />
-                        </div>
-                        <x-ui.input name="card-expiry" label="Expiry date" inputmode="numeric" autocomplete="cc-exp"
-                            placeholder="MM / YY" data-card-expiry maxlength="7" />
-                        <x-ui.input name="card-cvc" label="Security code" inputmode="numeric" autocomplete="cc-csc"
-                            placeholder="CVC" maxlength="4" hint="3–4 digits on the back of your card." />
                     </div>
 
-                    <div data-payment-panel="paypal" hidden
-                        class="mt-6 rounded-field bg-navy-50 p-5 text-sm text-navy-600">
-                        You'll be redirected to PayPal to complete your purchase securely. Your order total will be
-                        confirmed before payment.
+                    <div data-payment-panel="cod" class="mt-6 rounded-field bg-navy-50 p-5 text-sm text-navy-600">
+                        Pay with cash when your order is delivered. Your order is reserved now; payment stays pending
+                        until the courier collects it.
                     </div>
 
-                    <div data-payment-panel="applepay" hidden
-                        class="mt-6 rounded-field bg-navy-50 p-5 text-sm text-navy-600">
-                        Confirm your order with Face ID or Touch ID when you press the Apple Pay button. Your card
-                        details never leave your device.
+                    <div data-payment-panel="card" hidden
+                        class="mt-6 rounded-field border border-bronze-200 bg-bronze-50 p-5 text-sm text-bronze-900">
+                        Online card and wallet payments are under construction. Please use cash on delivery for now.
                     </div>
                 </section>
 

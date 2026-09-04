@@ -7,6 +7,7 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Customer;
 use App\Models\Discount;
+use Illuminate\Database\UniqueConstraintViolationException;
 
 class CartRepository implements CartRepositoryInterface
 {
@@ -46,12 +47,32 @@ class CartRepository implements CartRepositoryInterface
 
     public function findOrCreateGuest(string $sessionId): Cart
     {
-        return $this->findGuestBySession($sessionId) ?? $this->createGuest($sessionId);
+        $existing = $this->findGuestBySession($sessionId);
+
+        if ($existing) {
+            return $existing;
+        }
+
+        try {
+            return $this->createGuest($sessionId);
+        } catch (UniqueConstraintViolationException) {
+            return $this->findGuestBySession($sessionId) ?? $this->createGuest($sessionId);
+        }
     }
 
     public function findOrCreateForCustomer(Customer|int $customer): Cart
     {
-        return $this->findByCustomer($customer) ?? $this->createForCustomer($customer);
+        $existing = $this->findByCustomer($customer);
+
+        if ($existing) {
+            return $existing;
+        }
+
+        try {
+            return $this->createForCustomer($customer);
+        } catch (UniqueConstraintViolationException) {
+            return $this->findByCustomer($customer) ?? $this->createForCustomer($customer);
+        }
     }
 
     public function loadWithItems(Cart $cart): Cart

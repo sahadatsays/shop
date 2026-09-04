@@ -57,8 +57,12 @@ class SocialAuthController extends Controller
                 ->with('error', 'Unable to sign in with '.$authProvider->label().'. Please try again.');
         }
 
+        $destination = $customer->hasVerifiedEmail()
+            ? route('account')
+            : route('verification.notice');
+
         return redirect()
-            ->intended(route('account'))
+            ->intended($destination)
             ->with('success', 'Welcome back, '.$customer->name.'.');
     }
 

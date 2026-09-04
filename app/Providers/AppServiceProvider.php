@@ -71,10 +71,12 @@ use App\View\Composers\CustomerNotificationComposer;
 use App\View\Composers\NavigationComposer;
 use App\View\Composers\StoreSettingsComposer;
 use App\View\Composers\WishlistComposer;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -155,6 +157,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
         $this->registerCustomerAuthListeners();
+        $this->configureEmailVerificationUrls();
 
         View::composer('components.layouts.app', CompareComposer::class);
         View::composer('components.layouts.app', CartComposer::class);
@@ -188,6 +191,20 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('search-suggest', fn (Request $request): Limit => Limit::perMinute(30)->by($request->ip()));
 
         RateLimiter::for('track-order', fn (Request $request): Limit => Limit::perMinute(10)->by($request->ip()));
+    }
+
+    private function configureEmailVerificationUrls(): void
+    {
+        VerifyEmail::createUrlUsing(function (object $notifiable): string {
+            return URL::temporarySignedRoute(
+                'verification.verify',
+                now()->addMinutes(60),
+                [
+                    'id' => $notifiable->getKey(),
+                    'hash' => sha1($notifiable->getEmailForVerification()),
+                ],
+            );
+        });
     }
 
     private function registerCustomerAuthListeners(): void
