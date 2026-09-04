@@ -63,7 +63,7 @@ class CheckoutService
 
         return [
             'shippingMethods' => $methods,
-            'taxRate' => (float) config('cart.tax_rate', 0.08),
+            'taxRate' => (float) config('cart.tax_rate', 0.00),
             'currencySymbol' => MoneyFormatter::symbol(),
         ];
     }

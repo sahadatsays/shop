@@ -51,7 +51,7 @@ class NavRegistry
                 icon: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm11 4a3 3 0 1 0 0-6M22 21v-2a4 4 0 0 0-3-3.87',
                 children: [
                     new NavItem(label: 'Customers', route: 'admin.customers.index', routePrefix: 'admin.customers.', permission: 'customers.view'),
-                    new NavItem(label: 'Reviews', disabled: true),
+                    // new NavItem(label: 'Reviews', disabled: true),
                 ],
             ),
             new NavItem(
@@ -69,7 +69,7 @@ class NavRegistry
                 ],
             ),
             new NavItem(
-                label: 'Engagement',
+                label: 'Marketing',
                 icon: 'M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6M10 19a2 2 0 0 0 4 0',
                 children: [
                     new NavItem(label: 'Offers', route: 'admin.offers.index', routePrefix: 'admin.offers.', permission: 'offers.view'),
@@ -79,11 +79,6 @@ class NavRegistry
                     new NavItem(label: 'Banner promotions', route: 'admin.banner-promotions.index', routePrefix: 'admin.banner-promotions.', permission: 'promotions.view'),
                     new NavItem(label: 'Countdown promotions', route: 'admin.countdown-promotions.index', routePrefix: 'admin.countdown-promotions.', permission: 'promotions.view'),
                 ],
-            ),
-            new NavItem(
-                label: 'Insights',
-                icon: 'M3 3v18h18M7 16l4-4 4 4 5-6',
-                disabled: true,
             ),
             new NavItem(
                 label: 'System',
