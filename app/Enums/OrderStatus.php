@@ -133,6 +133,28 @@ enum OrderStatus: string
     }
 
     /**
+     * Immediate next status in the fulfillment progress flow, if any.
+     */
+    public function nextProgressStatus(): ?self
+    {
+        $flow = self::progressFlow();
+        $currentIndex = array_search($this, $flow, true);
+
+        if ($currentIndex === false) {
+            return null;
+        }
+
+        return $flow[$currentIndex + 1] ?? null;
+    }
+
+    public function canAdvanceProgress(): bool
+    {
+        $next = $this->nextProgressStatus();
+
+        return $next !== null && $this->canTransitionTo($next);
+    }
+
+    /**
      * @return array<int, self>
      */
     public static function pendingStatuses(): array

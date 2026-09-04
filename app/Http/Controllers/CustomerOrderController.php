@@ -46,6 +46,7 @@ class CustomerOrderController extends Controller
         $order = $this->tracking->show($order);
         $tracking = OrderTrackingResource::make($order)->resolve();
         $tracking['items'] = OrderItemResource::collection($order->items)->resolve();
+        $tracking['order_number_route'] = $order->order_number;
 
         $reviewableProductIds = [];
 
@@ -66,8 +67,9 @@ class CustomerOrderController extends Controller
 
     private function customer(): Customer
     {
-        $customerId = session('customer_id');
+        /** @var Customer $customer */
+        $customer = auth('customer')->user();
 
-        return Customer::query()->findOrFail($customerId);
+        return $customer;
     }
 }

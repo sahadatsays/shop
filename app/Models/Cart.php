@@ -17,6 +17,7 @@ class Cart extends Model
         'is_saved',
         'saved_at',
         'expires_at',
+        'discount_id',
     ];
 
     /**
@@ -45,6 +46,14 @@ class Cart extends Model
     public function items(): HasMany
     {
         return $this->hasMany(CartItem::class);
+    }
+
+    /**
+     * @return BelongsTo<Discount, $this>
+     */
+    public function discount(): BelongsTo
+    {
+        return $this->belongsTo(Discount::class);
     }
 
     public function itemCount(): int

@@ -39,7 +39,7 @@ class StoreMediaRequest extends FormRequest
             'files.min' => 'Select at least one file to upload.',
             'files.*.file' => 'Each upload must be a valid file.',
             'files.*.max' => 'Each file must be 10 MB or smaller.',
-            'files.*.mimes' => 'Only JPG, PNG, WebP, GIF, SVG, and PDF files are allowed.',
+            'files.*.mimes' => 'Only JPG, PNG, WebP, GIF, and PDF files are allowed.',
             'folder_id.exists' => 'The selected folder no longer exists.',
         ];
     }
@@ -51,7 +51,7 @@ class StoreMediaRequest extends FormRequest
     {
         return [
             'files' => ['required', 'array', 'min:1'],
-            'files.*' => ['file', 'max:10240', 'mimes:jpg,jpeg,png,webp,gif,svg,pdf'],
+            'files.*' => ['file', 'max:10240', 'mimes:jpg,jpeg,png,webp,gif,pdf'],
             'folder_id' => ['nullable', 'integer', 'exists:media_folders,id'],
         ];
     }

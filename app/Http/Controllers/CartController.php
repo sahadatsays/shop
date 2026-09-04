@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\DTOs\Cart\CartSummary;
 use App\Exceptions\Cart\CartValidationException;
 use App\Exceptions\Cart\InsufficientStockException;
+use App\Exceptions\Cart\InvalidCouponException;
 use App\Http\Requests\AddToCartRequest;
+use App\Http\Requests\ApplyCouponRequest;
 use App\Http\Requests\UpdateCartItemRequest;
 use App\Models\CartItem;
 use App\Models\Product;
@@ -120,6 +122,38 @@ class CartController extends Controller
         ]);
     }
 
+    public function applyCoupon(ApplyCouponRequest $request): JsonResponse|RedirectResponse
+    {
+        try {
+            $summary = $this->cart->applyCoupon($request->couponCode());
+        } catch (InvalidCouponException $exception) {
+            return $this->errorResponse($request, $exception->getMessage(), 422);
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Coupon applied.',
+                'cart' => $this->cartPayload($summary),
+            ]);
+        }
+
+        return back()->with('success', 'Coupon applied.');
+    }
+
+    public function removeCoupon(Request $request): JsonResponse|RedirectResponse
+    {
+        $summary = $this->cart->removeCoupon();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Coupon removed.',
+                'cart' => $this->cartPayload($summary),
+            ]);
+        }
+
+        return back()->with('success', 'Coupon removed.');
+    }
+
     private function successResponse(
         Request $request,
         CartSummary $summary,
@@ -156,9 +190,16 @@ class CartController extends Controller
             'item_count' => $summary->itemCount,
             'subtotal' => $summary->formattedSubtotal(),
             'subtotal_cents' => $summary->subtotalCents,
+            'discount' => $summary->hasDiscount() ? $summary->formattedDiscount() : null,
+            'discount_cents' => $summary->discountCents,
+            'discount_label' => $summary->discountLabel(),
+            'coupon_code' => $summary->discount?->code,
             'shipping' => $summary->formattedShipping(),
+            'shipping_cents' => $summary->shippingCents,
             'tax' => $summary->formattedTax(),
+            'tax_cents' => $summary->taxCents,
             'total' => $summary->formattedTotal(),
+            'total_cents' => $summary->totalCents,
             'is_empty' => $summary->isEmpty(),
             'free_shipping' => $summary->qualifiesForFreeShipping(),
         ];

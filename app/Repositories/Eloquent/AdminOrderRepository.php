@@ -4,6 +4,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Contracts\Repositories\AdminOrderRepositoryInterface;
 use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Models\Order;
 use App\Models\OrderNote;
 use App\Models\OrderTimelineEvent;
@@ -38,8 +39,12 @@ class AdminOrderRepository implements AdminOrderRepositoryInterface
             ->with([
                 'customer',
                 'items.product',
+                'payments.receivedBy',
+                'invoice',
+                'createdBy',
                 'timelineEvents' => fn ($query) => $query->oldest(),
                 'notes',
+                'refunds.processedBy',
             ])
             ->findOrFail($id);
     }
@@ -54,7 +59,8 @@ class AdminOrderRepository implements AdminOrderRepositoryInterface
             'pending' => Order::query()->pending()->count(),
             'shipped' => Order::query()->where('status', OrderStatus::Shipped)->count(),
             'revenue_cents' => (int) Order::query()
-                ->where('status', '!=', OrderStatus::Cancelled)
+                ->whereNotIn('status', [OrderStatus::Cancelled, OrderStatus::Refunded])
+                ->whereNot('payment_status', PaymentStatus::Refunded->value)
                 ->sum('total_cents'),
         ];
     }

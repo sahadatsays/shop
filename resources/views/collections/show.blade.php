@@ -37,8 +37,8 @@
                         $badge = $product->shopBadge();
                     @endphp
                     <x-ui.product-card :name="$product->name" :brand="$product->brand?->name" :category="$product->category?->name" :short-description="$product->short_description"
-                        :price="$product->formattedPrice()" :old-price="$product->isOnSale() ? $product->formattedCompareAtPrice() : null" :badge="$badge['badge']" :badge-variant="$badge['variant']" :rating="$product->placeholderRating()"
-                        :reviews="$product->placeholderReviewCount()" :stock="$product->shopStockLabel()" :stock-percent="$product->shopStockPercent()" :image="$product->primaryImageUrl()" :href="route('product.show', $product)"
+                        :price="$product->formattedPrice()" :old-price="$product->isOnSale() ? $product->formattedCompareAtPrice() : null" :badge="$badge['badge']" :badge-variant="$badge['variant']" :rating="$product->displayRating()"
+                        :reviews="$product->displayReviewCount()" :stock="$product->shopStockLabel()" :stock-percent="$product->shopStockPercent()" :image="$product->primaryImageUrl()" :href="route('product.show', $product)"
                         :product-id="$product->id" />
                 @endforeach
             </div>

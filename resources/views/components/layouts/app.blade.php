@@ -314,6 +314,7 @@
                             class="block rounded-xl px-4 py-3 text-base font-medium text-navy-800 transition-colors duration-200 hover:bg-navy-900/5 {{ $menuItem->isActiveRoute() ? 'bg-navy-900/5 text-navy-900' : '' }}">
                             {{ $menuItem->label }}
                         </a>
+<<<<<<< HEAD
                         @foreach ($menuItem->children as $child)
                             <a href="{{ $child->resolvedUrl() }}"
                                 class="block rounded-xl px-8 py-2.5 text-sm font-medium text-navy-600 transition-colors duration-200 hover:bg-navy-900/5">
@@ -333,6 +334,104 @@
                 </nav>
             </header>
         </div>
+=======
+                    @endif
+                @empty
+                    <a href="{{ route('shop') }}" class="site-header-link rounded-xl px-4 py-2 text-sm font-medium transition-colors duration-200 hover:bg-white/10 hover:text-white">Shop</a>
+                    <a href="{{ route('about') }}" class="site-header-link rounded-xl px-4 py-2 text-sm font-medium transition-colors duration-200 hover:bg-white/10 hover:text-white">Our Story</a>
+                    <a href="{{ route('support') }}" class="site-header-link rounded-xl px-4 py-2 text-sm font-medium transition-colors duration-200 hover:bg-white/10 hover:text-white">Support</a>
+                @endforelse
+            </nav>
+
+            {{-- Actions --}}
+            <div class="flex items-center gap-0.5 sm:gap-1">
+                <button type="button" data-search-toggle aria-expanded="false" aria-controls="search-panel" aria-label="Search products"
+                        class="site-header-icon flex size-10 items-center justify-center rounded-xl transition-colors duration-200 hover:bg-white/10 hover:text-white">
+                    <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                        <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+                    </svg>
+                </button>
+                <a href="{{ route('wishlist') }}" data-wishlist-link aria-label="Wishlist, {{ $wishlistItemCount ?? 0 }} {{ ($wishlistItemCount ?? 0) === 1 ? 'item' : 'items' }}"
+                   class="site-header-icon relative hidden size-10 items-center justify-center rounded-xl transition-colors duration-200 hover:bg-white/10 hover:text-white sm:flex">
+                    <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 21s-7.5-4.7-9.5-9A5.5 5.5 0 0 1 12 6.5 5.5 5.5 0 0 1 21.5 12c-2 4.3-9.5 9-9.5 9Z"/>
+                    </svg>
+                    <span data-wishlist-count @class(['absolute -top-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-bronze-500 text-[0.65rem] font-bold text-white', 'hidden' => ($wishlistItemCount ?? 0) <= 0])>{{ $wishlistItemCount ?? 0 }}</span>
+                </a>
+                <a href="{{ route('compare') }}"
+                   data-compare-link
+                   aria-label="Compare products, {{ $compareItemCount ?? 0 }} {{ ($compareItemCount ?? 0) === 1 ? 'item' : 'items' }}"
+                   class="site-header-icon relative hidden size-10 items-center justify-center rounded-xl transition-colors duration-200 hover:bg-white/10 hover:text-white lg:flex">
+                    <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/>
+                    </svg>
+                    <span data-compare-count-badge @class(['absolute -top-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-olive-600 text-[0.65rem] font-bold text-white', 'hidden' => ($compareItemCount ?? 0) <= 0])>{{ $compareItemCount ?? 0 }}</span>
+                </a>
+                <a href="{{ auth('customer')->check() ? route('account') : route('login') }}" aria-label="{{ auth('customer')->check() ? 'Account' : 'Sign in' }}"
+                   class="site-header-icon hidden size-10 items-center justify-center rounded-xl transition-colors duration-200 hover:bg-white/10 hover:text-white sm:flex">
+                    <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                        <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/>
+                    </svg>
+                </a>
+                <a href="{{ route('cart') }}" data-cart-link aria-label="Cart, {{ $cartItemCount ?? 0 }} {{ ($cartItemCount ?? 0) === 1 ? 'item' : 'items' }}"
+                   class="site-header-icon relative flex size-10 items-center justify-center rounded-xl transition-colors duration-200 hover:bg-white/10 hover:text-white">
+                    <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/>
+                    </svg>
+                    <span data-cart-count @class(['absolute -top-0.5 -right-0.5 flex size-4.5 items-center justify-center rounded-full bg-bronze-500 text-[0.65rem] font-bold text-white', 'hidden' => ($cartItemCount ?? 0) <= 0])>{{ $cartItemCount ?? 0 }}</span>
+                </a>
+
+                {{-- Mobile menu toggle --}}
+                <button type="button" data-nav-toggle aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu"
+                        class="site-header-icon flex size-10 items-center justify-center rounded-xl transition-colors duration-200 hover:bg-white/10 hover:text-white lg:hidden">
+                    <svg data-icon-open class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                        <path d="M4 7h16M4 12h16M4 17h16"/>
+                    </svg>
+                    <svg data-icon-close class="hidden size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                        <path d="m6 6 12 12M18 6 6 18"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        {{-- Search panel --}}
+        <div id="search-panel" data-search-panel hidden class="border-t border-navy-900/5">
+            <form action="{{ route('search') }}" method="get" class="mx-auto flex max-w-3xl items-center gap-3 px-4 py-4 sm:px-6">
+                <svg class="size-5 shrink-0 text-navy-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+                </svg>
+                <label for="site-search" class="sr-only">Search products</label>
+                <input type="search" id="site-search" name="q" data-search-input placeholder="Search jackets, flags, challenge coins…"
+                       class="w-full border-0 bg-transparent text-sm text-ink placeholder:text-navy-400 focus:outline-none">
+                <x-ui.button type="submit" size="sm">Search</x-ui.button>
+            </form>
+        </div>
+
+        {{-- Mobile navigation --}}
+        <nav id="mobile-nav" data-mobile-nav hidden class="max-h-[70vh] overflow-y-auto border-t border-navy-900/5 px-4 pt-2 pb-4 lg:hidden" aria-label="Mobile navigation">
+            @forelse ($primaryMenuItems ?? [] as $menuItem)
+                <a href="{{ $menuItem->resolvedUrl() }}"
+                   @if ($menuItem->open_in_new_tab) target="_blank" rel="noopener noreferrer" @endif
+                   class="block rounded-xl px-4 py-3 text-base font-medium text-navy-800 transition-colors duration-200 hover:bg-navy-900/5 {{ $menuItem->isActiveRoute() ? 'bg-navy-900/5 text-navy-900' : '' }}">
+                    {{ $menuItem->label }}
+                </a>
+                @foreach ($menuItem->children as $child)
+                    <a href="{{ $child->resolvedUrl() }}"
+                       class="block rounded-xl px-8 py-2.5 text-sm font-medium text-navy-600 transition-colors duration-200 hover:bg-navy-900/5">
+                        {{ $child->label }}
+                    </a>
+                @endforeach
+            @empty
+                @foreach (['Shop' => route('shop'), 'Categories' => route('categories'), 'Our Story' => route('about'), 'Support' => route('support')] as $label => $href)
+                    <a href="{{ $href }}" class="block rounded-xl px-4 py-3 text-base font-medium text-navy-800 transition-colors duration-200 hover:bg-navy-900/5">{{ $label }}</a>
+                @endforeach
+            @endforelse
+            <a href="{{ route('wishlist') }}" class="block rounded-xl px-4 py-3 text-base font-medium text-navy-800 transition-colors duration-200 hover:bg-navy-900/5">Wishlist</a>
+            <a href="{{ auth('customer')->check() ? route('account') : route('login') }}" class="block rounded-xl px-4 py-3 text-base font-medium text-navy-800 transition-colors duration-200 hover:bg-navy-900/5">{{ auth('customer')->check() ? 'Account' : 'Sign in' }}</a>
+        </nav>
+    </header>
+    </div>
+>>>>>>> origin/main
     @endif
 
     <main id="main-content">

@@ -32,7 +32,10 @@
     :minimal="true">
 
     <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8" data-checkout data-tax-rate="{{ $taxRate }}"
-        data-currency-symbol="{{ $currencySymbol }}" data-subtotal="{{ $summary->subtotalCents / 100 }}">
+        data-currency-symbol="{{ $currencySymbol }}" data-subtotal="{{ $summary->subtotalCents / 100 }}"
+        data-discount-cents="{{ $summary->discountCents }}"
+        data-discount-label="{{ $summary->discountLabel() }}"
+        data-coupon-code="{{ $summary->discount?->code }}">
 
         {{-- Progress indicator --}}
         <nav aria-label="Checkout progress" class="mx-auto max-w-xl">
@@ -101,9 +104,7 @@
                                 placeholder="you@example.com" hint="Order updates and your receipt go here."
                                 :value="old(
                                     'email',
-                                    session('customer_id')
-                                        ? \App\Models\Customer::find(session('customer_id'))?->email
-                                        : null,
+                                    auth('customer')->user()?->email,
                                 )" required />
                         </div>
                         @foreach ($addressFields('shipping') as $field)
@@ -127,49 +128,12 @@
                     </div>
                 </section>
 
-                {{-- 2. Billing address --}}
-                <section class="rounded-card bg-surface p-7 shadow-soft" aria-labelledby="billing-heading">
-                    <h2 id="billing-heading"
-                        class="flex items-center gap-3 font-display text-lg font-bold text-navy-900">
-                        <span
-                            class="flex size-8 items-center justify-center rounded-full bg-navy-900 text-sm font-bold text-white">2</span>
-                        Billing address
-                    </h2>
-
-                    <label class="mt-6 flex cursor-pointer items-center gap-3">
-                        <input type="checkbox" name="billing_same_as_shipping" value="1" data-billing-same
-                            @checked(old('billing_same_as_shipping', true))
-                            class="size-4.5 rounded border-navy-300 text-olive-600 accent-olive-600 focus:outline-2 focus:outline-offset-2 focus:outline-bronze-500">
-                        <span class="text-sm font-medium text-navy-800">Same as shipping address</span>
-                    </label>
-
-                    <div data-billing-fields @class([
-                        'mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2',
-                        'hidden' => old('billing_same_as_shipping', '1') === '1',
-                    ])>
-                        @foreach ($addressFields('billing') as $field)
-                            <div @class(['sm:col-span-2' => $field['span']])>
-                                <x-ui.input :name="$field['name']" :label="$field['label']" :autocomplete="'billing ' . $field['autocomplete']" :value="old($field['old_key'])" />
-                            </div>
-                        @endforeach
-                        <div class="space-y-1.5 sm:col-span-2">
-                            <label for="billing-country" class="block text-sm font-medium text-navy-900">Country</label>
-                            <select id="billing-country" name="billing[country]" autocomplete="billing country-name"
-                                class="block w-full rounded-field border border-navy-200 bg-surface px-4 py-3 text-sm text-ink shadow-soft transition-colors duration-200 hover:border-navy-300 focus:outline-2 focus:outline-offset-2 focus:outline-bronze-500">
-                                @foreach (['United States', 'Canada', 'United Kingdom', 'Australia', 'Bangladesh', 'India'] as $country)
-                                    <option @selected(old('billing.country') === $country)>{{ $country }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                </section>
-
-                {{-- 3. Delivery method --}}
+                {{-- 2. Delivery method --}}
                 <section class="rounded-card bg-surface p-7 shadow-soft" aria-labelledby="delivery-heading">
                     <h2 id="delivery-heading"
                         class="flex items-center gap-3 font-display text-lg font-bold text-navy-900">
                         <span
-                            class="flex size-8 items-center justify-center rounded-full bg-navy-900 text-sm font-bold text-white">3</span>
+                            class="flex size-8 items-center justify-center rounded-full bg-navy-900 text-sm font-bold text-white">2</span>
                         Delivery method
                     </h2>
 
@@ -193,13 +157,13 @@
                     </div>
                 </section>
 
-                {{-- 4. Payment method --}}
+                {{-- 3. Payment method --}}
                 <section class="rounded-card bg-surface p-7 shadow-soft" aria-labelledby="payment-heading">
                     <div class="flex flex-wrap items-center justify-between gap-3">
                         <h2 id="payment-heading"
                             class="flex items-center gap-3 font-display text-lg font-bold text-navy-900">
                             <span
-                                class="flex size-8 items-center justify-center rounded-full bg-navy-900 text-sm font-bold text-white">4</span>
+                                class="flex size-8 items-center justify-center rounded-full bg-navy-900 text-sm font-bold text-white">3</span>
                             Payment method
                         </h2>
                         <p class="flex items-center gap-1.5 text-xs font-medium text-navy-500">
@@ -213,48 +177,43 @@
                         </p>
                     </div>
 
-                    <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3" role="radiogroup"
+                    <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2" role="radiogroup"
                         aria-label="Payment method">
-                        @foreach ([['value' => 'card', 'label' => 'Card', 'checked' => true, 'icon' => 'M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm0 3h18M7 15h4'], ['value' => 'paypal', 'label' => 'PayPal', 'checked' => false, 'icon' => 'M7 21l1-6h3.5c3.5 0 6-2 6.5-5.5C18.4 6 16.5 4 13 4H8L5.5 18H9'], ['value' => 'applepay', 'label' => 'Apple Pay', 'checked' => false, 'icon' => 'M16 5c-.8 1-2 1.7-3.1 1.6-.2-1.2.4-2.5 1-3.3.8-1 2.1-1.7 3.2-1.7.1 1.2-.3 2.4-1.1 3.4Zm1 2.2c-1.7-.1-3.2 1-4 1-.9 0-2.1-1-3.5-.9-1.8 0-3.5 1-4.4 2.7-1.9 3.3-.5 8.1 1.3 10.8.9 1.3 2 2.8 3.4 2.7 1.3-.1 1.9-.9 3.5-.9s2.1.9 3.5.9c1.5 0 2.4-1.3 3.3-2.6.7-1 1.3-2.2 1.6-3.4-2.2-.9-3.2-3.3-2.6-5.4.4-1.5 1.4-2.6 2.4-3.2-1-1.4-2.5-1.7-3.5-1.7Z']] as $payment)
-                            <label
-                                class="flex cursor-pointer items-center justify-center gap-2.5 rounded-field border border-navy-200 px-4 py-4 transition-all duration-200 hover:border-navy-300 has-checked:border-navy-900 has-checked:bg-navy-900 has-checked:text-white">
-                                <input type="radio" name="payment_method" value="{{ $payment['value'] }}"
-                                    data-payment-option @checked(old('payment_method', 'card') === $payment['value']) class="sr-only">
-                                <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
-                                    aria-hidden="true">
-                                    <path d="{{ $payment['icon'] }}" />
-                                </svg>
-                                <span class="text-sm font-semibold">{{ $payment['label'] }}</span>
-                            </label>
-                        @endforeach
-                    </div>
+                        <label
+                            class="flex cursor-pointer items-center justify-center gap-2.5 rounded-field border border-navy-200 px-4 py-4 transition-all duration-200 hover:border-navy-300 has-checked:border-navy-900 has-checked:bg-navy-900 has-checked:text-white">
+                            <input type="radio" name="payment_method" value="cod" data-payment-option
+                                @checked(old('payment_method', 'cod') === 'cod') class="sr-only">
+                            <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M12 3v18M5 8h10a3 3 0 0 1 0 6H7a3 3 0 0 0 0 6h12" />
+                            </svg>
+                            <span class="text-sm font-semibold">Cash on delivery</span>
+                        </label>
 
-                    <div data-payment-panel="card" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <div class="sm:col-span-2">
-                            <x-ui.input name="card-number" label="Card number" inputmode="numeric"
-                                autocomplete="cc-number" placeholder="1234 5678 9012 3456" data-card-number
-                                maxlength="19" />
+                        <div
+                            class="relative flex items-center justify-center gap-2.5 rounded-field border border-dashed border-navy-200 bg-navy-50/70 px-4 py-4 text-navy-500"
+                            aria-disabled="true" title="Online payment is under construction">
+                            <input type="radio" name="payment_method_disabled" value="card" disabled class="sr-only"
+                                tabindex="-1">
+                            <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm0 3h18M7 15h4" />
+                            </svg>
+                            <span class="text-sm font-semibold">Pay online</span>
+                            <span
+                                class="absolute top-2 right-2 rounded-md bg-bronze-100 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-bronze-700 uppercase">Coming
+                                soon</span>
                         </div>
-                        <div class="sm:col-span-2">
-                            <x-ui.input name="card-name" label="Name on card" autocomplete="cc-name" />
-                        </div>
-                        <x-ui.input name="card-expiry" label="Expiry date" inputmode="numeric" autocomplete="cc-exp"
-                            placeholder="MM / YY" data-card-expiry maxlength="7" />
-                        <x-ui.input name="card-cvc" label="Security code" inputmode="numeric" autocomplete="cc-csc"
-                            placeholder="CVC" maxlength="4" hint="3–4 digits on the back of your card." />
                     </div>
 
-                    <div data-payment-panel="paypal" hidden
-                        class="mt-6 rounded-field bg-navy-50 p-5 text-sm text-navy-600">
-                        You'll be redirected to PayPal to complete your purchase securely. Your order total will be
-                        confirmed before payment.
+                    <div data-payment-panel="cod" class="mt-6 rounded-field bg-navy-50 p-5 text-sm text-navy-600">
+                        Pay with cash when your order is delivered. Your order is reserved now; payment stays pending
+                        until the courier collects it.
                     </div>
 
-                    <div data-payment-panel="applepay" hidden
-                        class="mt-6 rounded-field bg-navy-50 p-5 text-sm text-navy-600">
-                        Confirm your order with Face ID or Touch ID when you press the Apple Pay button. Your card
-                        details never leave your device.
+                    <div data-payment-panel="card" hidden
+                        class="mt-6 rounded-field border border-bronze-200 bg-bronze-50 p-5 text-sm text-bronze-900">
+                        Online card and wallet payments are under construction. Please use cash on delivery for now.
                     </div>
                 </section>
 
@@ -337,28 +296,27 @@
                     </ul>
 
                     {{-- Promo code --}}
-                    {{-- <div class="mt-6 border-t border-navy-100 pt-6">
-                        <div class="flex gap-3">
+                    <div class="mt-6 border-t border-navy-100 pt-6" data-promo-section>
+                        <div class="flex gap-3" data-promo-form @if ($summary->hasDiscount()) hidden @endif>
                             <label for="promo-code" class="sr-only">Promo code</label>
                             <input type="text" id="promo-code" data-promo-input
-                                placeholder="Promo code — try VALOR10"
+                                placeholder="Promo code"
                                 class="w-full rounded-field border border-navy-200 bg-canvas px-4 py-2.5 text-sm text-ink uppercase placeholder:normal-case placeholder:text-navy-400 transition-colors duration-200 hover:border-navy-300 focus:outline-2 focus:outline-offset-2 focus:outline-bronze-500">
                             <x-ui.button type="button" variant="outline" size="sm" class="shrink-0"
                                 data-promo-apply>Apply</x-ui.button>
                         </div>
-                        <p data-promo-error hidden class="mt-2 text-sm font-medium text-red-600">That code isn't valid.
-                            Try VALOR10.</p>
-                        <p data-promo-applied hidden
+                        <p data-promo-error hidden class="mt-2 text-sm font-medium text-red-600"></p>
+                        <p data-promo-applied @if (! $summary->hasDiscount()) hidden @endif
                             class="mt-2 flex items-center gap-1.5 text-sm font-semibold text-green-700">
                             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="m5 13 4 4L19 7" />
                             </svg>
-                            VALOR10 applied — 10% off
+                            <span data-promo-applied-label>{{ $summary->discountLabel() }}</span>
                             <button type="button" data-promo-remove
                                 class="ml-auto font-medium text-navy-500 underline-offset-4 hover:underline">Remove</button>
                         </p>
-                    </div> --}}
+                    </div>
 
                     {{-- Totals --}}
                     <dl class="mt-6 space-y-3 border-t border-navy-100 pt-6 text-sm">
@@ -366,6 +324,11 @@
                             <dt class="text-navy-600">Subtotal</dt>
                             <dd class="font-semibold text-navy-900 tabular-nums" data-total-subtotal>
                                 {{ $summary->formattedSubtotal() }}</dd>
+                        </div>
+                        <div class="flex items-center justify-between" data-total-discount-row @if (! $summary->hasDiscount()) hidden @endif>
+                            <dt class="text-navy-600" data-total-discount-label>Coupon{{ $summary->discount?->code ? ' ('.$summary->discount->code.')' : '' }}</dt>
+                            <dd class="font-semibold text-green-700 tabular-nums" data-total-discount>
+                                {{ $summary->hasDiscount() ? $summary->formattedDiscount() : '' }}</dd>
                         </div>
                         <div class="flex items-center justify-between">
                             <dt class="text-navy-600">Shipping</dt>

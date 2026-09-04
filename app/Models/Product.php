@@ -34,6 +34,7 @@ class Product extends Model
         'description',
         'price_cents',
         'compare_at_price_cents',
+        'cost_cents',
         'stock_quantity',
         'low_stock_threshold',
         'status',
@@ -53,6 +54,7 @@ class Product extends Model
         return [
             'price_cents' => 'integer',
             'compare_at_price_cents' => 'integer',
+            'cost_cents' => 'integer',
             'stock_quantity' => 'integer',
             'low_stock_threshold' => 'integer',
             'status' => ProductStatus::class,
@@ -128,20 +130,18 @@ class Product extends Model
         return $this->reviews()->approved();
     }
 
-    public function displayRating(): float
+    public function displayRating(): ?float
     {
         $average = $this->approvedReviews()->avg('rating');
 
         return $average !== null
             ? round((float) $average, 1)
-            : $this->placeholderRating();
+            : null;
     }
 
     public function displayReviewCount(): int
     {
-        $count = $this->approvedReviews()->count();
-
-        return $count > 0 ? $count : $this->placeholderReviewCount();
+        return $this->approvedReviews()->count();
     }
 
     /**
@@ -393,21 +393,6 @@ class Product extends Model
         $capacity = max($this->low_stock_threshold * 3, 1);
 
         return (int) min(100, max(8, round(($this->stock_quantity / $capacity) * 100)));
-    }
-
-    public function placeholderRating(): float
-    {
-        $seed = crc32((string) $this->id);
-
-        return round(4.3 + ($seed % 8) / 10, 1);
-    }
-
-    public function placeholderReviewCount(): int
-    {
-        $min = (int) config('shop.review_count_min', 12);
-        $max = (int) config('shop.review_count_max', 150);
-
-        return $min + (crc32($this->slug) % max(1, $max - $min + 1));
     }
 
     /**

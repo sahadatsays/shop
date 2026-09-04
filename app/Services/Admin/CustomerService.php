@@ -10,6 +10,7 @@ use App\Models\CustomerNote;
 use App\Services\AuditService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class CustomerService
 {
@@ -87,6 +88,12 @@ class CustomerService
 
     public function delete(Customer $customer): void
     {
+        if ($customer->orders()->exists()) {
+            throw ValidationException::withMessages([
+                'customer' => 'Customers with order history cannot be deleted.',
+            ]);
+        }
+
         $this->customers->delete($customer);
         $this->audit->logCustomerDeleted($customer);
     }

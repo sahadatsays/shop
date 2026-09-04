@@ -99,10 +99,12 @@ class Discount extends Model
             return 0;
         }
 
-        return match ($this->type) {
-            DiscountType::Percent => (int) round($subtotalCents * ($this->value / 100)),
+        $amount = match ($this->type) {
+            DiscountType::Percent => (int) round($subtotalCents * (min($this->value, 100) / 100)),
             DiscountType::Fixed => min($this->value, $subtotalCents),
         };
+
+        return min($amount, $subtotalCents);
     }
 
     public function formattedValue(): string

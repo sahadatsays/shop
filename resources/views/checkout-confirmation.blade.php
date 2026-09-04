@@ -60,6 +60,12 @@
                         <dt class="text-navy-600">Subtotal</dt>
                         <dd class="font-medium text-navy-900 tabular-nums">{{ $formattedSubtotal }}</dd>
                     </div>
+                    @if ($formattedDiscount)
+                        <div class="flex justify-between">
+                            <dt class="text-navy-600">Coupon{{ $order->coupon_code ? ' ('.$order->coupon_code.')' : '' }}</dt>
+                            <dd class="font-medium text-green-700 tabular-nums">−{{ $formattedDiscount }}</dd>
+                        </div>
+                    @endif
                     <div class="flex justify-between">
                         <dt class="text-navy-600">Shipping</dt>
                         <dd class="font-medium text-navy-900 tabular-nums">{{ $formattedShipping }}</dd>

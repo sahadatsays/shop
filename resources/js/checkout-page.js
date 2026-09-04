@@ -1,5 +1,4 @@
-const PROMO_CODE = 'VALOR10';
-const PROMO_RATE = 0.1;
+import { applyCoupon, removeCoupon } from './cart-api';
 
 export const initCheckoutPage = () => {
     const checkout = document.querySelector('[data-checkout]');
@@ -17,17 +16,63 @@ export const initCheckoutPage = () => {
 
     const formatMoney = (value) => `${currencySymbol}${value.toFixed(2)}`;
 
-    let promoActive = false;
+    let discountCents = Number(checkout.dataset.discountCents ?? 0);
 
     const subtotal = Number(checkout.dataset.subtotal) || [...checkout.querySelectorAll('[data-item-total]')].reduce(
         (sum, item) => sum + Number(item.dataset.price) * Number(item.dataset.qty),
         0,
     );
 
+    const promoForm = checkout.querySelector('[data-promo-form]');
+    const promoInput = checkout.querySelector('[data-promo-input]');
+    const promoError = checkout.querySelector('[data-promo-error]');
+    const promoApplied = checkout.querySelector('[data-promo-applied]');
+    const promoAppliedLabel = checkout.querySelector('[data-promo-applied-label]');
+    const discountRow = checkout.querySelector('[data-total-discount-row]');
+    const discountLabel = checkout.querySelector('[data-total-discount-label]');
+    const discountValue = checkout.querySelector('[data-total-discount]');
+
+    const updateDiscountUi = (payload) => {
+        const cart = payload?.cart;
+
+        if (!cart) {
+            return;
+        }
+
+        discountCents = cart.discount_cents ?? 0;
+        checkout.dataset.discountCents = String(discountCents / 100);
+
+        const hasDiscount = discountCents > 0;
+
+        if (promoForm) {
+            promoForm.hidden = hasDiscount;
+        }
+
+        if (promoApplied) {
+            promoApplied.hidden = !hasDiscount;
+        }
+
+        if (promoAppliedLabel && cart.discount_label) {
+            promoAppliedLabel.textContent = cart.discount_label;
+        }
+
+        if (discountRow) {
+            discountRow.hidden = !hasDiscount;
+        }
+
+        if (discountLabel && cart.coupon_code) {
+            discountLabel.textContent = `Coupon (${cart.coupon_code})`;
+        }
+
+        if (discountValue && cart.discount) {
+            discountValue.textContent = cart.discount;
+        }
+    };
+
     const recalculate = () => {
         const delivery = checkout.querySelector('[data-delivery-option]:checked');
         const shipping = Number(delivery?.dataset.cost) || 0;
-        const discount = promoActive ? subtotal * PROMO_RATE : 0;
+        const discount = discountCents / 100;
         const tax = (subtotal - discount) * taxRate;
         const total = subtotal - discount + shipping + tax;
 
@@ -36,17 +81,18 @@ export const initCheckoutPage = () => {
         checkout.querySelector('[data-total-tax]').textContent = formatMoney(tax);
         checkout.querySelector('[data-total-grand]').textContent = formatMoney(total);
 
+        if (discountRow) {
+            discountRow.hidden = discount <= 0;
+        }
+
+        if (discountValue) {
+            discountValue.textContent = discount > 0 ? `\u2212${formatMoney(discount)}` : '';
+        }
+
         if (placeOrderLabel) {
             placeOrderLabel.textContent = `Place order · ${formatMoney(total)}`;
         }
     };
-
-    const billingSame = checkout.querySelector('[data-billing-same]');
-    const billingFields = checkout.querySelector('[data-billing-fields]');
-
-    billingSame?.addEventListener('change', () => {
-        billingFields.hidden = billingSame.checked;
-    });
 
     checkout.querySelectorAll('[data-delivery-option]').forEach((radio) => {
         radio.addEventListener('change', recalculate);
@@ -72,29 +118,36 @@ export const initCheckoutPage = () => {
         event.target.value = digits.length > 2 ? `${digits.slice(0, 2)} / ${digits.slice(2)}` : digits;
     });
 
-    const promoInput = checkout.querySelector('[data-promo-input]');
-    const promoError = checkout.querySelector('[data-promo-error]');
-    const promoApplied = checkout.querySelector('[data-promo-applied]');
+    checkout.querySelector('[data-promo-apply]')?.addEventListener('click', async () => {
+        const code = promoInput.value.trim();
 
-    checkout.querySelector('[data-promo-apply]')?.addEventListener('click', () => {
-        const code = promoInput.value.trim().toUpperCase();
-        const isValid = code === PROMO_CODE;
+        if (!code) {
+            return;
+        }
 
-        promoError.hidden = isValid || code === '';
-        promoApplied.hidden = !isValid;
+        promoError.hidden = true;
 
-        if (isValid) {
-            promoActive = true;
+        try {
+            const payload = await applyCoupon(code);
             promoInput.value = '';
+            updateDiscountUi(payload);
             recalculate();
+        } catch (error) {
+            promoError.textContent = error.message;
+            promoError.hidden = false;
         }
     });
 
-    checkout.querySelector('[data-promo-remove]')?.addEventListener('click', () => {
-        promoActive = false;
-        promoApplied.hidden = true;
-        promoInput.focus();
-        recalculate();
+    checkout.querySelector('[data-promo-remove]')?.addEventListener('click', async () => {
+        try {
+            const payload = await removeCoupon();
+            updateDiscountUi(payload);
+            promoInput.focus();
+            recalculate();
+        } catch (error) {
+            promoError.textContent = error.message;
+            promoError.hidden = false;
+        }
     });
 
     promoInput?.addEventListener('keydown', (event) => {

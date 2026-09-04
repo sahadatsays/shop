@@ -11,6 +11,7 @@ use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Wishlist;
 use App\Models\WishlistItem;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class WishlistService
@@ -22,7 +23,7 @@ class WishlistService
 
     public function resolve(): Wishlist
     {
-        $customerId = session('customer_id');
+        $customerId = Auth::guard('customer')->id();
 
         if ($customerId) {
             return $this->resolveCustomerWishlist((int) $customerId);
@@ -229,7 +230,7 @@ class WishlistService
 
     public function itemCount(): int
     {
-        return $this->summary()->itemCount;
+        return $this->resolveForCounts()->items()->count();
     }
 
     /**
@@ -237,7 +238,29 @@ class WishlistService
      */
     public function productIds(): array
     {
-        return $this->summary()->productIds();
+        return $this->resolveForCounts()
+            ->items()
+            ->pluck('product_id')
+            ->map(fn ($id): int => (int) $id)
+            ->all();
+    }
+
+    private function resolveForCounts(): Wishlist
+    {
+        $customerId = Auth::guard('customer')->id();
+
+        if ($customerId) {
+            return $this->wishlists->findOrCreateForCustomer((int) $customerId);
+        }
+
+        if ($wishlist = $this->resolveGuestFromSession()) {
+            return $wishlist;
+        }
+
+        $wishlist = $this->wishlists->findOrCreateGuest(session()->getId());
+        session(['wishlist_id' => $wishlist->id]);
+
+        return $wishlist;
     }
 
     public function contains(int $productId): bool

@@ -6,18 +6,25 @@ use App\Contracts\Repositories\CartRepositoryInterface;
 use App\Contracts\Repositories\CustomerAuthRepositoryInterface;
 use App\DTOs\Cart\CartSummary;
 use App\Enums\CustomerStatus;
+use App\Enums\OrderSource;
 use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Exceptions\Cart\CartValidationException;
 use App\Exceptions\Cart\InsufficientStockException;
+use App\Exceptions\Cart\InvalidCouponException;
 use App\Http\Requests\PlaceOrderRequest;
 use App\Models\Cart;
 use App\Models\Customer;
+use App\Models\Discount;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderTimelineEvent;
 use App\Models\Product;
+use App\Services\Admin\InventoryService;
+use App\Support\Checkout\OrderTotalsCalculator;
 use App\Support\MoneyFormatter;
 use App\Support\OrderNumberGenerator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -26,7 +33,12 @@ class CheckoutService
     public function __construct(
         private CartService $cart,
         private CartRepositoryInterface $carts,
+        private CouponService $coupons,
         private CustomerAuthRepositoryInterface $customers,
+        private InventoryService $inventory,
+        private NotificationService $notifications,
+        private OrderTotalsCalculator $totals,
+        private PaymentService $payments,
     ) {}
 
     /**
@@ -72,29 +84,34 @@ class CheckoutService
             $summary->subtotalCents,
         );
 
-        $taxRate = (float) config('cart.tax_rate', 0.08);
-        $taxCents = (int) round($summary->subtotalCents * $taxRate);
-        $totalCents = $summary->subtotalCents + $shippingCents + $taxCents;
+        $discount = $summary->discount;
+        $totals = $this->totals->calculate($summary->subtotalCents, $shippingCents, $discount);
 
-        return DB::transaction(function () use ($request, $summary, $shippingCents, $taxCents, $totalCents): Order {
+        $order = DB::transaction(function () use ($request, $summary, $totals, $discount): Order {
             $customer = $this->resolveCustomer($request);
             $cart = $summary->cart;
 
             $this->lockAndValidateStock($cart);
 
+            $appliedDiscount = $this->resolveOrderDiscount($discount, $summary->subtotalCents);
+
             $order = Order::query()->create([
                 'customer_id' => $customer->id,
                 'order_number' => OrderNumberGenerator::generate(),
+                'source' => OrderSource::Website,
                 'status' => OrderStatus::Pending,
-                'payment_status' => 'paid',
-                'payment_method' => $this->paymentMethodLabel($request->validated('payment_method')),
-                'subtotal_cents' => $summary->subtotalCents,
-                'discount_cents' => 0,
-                'shipping_cents' => $shippingCents,
-                'tax_cents' => $taxCents,
-                'total_cents' => $totalCents,
+                'payment_status' => PaymentStatus::Pending,
+                'payment_method' => $this->payments->labelFor($request->validated('payment_method')),
+                'subtotal_cents' => $totals->subtotalCents,
+                'discount_cents' => $totals->discountCents,
+                'discount_id' => $appliedDiscount?->id,
+                'coupon_code' => $appliedDiscount?->code,
+                'shipping_cents' => $totals->shippingCents,
+                'shipping_method' => $request->validated('delivery_method'),
+                'tax_cents' => $totals->taxCents,
+                'total_cents' => $totals->totalCents,
+                'paid_cents' => 0,
                 'shipping_address' => $request->shippingAddress(),
-                'billing_address' => $request->billingAddress(),
                 'placed_at' => now(),
             ]);
 
@@ -102,20 +119,46 @@ class CheckoutService
                 OrderItem::query()->create([
                     'order_id' => $order->id,
                     'product_id' => $line->product->id,
+                    'product_name' => $line->product->name,
+                    'sku' => $line->product->sku,
                     'quantity' => $line->cartItem->quantity,
                     'unit_price_cents' => $line->cartItem->unit_price_cents,
+                    'discount_cents' => 0,
                     'line_total_cents' => $line->lineTotalCents(),
                 ]);
-
-                Product::query()
-                    ->whereKey($line->product->id)
-                    ->decrement('stock_quantity', $line->cartItem->quantity);
             }
+
+            $method = $request->validated('payment_method');
+            $capture = $this->payments->capture($order, $method);
+
+            if (! $capture['success']) {
+                throw new CartValidationException($capture['message'] ?? 'Payment could not be processed.');
+            }
+
+            $markPaid = (bool) ($capture['mark_paid'] ?? false);
+
+            $order->update([
+                'payment_status' => $markPaid ? PaymentStatus::Paid : PaymentStatus::Pending,
+                'payment_reference' => $capture['reference'],
+                'paid_cents' => $markPaid ? $order->total_cents : 0,
+            ]);
+
+            foreach ($summary->items as $line) {
+                $this->inventory->deductForSale(
+                    product: $line->product,
+                    quantity: $line->cartItem->quantity,
+                    reference: $order->order_number,
+                );
+            }
+
+            $timelineMessage = $this->payments->isCashOnDelivery($method)
+                ? 'Order placed with cash on delivery. Payment pending until delivery.'
+                : 'Order placed.';
 
             OrderTimelineEvent::query()->create([
                 'order_id' => $order->id,
                 'status' => OrderStatus::Pending->value,
-                'message' => 'Order placed.',
+                'message' => $timelineMessage,
                 'author_name' => $customer->name,
                 'created_at' => $order->placed_at,
                 'updated_at' => $order->placed_at,
@@ -123,14 +166,28 @@ class CheckoutService
 
             $this->carts->clearItems($cart);
 
-            if ($customer->id !== session('customer_id')) {
-                session(['customer_id' => $customer->id]);
-            }
-
             session(['checkout_order_id' => $order->id]);
+
+            DB::afterCommit(fn (): mixed => $this->notifications->notifyOrderPlaced($order));
 
             return $order->load(['items.product', 'customer']);
         });
+
+        return $order;
+    }
+
+    /**
+     * @throws InvalidCouponException
+     */
+    private function resolveOrderDiscount(?Discount $discount, int $subtotalCents): ?Discount
+    {
+        if (! $discount instanceof Discount) {
+            return null;
+        }
+
+        $this->coupons->redeemForOrder($discount, $subtotalCents);
+
+        return $discount->fresh();
     }
 
     public function resolveShippingCostCents(string $method, int $subtotalCents): int
@@ -156,37 +213,30 @@ class CheckoutService
 
     private function resolveCustomer(PlaceOrderRequest $request): Customer
     {
-        $sessionCustomerId = session('customer_id');
+        /** @var Customer|null $authenticated */
+        $authenticated = Auth::guard('customer')->user();
 
-        if ($sessionCustomerId) {
-            $customer = Customer::query()->find($sessionCustomerId);
+        if ($authenticated instanceof Customer) {
+            $updates = [];
+            $phone = $request->validated('shipping.phone');
 
-            if ($customer instanceof Customer) {
-                $updates = [];
-
-                if ($customer->email !== Str::lower($request->validated('email'))) {
-                    $updates['email'] = Str::lower($request->validated('email'));
-                }
-
-                $phone = $request->validated('shipping.phone');
-
-                if ($phone && $customer->phone !== $phone) {
-                    $updates['phone'] = $phone;
-                }
-
-                if ($updates !== []) {
-                    $customer = $this->customers->update($customer, $updates);
-                }
-
-                return $customer;
+            if ($phone && $authenticated->phone !== $phone) {
+                $updates['phone'] = $phone;
             }
+
+            if ($updates !== []) {
+                return $this->customers->update($authenticated, $updates);
+            }
+
+            return $authenticated;
         }
 
         $email = Str::lower($request->validated('email'));
-        $existing = $this->customers->findByEmail($email);
 
-        if ($existing instanceof Customer) {
-            return $existing;
+        if ($this->customers->findByEmail($email) instanceof Customer) {
+            throw new CartValidationException(
+                'An account with this email already exists. Please sign in to complete your order.',
+            );
         }
 
         $shipping = $request->validated('shipping');
@@ -219,14 +269,5 @@ class CheckoutService
                 );
             }
         }
-    }
-
-    private function paymentMethodLabel(string $method): string
-    {
-        return match ($method) {
-            'paypal' => 'PayPal',
-            'applepay' => 'Apple Pay',
-            default => 'Card',
-        };
     }
 }

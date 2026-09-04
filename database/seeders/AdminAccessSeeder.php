@@ -6,6 +6,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class AdminAccessSeeder extends Seeder
 {
@@ -83,15 +84,27 @@ class AdminAccessSeeder extends Seeder
      */
     private function seedUsers(array $roles): void
     {
+        if (! app()->environment('local', 'testing')) {
+            return;
+        }
+
         foreach (config('admin-permissions.default_users', []) as $userData) {
-            $user = User::query()->updateOrCreate(
+            $password = app()->environment('local')
+                ? 'password'
+                : Str::password(20);
+
+            $user = User::query()->firstOrCreate(
                 ['email' => $userData['email']],
                 [
                     'name' => $userData['name'],
-                    'password' => 'password',
+                    'password' => $password,
                     'is_active' => true,
                 ],
             );
+
+            if (! app()->environment('testing') && $user->wasRecentlyCreated) {
+                $this->command?->warn("Seeded admin {$userData['email']} with password: {$password}");
+            }
 
             $role = $roles[$userData['role']] ?? null;
 

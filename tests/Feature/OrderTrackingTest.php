@@ -42,7 +42,7 @@ test('guest lookup returns generic error for invalid credentials', function (): 
 test('guest cannot view another customers order without lookup verification', function (): void {
     $order = Order::query()->with('customer')->firstOrFail();
 
-    $this->get(route('track-order.show', $order))->assertForbidden();
+    $this->get(route('track-order.show', $order))->assertNotFound();
 });
 
 test('logged in customer can view their order history and tracking page', function (): void {
@@ -87,7 +87,7 @@ test('logged in customer cannot view another customers order', function (): void
 
     actingAsCustomer($customer);
 
-    $this->get(route('account.orders.show', $otherOrder))->assertForbidden();
+    $this->get(route('account.orders.show', $otherOrder))->assertNotFound();
 });
 
 test('admin status update creates timeline history and enforces transitions', function (): void {

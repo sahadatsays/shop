@@ -26,7 +26,16 @@ class DiscountRequest extends FormRequest
             'name' => ['required', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:1000'],
             'type' => ['required', Rule::enum(DiscountType::class)],
-            'value' => ['required', 'integer', 'min:1'],
+            'value' => [
+                'required',
+                'integer',
+                'min:1',
+                Rule::when(
+                    $this->input('type') === DiscountType::Percent->value,
+                    ['max:100'],
+                    ['max:99999999'],
+                ),
+            ],
             'min_order' => ['nullable', 'numeric', 'min:0'],
             'max_uses' => ['nullable', 'integer', 'min:1'],
             'starts_at' => ['nullable', 'date'],

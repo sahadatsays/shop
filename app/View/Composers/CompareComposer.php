@@ -13,10 +13,8 @@ class CompareComposer
 
     public function compose(View $view): void
     {
-        $summary = $this->compare->summary();
-
-        $view->with('compareItemCount', $summary->itemCount);
-        $view->with('compareProductIds', $summary->productIds());
+        $view->with('compareItemCount', $this->compare->itemCount());
+        $view->with('compareProductIds', $this->compare->productIds());
         $view->with('compareMaxItems', $this->compare->maxItems());
     }
 }

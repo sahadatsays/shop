@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\Cart\CartValidationException;
 use App\Exceptions\Cart\InsufficientStockException;
+use App\Exceptions\Cart\InvalidCouponException;
 use App\Http\Requests\PlaceOrderRequest;
 use App\Models\Order;
 use App\Services\CartService;
@@ -56,6 +57,10 @@ class CheckoutController extends Controller
             return redirect()
                 ->route('cart')
                 ->withErrors(['cart' => $exception->getMessage()]);
+        } catch (InvalidCouponException $exception) {
+            return redirect()
+                ->route('checkout')
+                ->withErrors(['coupon' => $exception->getMessage()]);
         }
 
         return redirect()
@@ -65,17 +70,19 @@ class CheckoutController extends Controller
 
     public function confirmation(Order $order): View|RedirectResponse
     {
-        if (session('checkout_order_id') !== $order->id) {
+        $canView = session('checkout_order_id') === $order->id
+            || (auth('customer')->check() && auth('customer')->id() === $order->customer_id);
+
+        if (! $canView) {
             return redirect()->route('track-order.create');
         }
-
-        session()->forget('checkout_order_id');
 
         $order->load(['items.product', 'customer']);
 
         return view('checkout-confirmation', [
             'order' => $order,
             'formattedSubtotal' => MoneyFormatter::format($order->subtotal_cents),
+            'formattedDiscount' => $order->discount_cents > 0 ? MoneyFormatter::format($order->discount_cents) : null,
             'formattedShipping' => $order->shipping_cents === 0 ? 'Free' : MoneyFormatter::format($order->shipping_cents),
             'formattedTax' => MoneyFormatter::format($order->tax_cents),
             'formattedTotal' => MoneyFormatter::format($order->total_cents),

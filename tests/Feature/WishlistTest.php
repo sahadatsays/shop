@@ -83,6 +83,7 @@ test('customer login merges guest wishlist into customer wishlist', function ():
 
     $this->post(route('login.store'), [
         'email' => $customer->email,
+        'password' => 'password',
     ])->assertRedirect(route('account'));
 
     $this->postJson(route('wishlist.items.store'), ['product_id' => $second->id])->assertSuccessful();

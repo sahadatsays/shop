@@ -74,6 +74,15 @@ class AppNotification extends Model
      * @param  Builder<AppNotification>  $query
      * @return Builder<AppNotification>
      */
+    public function scopeLatestFirst(Builder $query): Builder
+    {
+        return $query->latest('created_at');
+    }
+
+    /**
+     * @param  Builder<AppNotification>  $query
+     * @return Builder<AppNotification>
+     */
     public function scopeForNotifiable(Builder $query, Model $notifiable): Builder
     {
         return $query

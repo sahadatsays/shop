@@ -12,6 +12,8 @@ enum StockMovementType: string
     case TransferOut = 'transfer_out';
     case Sale = 'sale';
     case Return = 'return';
+    case Purchase = 'purchase';
+    case PurchaseReturn = 'purchase_return';
 
     public function label(): string
     {
@@ -24,21 +26,29 @@ enum StockMovementType: string
             self::TransferOut => 'Transfer out',
             self::Sale => 'Sale',
             self::Return => 'Return',
+            self::Purchase => 'Purchase',
+            self::PurchaseReturn => 'Purchase return',
         };
     }
 
     public function badgeVariant(): string
     {
         return match ($this) {
-            self::Initial, self::AdjustmentIn, self::TransferIn, self::Return => 'success',
-            self::AdjustmentOut, self::TransferOut, self::Sale => 'danger',
+            self::Initial, self::AdjustmentIn, self::TransferIn, self::Return, self::Purchase => 'success',
+            self::AdjustmentOut, self::TransferOut, self::Sale, self::PurchaseReturn => 'danger',
             self::Recount => 'info',
         };
     }
 
     public function isIncrease(): bool
     {
-        return in_array($this, [self::Initial, self::AdjustmentIn, self::TransferIn, self::Return], true);
+        return in_array($this, [
+            self::Initial,
+            self::AdjustmentIn,
+            self::TransferIn,
+            self::Return,
+            self::Purchase,
+        ], true);
     }
 
     /**

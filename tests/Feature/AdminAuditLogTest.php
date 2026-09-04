@@ -122,6 +122,7 @@ test('customer login and logout are recorded in audit logs', function (): void {
 
     $this->post(route('login.store'), [
         'email' => $customer->email,
+        'password' => 'password',
     ])->assertRedirect(route('account'));
 
     expect(AuditLog::query()->where('action', AuditAction::CustomerLogin)->exists())->toBeTrue();

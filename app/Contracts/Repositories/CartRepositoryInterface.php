@@ -5,6 +5,7 @@ namespace App\Contracts\Repositories;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Customer;
+use App\Models\Discount;
 
 interface CartRepositoryInterface
 {
@@ -31,6 +32,10 @@ interface CartRepositoryInterface
     public function clearItems(Cart $cart): void;
 
     public function markSaved(Cart $cart): Cart;
+
+    public function applyDiscount(Cart $cart, Discount $discount): Cart;
+
+    public function removeDiscount(Cart $cart): Cart;
 
     public function delete(Cart $cart): void;
 }

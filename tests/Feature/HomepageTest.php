@@ -35,11 +35,11 @@ test('homepage renders dynamic hero banners categories reviews and brands', func
 
     $this->get(route('home'))
         ->assertSuccessful()
-        ->assertSee($banner->title)
-        ->assertSee('Shop by category')
-        ->assertSee('Best sellers')
-        ->assertSee($review->author_name)
-        ->assertSee('Join the ranks');
+        ->assertSee($banner->title, false)
+        ->assertSee('Featured category', false)
+        ->assertSee('Top Selling Products', false)
+        ->assertSee($review->author_name, false)
+        ->assertSee('Customer reviews', false);
 });
 
 test('cached homepage hero banners hydrate correctly', function (): void {

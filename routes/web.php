@@ -6,11 +6,13 @@ use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CompareController;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\CustomerDashboardController;
+use App\Http\Controllers\CustomerEmailVerificationController;
 use App\Http\Controllers\CustomerNotificationController;
 use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\CustomerPasswordResetController;
 use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\CustomerRegistrationController;
+use App\Http\Controllers\CustomerReturnController;
 use App\Http\Controllers\CustomerReviewController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
@@ -27,7 +29,9 @@ Route::get('/collections/{collection:slug}', [CollectionController::class, 'show
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 Route::view('/categories', 'categories')->name('categories');
 Route::get('/search', [SearchController::class, 'index'])->name('search');
-Route::get('/search/suggest', [SearchController::class, 'suggest'])->name('search.suggest');
+Route::get('/search/suggest', [SearchController::class, 'suggest'])
+    ->middleware('throttle:search-suggest')
+    ->name('search.suggest');
 Route::post('/newsletter', SubscribeNewsletterController::class)
     ->middleware('throttle:6,1')
     ->name('newsletter.subscribe');
@@ -40,9 +44,13 @@ Route::patch('/cart/items/{cartItem}', [CartController::class, 'update'])->name(
 Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy'])->name('cart.items.destroy');
 Route::post('/cart/save', [CartController::class, 'save'])->name('cart.save');
 Route::post('/cart/validate', [CartController::class, 'validateCart'])->name('cart.validate');
+Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
+Route::delete('/cart/coupon', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
-Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::post('/checkout', [CheckoutController::class, 'store'])
+    ->middleware('throttle:checkout')
+    ->name('checkout.store');
 Route::get('/checkout/confirmation/{order:order_number}', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
 
 Route::middleware('customer.guest')->group(function (): void {
@@ -76,6 +84,17 @@ Route::post('/logout', [CustomerAuthController::class, 'logout'])
     ->middleware('customer.auth')
     ->name('logout');
 
+Route::middleware('customer.auth')->group(function (): void {
+    Route::get('/email/verify', [CustomerEmailVerificationController::class, 'notice'])
+        ->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [CustomerEmailVerificationController::class, 'verify'])
+        ->middleware('signed')
+        ->name('verification.verify');
+    Route::post('/email/verification-notification', [CustomerEmailVerificationController::class, 'resend'])
+        ->middleware('throttle:6,1')
+        ->name('verification.send');
+});
+
 Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
 Route::post('/wishlist/items', [WishlistController::class, 'store'])->name('wishlist.items.store');
 Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
@@ -89,7 +108,7 @@ Route::post('/compare/toggle', [CompareController::class, 'toggle'])->name('comp
 Route::delete('/compare/items/{compareItem}', [CompareController::class, 'destroy'])->name('compare.items.destroy');
 Route::delete('/compare', [CompareController::class, 'clear'])->name('compare.clear');
 
-Route::middleware('customer.auth')->group(function (): void {
+Route::middleware(['customer.auth', 'customer.verified'])->group(function (): void {
     Route::get('/account/notifications', [CustomerNotificationController::class, 'index'])->name('account.notifications');
     Route::patch('/account/notifications/{notification}/read', [CustomerNotificationController::class, 'markRead'])->name('account.notifications.read');
     Route::post('/account/notifications/mark-all-read', [CustomerNotificationController::class, 'markAllRead'])->name('account.notifications.mark-all-read');
@@ -97,13 +116,16 @@ Route::middleware('customer.auth')->group(function (): void {
     Route::get('/account/orders/{order:order_number}', [CustomerOrderController::class, 'show'])
         ->middleware('order.tracking')
         ->name('account.orders.show');
+    Route::post('/account/orders/{order:order_number}/return', [CustomerReturnController::class, 'store'])
+        ->middleware('order.tracking')
+        ->name('account.orders.return');
 
     Route::get('/account', CustomerDashboardController::class)->name('account');
     Route::get('/account/settings', [CustomerProfileController::class, 'show'])->name('account.settings');
     Route::match(['put', 'patch', 'post'], '/account/settings', [CustomerProfileController::class, 'update'])->name('account.settings.update');
     Route::get('/profile', [CustomerProfileController::class, 'show'])->name('profile');
     Route::match(['put', 'patch', 'post'], '/profile', [CustomerProfileController::class, 'update'])->name('profile.update');
-    Route::view('/account/addresses', 'account-addresses')->name('account.addresses');
+    Route::get('/account/addresses', [CustomerProfileController::class, 'addresses'])->name('account.addresses');
     Route::get('/account/reviews', [CustomerReviewController::class, 'index'])->name('account.reviews');
     Route::patch('/account/reviews/{review}', [CustomerReviewController::class, 'update'])->name('account.reviews.update');
     Route::delete('/account/reviews/{review}', [CustomerReviewController::class, 'destroy'])->name('account.reviews.destroy');
@@ -111,12 +133,14 @@ Route::middleware('customer.auth')->group(function (): void {
 });
 
 Route::get('/track-order', [TrackOrderController::class, 'create'])->name('track-order.create');
-Route::post('/track-order', [TrackOrderController::class, 'store'])->name('track-order.store');
+Route::post('/track-order', [TrackOrderController::class, 'store'])
+    ->middleware('throttle:track-order')
+    ->name('track-order.store');
 Route::get('/track-order/{order:order_number}', [TrackOrderController::class, 'show'])
     ->middleware('order.tracking')
     ->name('track-order.show');
 
 Route::redirect('/track', '/track-order')->name('track');
 Route::view('/support', 'support')->name('support');
-// Route::view('/about', 'about')->name('about');
+Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');

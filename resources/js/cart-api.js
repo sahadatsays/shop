@@ -99,3 +99,34 @@ export const saveCart = async () => {
 
     return payload;
 };
+
+export const applyCoupon = async (code) => {
+    const response = await fetch('/cart/coupon', {
+        method: 'POST',
+        headers: jsonHeaders(),
+        body: JSON.stringify({ code }),
+    });
+
+    const payload = await response.json();
+
+    if (!response.ok) {
+        throw new Error(payload.message ?? 'Unable to apply coupon.');
+    }
+
+    return payload;
+};
+
+export const removeCoupon = async () => {
+    const response = await fetch('/cart/coupon', {
+        method: 'DELETE',
+        headers: jsonHeaders(),
+    });
+
+    const payload = await response.json();
+
+    if (!response.ok) {
+        throw new Error(payload.message ?? 'Unable to remove coupon.');
+    }
+
+    return payload;
+};

@@ -2,8 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Customer;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class PlaceOrderRequest extends FormRequest
 {
@@ -17,8 +20,6 @@ class PlaceOrderRequest extends FormRequest
      */
     public function rules(): array
     {
-        $billingRequired = ! $this->boolean('billing_same_as_shipping');
-
         return [
             'email' => ['required', 'email', 'max:255'],
             'shipping' => ['required', 'array'],
@@ -30,21 +31,48 @@ class PlaceOrderRequest extends FormRequest
             'shipping.state' => ['required', 'string', 'max:120'],
             'shipping.postal_code' => ['required', 'string', 'max:20'],
             'shipping.country' => ['required', 'string', 'max:120'],
-            'shipping.phone' => ['nullable', 'string', 'max:30'],
-            'billing_same_as_shipping' => ['sometimes', 'boolean'],
-            'billing' => [Rule::requiredIf($billingRequired), 'nullable', 'array'],
-            'billing.first_name' => [Rule::requiredIf($billingRequired), 'nullable', 'string', 'max:100'],
-            'billing.last_name' => [Rule::requiredIf($billingRequired), 'nullable', 'string', 'max:100'],
-            'billing.line1' => [Rule::requiredIf($billingRequired), 'nullable', 'string', 'max:255'],
-            'billing.line2' => ['nullable', 'string', 'max:255'],
-            'billing.city' => [Rule::requiredIf($billingRequired), 'nullable', 'string', 'max:120'],
-            'billing.state' => [Rule::requiredIf($billingRequired), 'nullable', 'string', 'max:120'],
-            'billing.postal_code' => [Rule::requiredIf($billingRequired), 'nullable', 'string', 'max:20'],
-            'billing.country' => [Rule::requiredIf($billingRequired), 'nullable', 'string', 'max:120'],
+            'shipping.phone' => [
+                'nullable',
+                'string',
+                'max:30',
+                Rule::unique('customers', 'phone')
+                    ->whereNotNull('phone')
+                    ->ignore(Auth::guard('customer')->id()),
+            ],
             'delivery_method' => ['required', 'string', Rule::in(array_keys(config('cart.shipping_methods', [])))],
-            'payment_method' => ['required', 'string', Rule::in(['card', 'paypal', 'applepay'])],
+            'payment_method' => ['required', 'string', Rule::in(['cod'])],
             'terms_accepted' => ['accepted'],
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            /** @var Customer|null $customer */
+            $customer = Auth::guard('customer')->user();
+
+            if ($customer instanceof Customer) {
+                $email = strtolower((string) $this->input('email'));
+
+                if ($customer->email !== $email) {
+                    $validator->errors()->add(
+                        'email',
+                        'Checkout must use your account email. Update it from your profile if needed.',
+                    );
+                }
+
+                return;
+            }
+
+            $email = strtolower((string) $this->input('email'));
+
+            if (Customer::query()->where('email', $email)->exists()) {
+                $validator->errors()->add(
+                    'email',
+                    'An account with this email already exists. Please sign in to complete your order.',
+                );
+            }
+        });
     }
 
     /**
@@ -53,7 +81,9 @@ class PlaceOrderRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'payment_method.in' => 'Online payment is under construction. Please choose cash on delivery.',
             'terms_accepted.accepted' => 'You must accept the terms and policies before placing your order.',
+            'shipping.phone.unique' => 'This phone number is already associated with another account.',
         ];
     }
 
@@ -75,32 +105,6 @@ class PlaceOrderRequest extends FormRequest
             'country' => $shipping['country'],
             'phone' => $shipping['phone'] ?? null,
             'email' => $this->validated('email'),
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function billingAddress(): array
-    {
-        if ($this->boolean('billing_same_as_shipping')) {
-            $address = $this->shippingAddress();
-            unset($address['email'], $address['phone']);
-
-            return $address;
-        }
-
-        $billing = $this->validated('billing');
-
-        return [
-            'first_name' => $billing['first_name'],
-            'last_name' => $billing['last_name'],
-            'line1' => $billing['line1'],
-            'line2' => $billing['line2'] ?? null,
-            'city' => $billing['city'],
-            'state' => $billing['state'],
-            'postal_code' => $billing['postal_code'],
-            'country' => $billing['country'],
         ];
     }
 }

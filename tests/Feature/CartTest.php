@@ -91,6 +91,7 @@ test('customer login merges guest cart into customer cart', function (): void {
 
     $this->postJson(route('login.store'), [
         'email' => $customer->email,
+        'password' => 'password',
     ])->assertSuccessful()
         ->assertJsonPath('customer.id', $customer->id);
 
@@ -111,7 +112,7 @@ test('logged in customer can save cart', function (): void {
     $customer = Customer::query()->active()->firstOrFail();
     $product = Product::query()->published()->inStock()->firstOrFail();
 
-    $this->postJson(route('login.store'), ['email' => $customer->email]);
+    actingAsCustomer($customer);
 
     $this->postJson(route('cart.items.store'), [
         'product_id' => $product->id,

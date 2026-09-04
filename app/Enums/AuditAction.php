@@ -15,12 +15,21 @@ enum AuditAction: string
     case ProductRestored = 'product.restored';
     case StockChanged = 'inventory.stock_changed';
     case OrderStatusUpdated = 'order.status_updated';
+    case OrderCreated = 'order.created';
+    case OrderPaymentRecorded = 'order.payment_recorded';
+    case OrderRefundProcessed = 'order.refund_processed';
     case OrderNoteAdded = 'order.note_added';
     case CustomerCreated = 'customer.created';
     case CustomerUpdated = 'customer.updated';
     case CustomerDeleted = 'customer.deleted';
     case CustomerRestored = 'customer.restored';
     case CustomerNoteAdded = 'customer.note_added';
+    case PurchaseCreated = 'purchase.created';
+    case PurchaseUpdated = 'purchase.updated';
+    case PurchaseSubmitted = 'purchase.submitted';
+    case PurchaseApproved = 'purchase.approved';
+    case PurchaseReceived = 'purchase.received';
+    case PurchaseCancelled = 'purchase.cancelled';
 
     public function label(): string
     {
@@ -36,12 +45,21 @@ enum AuditAction: string
             self::ProductRestored => 'Product restored',
             self::StockChanged => 'Stock changed',
             self::OrderStatusUpdated => 'Order status updated',
+            self::OrderCreated => 'Order created',
+            self::OrderPaymentRecorded => 'Order payment recorded',
+            self::OrderRefundProcessed => 'Order refund processed',
             self::OrderNoteAdded => 'Order note added',
             self::CustomerCreated => 'Customer created',
             self::CustomerUpdated => 'Customer updated',
             self::CustomerDeleted => 'Customer deleted',
             self::CustomerRestored => 'Customer restored',
             self::CustomerNoteAdded => 'Customer note added',
+            self::PurchaseCreated => 'Purchase created',
+            self::PurchaseUpdated => 'Purchase updated',
+            self::PurchaseSubmitted => 'Purchase submitted',
+            self::PurchaseApproved => 'Purchase approved',
+            self::PurchaseReceived => 'Purchase stock received',
+            self::PurchaseCancelled => 'Purchase cancelled',
         };
     }
 
@@ -52,9 +70,12 @@ enum AuditAction: string
             self::CustomerLogin, self::CustomerLogout => AuditCategory::Auth,
             self::ProductCreated, self::ProductUpdated, self::ProductDeleted, self::ProductRestored => AuditCategory::Product,
             self::StockChanged => AuditCategory::Inventory,
-            self::OrderStatusUpdated, self::OrderNoteAdded => AuditCategory::Order,
+            self::OrderStatusUpdated, self::OrderCreated, self::OrderPaymentRecorded,
+            self::OrderRefundProcessed, self::OrderNoteAdded => AuditCategory::Order,
             self::CustomerCreated, self::CustomerUpdated, self::CustomerDeleted,
             self::CustomerRestored, self::CustomerNoteAdded => AuditCategory::Customer,
+            self::PurchaseCreated, self::PurchaseUpdated, self::PurchaseSubmitted,
+            self::PurchaseApproved, self::PurchaseReceived, self::PurchaseCancelled => AuditCategory::Procurement,
         };
     }
 }

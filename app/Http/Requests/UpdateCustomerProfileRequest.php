@@ -10,7 +10,7 @@ class UpdateCustomerProfileRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user('customer') !== null || session()->has('customer_id');
+        return $this->user('customer') !== null;
     }
 
     /**
@@ -18,7 +18,7 @@ class UpdateCustomerProfileRequest extends FormRequest
      */
     public function rules(): array
     {
-        $customerId = $this->user('customer')?->getKey() ?? session('customer_id');
+        $customerId = $this->user('customer')?->getKey();
 
         return [
             'first_name' => ['sometimes', 'string', 'max:50'],

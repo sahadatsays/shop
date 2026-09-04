@@ -4,6 +4,7 @@ use App\Enums\NotificationAudience;
 use App\Enums\NotificationCategory;
 use App\Models\AppNotification;
 use App\Models\Customer;
+use App\Services\NotificationService;
 use Database\Seeders\CommerceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -36,6 +37,40 @@ test('customer can view notification history', function (): void {
         ->assertSuccessful()
         ->assertSee('Your order is on the way')
         ->assertSee('Track shipment');
+});
+
+test('customer notifications page shows newest notifications first', function (): void {
+    $customer = actingAsCustomer();
+
+    AppNotification::query()->create([
+        'notifiable_type' => $customer->getMorphClass(),
+        'notifiable_id' => $customer->id,
+        'audience' => NotificationAudience::Customer,
+        'category' => NotificationCategory::OrderUpdate,
+        'title' => 'Older order update',
+        'body' => 'Shipped yesterday.',
+        'created_at' => now()->subDay(),
+        'updated_at' => now()->subDay(),
+    ]);
+
+    AppNotification::query()->create([
+        'notifiable_type' => $customer->getMorphClass(),
+        'notifiable_id' => $customer->id,
+        'audience' => NotificationAudience::Customer,
+        'category' => NotificationCategory::Promotion,
+        'title' => 'Latest promotion',
+        'body' => 'Just for you.',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $titles = app(NotificationService::class)
+        ->groupedFor($customer)
+        ->flatten(1)
+        ->pluck('title')
+        ->all();
+
+    expect($titles)->toBe(['Latest promotion', 'Older order update']);
 });
 
 test('customer can mark notification as read', function (): void {

@@ -83,7 +83,7 @@
                 </div>
             </x-admin.form-card>
 
-            <x-admin.form-card title="Addresses" description="Shipping and billing locations for this customer.">
+            <x-admin.form-card title="Addresses" description="Shipping locations for this customer.">
                 <div class="space-y-4">
                     <template x-for="(address, index) in addresses" :key="index">
                         <div class="rounded-[var(--radius-admin-lg)] border admin-border bg-admin-bg/40 p-4">

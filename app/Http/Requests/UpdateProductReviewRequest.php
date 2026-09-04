@@ -16,7 +16,7 @@ class UpdateProductReviewRequest extends FormRequest
             return false;
         }
 
-        $customerId = $this->user('customer')?->id ?? session('customer_id');
+        $customerId = $this->user('customer')?->id;
 
         return $customerId !== null && (int) $customerId === $review->customer_id;
     }

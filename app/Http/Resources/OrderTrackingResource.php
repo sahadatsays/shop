@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Models\Order;
 use App\Support\MoneyFormatter;
 use App\Support\OrderTracking\OrderTimelineBuilder;
@@ -21,7 +22,6 @@ class OrderTrackingResource extends JsonResource
         $timelineBuilder = app(OrderTimelineBuilder::class);
 
         $shippingAddress = $this->shipping_address ?? [];
-        $billingAddress = $this->billing_address ?? $shippingAddress;
 
         return [
             'order_number' => $this->order_number,
@@ -32,7 +32,21 @@ class OrderTrackingResource extends JsonResource
             'status_variant' => $this->status->storefrontBadgeVariant(),
             'status_enum' => $this->status->value,
             'is_delivered' => $this->status === OrderStatus::Delivered,
-            'payment_status' => ucfirst(str_replace('_', ' ', $this->payment_status ?? 'paid')),
+            'can_request_return' => $this->canRequestReturn(),
+            'return_window_days' => config('refunds.return_window_days', 30),
+            'return_requested_at' => $this->return_requested_at?->format('M j, Y'),
+            'payment_status' => ($this->payment_status instanceof PaymentStatus
+                ? $this->payment_status
+                : PaymentStatus::tryFrom((string) ($this->payment_status ?? 'paid')) ?? PaymentStatus::Paid
+            )->storefrontLabel(),
+            'payment_status_variant' => ($this->payment_status instanceof PaymentStatus
+                ? $this->payment_status
+                : PaymentStatus::tryFrom((string) ($this->payment_status ?? 'paid')) ?? PaymentStatus::Paid
+            ) === PaymentStatus::Refunded ? 'neutral' : 'olive',
+            'refunded_amount' => $this->refunded_cents > 0
+                ? MoneyFormatter::format($this->refunded_cents)
+                : null,
+            'refundable_amount' => MoneyFormatter::format($this->refundableCents()),
             'payment_method' => $this->payment_method ?? 'Card',
             'estimated_delivery' => $this->estimatedDeliveryLabel(),
             'eta_heading' => $this->etaHeading(),
@@ -49,7 +63,6 @@ class OrderTrackingResource extends JsonResource
             'tracking_number_display' => $this->tracking_number_display,
             'delivery_instructions' => $this->delivery_instructions,
             'shipping_address' => $this->formatAddress($shippingAddress),
-            'billing_address' => $this->formatAddress($billingAddress),
             'customer_name' => $this->customer?->name,
             'summary' => [
                 'subtotal' => MoneyFormatter::format($this->subtotal_cents),
@@ -115,9 +128,9 @@ class OrderTrackingResource extends JsonResource
             ->values();
 
         return [
-            'name' => $name,
-            'lines' => $lines->implode("\n"),
-            'html' => $lines->implode('<br>'),
+            'name' => e($name),
+            'lines' => e($lines->implode("\n")),
+            'html' => $lines->map(fn (string $line): string => e($line))->implode('<br>'),
         ];
     }
 }

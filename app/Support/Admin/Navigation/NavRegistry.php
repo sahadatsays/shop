@@ -27,6 +27,15 @@ class NavRegistry
                     new NavItem(label: 'Brands', route: 'admin.brands.index', routePrefix: 'admin.brands.', permission: 'brands.view'),
                     new NavItem(label: 'Collections', route: 'admin.collections.index', routePrefix: 'admin.collections.', permission: 'collections.view'),
                     new NavItem(label: 'Inventory', route: 'admin.inventory.index', routePrefix: 'admin.inventory.', permission: 'inventory.view'),
+                    new NavItem(label: 'Warehouses', route: 'admin.warehouses.index', routePrefix: 'admin.warehouses.', permission: 'warehouses.view'),
+                ],
+            ),
+            new NavItem(
+                label: 'Procurement',
+                icon: 'M16 3H5a2 2 0 0 0-2 2v14l4-2 4 2 4-2 4 2V5a2 2 0 0 0-2-2Zm0 4H8',
+                children: [
+                    new NavItem(label: 'Suppliers', route: 'admin.suppliers.index', routePrefix: 'admin.suppliers.', permission: 'suppliers.view'),
+                    new NavItem(label: 'Purchases', route: 'admin.purchases.index', routePrefix: 'admin.purchases.', permission: 'purchases.view'),
                 ],
             ),
             new NavItem(
@@ -34,9 +43,7 @@ class NavRegistry
                 icon: 'M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7ZM9 10V6a3 3 0 0 1 6 0v4',
                 children: [
                     new NavItem(label: 'Orders', route: 'admin.orders.index', routePrefix: 'admin.orders.', permission: 'orders.view'),
-                    new NavItem(label: 'Refunds', disabled: true),
-                    new NavItem(label: 'Coupons', disabled: true),
-                    new NavItem(label: 'Shipping', disabled: true),
+                    new NavItem(label: 'Refunds', route: 'admin.refunds.index', routePrefix: 'admin.refunds.', permission: 'refunds.view'),
                 ],
             ),
             new NavItem(
@@ -45,15 +52,6 @@ class NavRegistry
                 children: [
                     new NavItem(label: 'Customers', route: 'admin.customers.index', routePrefix: 'admin.customers.', permission: 'customers.view'),
                     new NavItem(label: 'Reviews', disabled: true),
-                ],
-            ),
-            new NavItem(
-                label: 'Veterans & Impact',
-                icon: 'M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3Z',
-                disabled: true,
-                children: [
-                    new NavItem(label: 'Discount verification', disabled: true),
-                    new NavItem(label: 'Giving reports', disabled: true),
                 ],
             ),
             new NavItem(
@@ -95,6 +93,7 @@ class NavRegistry
                     new NavItem(label: 'Dashboard widgets', route: 'admin.dashboard-widgets.index', routePrefix: 'admin.dashboard-widgets.', permission: 'dashboard.widgets.view'),
                     new NavItem(label: 'Notifications', route: 'admin.notifications.index', routePrefix: 'admin.notifications.', permission: 'notifications.view'),
                     new NavItem(label: 'Audit logs', route: 'admin.audit-logs.index', routePrefix: 'admin.audit-logs.', permission: 'audit.view'),
+                    new NavItem(label: 'Admin users', route: 'admin.users.index', routePrefix: 'admin.users.', permission: 'users.view'),
                     new NavItem(label: 'Roles', route: 'admin.roles.index', routePrefix: 'admin.roles.', permission: 'roles.view'),
                     new NavItem(label: 'Permissions', route: 'admin.permissions.index', routePrefix: 'admin.permissions.', permission: 'permissions.view'),
                     new NavItem(label: 'Permission matrix', route: 'admin.roles.matrix', permission: 'access-matrix.manage'),
@@ -170,13 +169,18 @@ class NavRegistry
                     ['label' => 'Dashboard', 'href' => route('admin.dashboard'), 'keywords' => 'home overview'],
                     ['label' => 'Products', 'href' => route('admin.products.index'), 'keywords' => 'catalog inventory sku'],
                     ['label' => 'Inventory', 'href' => route('admin.inventory.index'), 'keywords' => 'stock warehouse movement'],
+                    ['label' => 'Warehouses', 'href' => route('admin.warehouses.index'), 'keywords' => 'stock fulfillment location distribution'],
+                    ['label' => 'Suppliers', 'href' => route('admin.suppliers.index'), 'keywords' => 'procurement vendor purchase vendor'],
+                    ['label' => 'Purchases', 'href' => route('admin.purchases.index'), 'keywords' => 'procurement purchase order receiving stock'],
                     ['label' => 'Stock history', 'href' => route('admin.inventory.movements'), 'keywords' => 'inventory log movement audit'],
                     ['label' => 'Customers', 'href' => route('admin.customers.index'), 'keywords' => 'users accounts profiles'],
                     ['label' => 'Orders', 'href' => route('admin.orders.index'), 'keywords' => 'commerce sales fulfillment'],
+                    ['label' => 'Refunds', 'href' => route('admin.refunds.index'), 'keywords' => 'commerce returns payments'],
                     ['label' => 'Categories', 'href' => route('admin.categories.index'), 'keywords' => 'catalog organize'],
                     ['label' => 'Brands', 'href' => route('admin.brands.index'), 'keywords' => 'catalog brand logo'],
                     ['label' => 'Store settings', 'href' => route('admin.settings.edit'), 'keywords' => 'store configuration logo seo maintenance theme'],
                     ['label' => 'Media library', 'href' => route('admin.media.index'), 'keywords' => 'upload images files assets media'],
+                    ['label' => 'Admin users', 'href' => route('admin.users.index'), 'keywords' => 'system staff team access'],
                     ['label' => 'Roles', 'href' => route('admin.roles.index'), 'keywords' => 'system access security'],
                     ['label' => 'Permissions', 'href' => route('admin.permissions.index'), 'keywords' => 'system access security'],
                     ['label' => 'Permission matrix', 'href' => route('admin.roles.matrix'), 'keywords' => 'system access security matrix'],
@@ -189,6 +193,8 @@ class NavRegistry
                     ['label' => 'Create category', 'href' => route('admin.categories.create'), 'keywords' => 'new catalog category'],
                     ['label' => 'Create brand', 'href' => route('admin.brands.create'), 'keywords' => 'new catalog brand'],
                     ['label' => 'Create customer', 'href' => route('admin.customers.create'), 'keywords' => 'new user account'],
+                    ['label' => 'Create supplier', 'href' => route('admin.suppliers.create'), 'keywords' => 'new procurement vendor'],
+                    ['label' => 'Create purchase', 'href' => route('admin.purchases.create'), 'keywords' => 'new procurement purchase order'],
                     ['label' => 'View orders', 'href' => route('admin.orders.index'), 'keywords' => 'commerce sales'],
                     ['label' => 'Export report', 'href' => null, 'keywords' => 'download csv'],
                 ],

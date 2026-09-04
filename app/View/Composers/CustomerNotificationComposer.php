@@ -12,19 +12,18 @@ class CustomerNotificationComposer
 
     public function compose(View $view): void
     {
-        $customerId = session('customer_id');
+        /** @var Customer|null $customer */
+        $customer = auth('customer')->user();
 
-        if (! $customerId) {
+        if (! $customer) {
             $view->with('customerUnreadNotificationCount', 0);
 
             return;
         }
 
-        $customer = Customer::query()->find($customerId);
-
         $view->with(
             'customerUnreadNotificationCount',
-            $customer ? $this->notifications->unreadCountFor($customer) : 0,
+            $this->notifications->unreadCountFor($customer),
         );
     }
 }

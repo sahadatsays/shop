@@ -9,6 +9,7 @@ use App\Models\AppNotification;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\User;
+use App\Support\MoneyFormatter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -67,6 +68,49 @@ class NotificationService
             });
     }
 
+    public function notifyOrderPlaced(Order $order): void
+    {
+        $order->loadMissing(['customer', 'items']);
+
+        $customer = $order->customer;
+        $customerName = $customer?->name ?? 'Guest';
+        $itemCount = (int) $order->items->sum('quantity');
+        $total = MoneyFormatter::format($order->total_cents);
+
+        $this->notifyAdminsWithPermission('orders.view', [
+            'category' => NotificationCategory::OrderUpdate,
+            'title' => "New order {$order->order_number}",
+            'body' => "{$customerName} placed an order for {$total} ({$itemCount} ".($itemCount === 1 ? 'item' : 'items').').',
+            'action_label' => 'View order',
+            'action_url' => route('admin.orders.show', $order),
+            'meta' => [
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'status' => $order->status->value,
+                'event' => 'order_placed',
+            ],
+        ]);
+
+        if (! $customer?->hasNotifiableEmail()) {
+            return;
+        }
+
+        $this->notify($customer, [
+            'audience' => NotificationAudience::Customer,
+            'category' => NotificationCategory::OrderUpdate,
+            'title' => "Order {$order->order_number} received",
+            'body' => 'Thanks for your order. We will notify you when it ships.',
+            'action_label' => 'View order',
+            'action_url' => route('account.orders.show', $order),
+            'meta' => [
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'status' => $order->status->value,
+                'event' => 'order_placed',
+            ],
+        ]);
+    }
+
     public function notifyOrderStatusChange(Order $order, OrderStatus $previousStatus, OrderStatus $status, ?string $message = null): void
     {
         $order->loadMissing('customer');
@@ -88,7 +132,7 @@ class NotificationService
             ],
         ]);
 
-        if (! $order->customer) {
+        if (! $order->customer?->hasNotifiableEmail()) {
             return;
         }
 
@@ -152,8 +196,8 @@ class NotificationService
                 route('account.orders'),
             ],
             OrderStatus::Refunded => [
-                "Refund ready for {$order->order_number}",
-                $message ?: 'Your refund has been approved and will be issued soon.',
+                "Refund issued for {$order->order_number}",
+                $message ?: 'Your refund has been processed and should appear on your statement within '.config('refunds.processing_days', '5–7 business days').'.',
                 'View order',
                 route('account.orders'),
             ],
@@ -193,7 +237,7 @@ class NotificationService
             $query->where('category', $category);
         }
 
-        return $query->paginate($perPage)->withQueryString();
+        return $query->latestFirst()->paginate($perPage)->withQueryString();
     }
 
     /**
@@ -203,6 +247,7 @@ class NotificationService
     {
         return AppNotification::query()
             ->forNotifiable($notifiable)
+            ->latestFirst()
             ->limit($limit)
             ->get();
     }
@@ -219,6 +264,7 @@ class NotificationService
         }
 
         return $query
+            ->latestFirst()
             ->get()
             ->groupBy(fn (AppNotification $notification): string => $notification->groupLabel());
     }

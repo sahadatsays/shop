@@ -36,6 +36,7 @@ test('nav registry exposes dashboard navigation', function (): void {
     expect($items)->not->toBeEmpty();
     expect($items[0]->label)->toBe('Dashboard');
     expect($items[0]->route)->toBe('admin.dashboard');
+    expect(collect($items)->pluck('label'))->not->toContain('Veterans & Impact');
 });
 
 test('admin dashboard route is named correctly', function (): void {

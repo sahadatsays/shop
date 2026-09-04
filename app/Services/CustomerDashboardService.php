@@ -70,14 +70,14 @@ class CustomerDashboardService
                     'Your %s is on the move%s.',
                     $leadItem,
                     $spotlightOrder->estimated_delivery_at
-                        ? ' — arriving ' . $spotlightOrder->estimated_delivery_at->format('l')
+                        ? ' — arriving '.$spotlightOrder->estimated_delivery_at->format('l')
                         : '',
                 ),
                 OrderStatus::Delivered => sprintf('Your %s was delivered. Hope you love it.', $leadItem),
-                default => sprintf('Your order %s is being prepared.', '#' . $spotlightOrder->order_number),
+                default => sprintf('Your order %s is being prepared.', '#'.$spotlightOrder->order_number),
             };
         } elseif ($rewards['points_to_next_tier']) {
-            $highlight = number_format($rewards['points_to_next_tier']) . ' points';
+            $highlight = number_format($rewards['points_to_next_tier']).' points';
             $message = sprintf(
                 'You\'re %s away from %s.',
                 $highlight,
@@ -89,7 +89,7 @@ class CustomerDashboardService
 
         return [
             'date_label' => now()->format('l, F j'),
-            'headline' => 'Welcome back, ' . $firstName,
+            'headline' => 'Welcome back, '.$firstName,
             'message' => $message,
             'highlight' => $highlight,
             'track_url' => $trackUrl,
@@ -107,7 +107,7 @@ class CustomerDashboardService
     {
         $quarterStart = now()->startOfQuarter();
         $ordersThisQuarter = $orders->filter(
-            fn(Order $order): bool => $order->placed_at !== null && $order->placed_at->gte($quarterStart),
+            fn (Order $order): bool => $order->placed_at !== null && $order->placed_at->gte($quarterStart),
         )->count();
 
         $inTransit = $orders->where('status', OrderStatus::Shipped)->count();
@@ -118,7 +118,7 @@ class CustomerDashboardService
                 'label' => 'Total orders',
                 'value' => (string) $orders->count(),
                 'trend' => $ordersThisQuarter > 0
-                    ? '+' . $ordersThisQuarter . ' this quarter'
+                    ? '+'.$ordersThisQuarter.' this quarter'
                     : 'No orders this quarter',
                 'up' => $ordersThisQuarter > 0,
                 'icon' => 'M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7ZM9 10V6a3 3 0 0 1 6 0v4',
@@ -134,7 +134,7 @@ class CustomerDashboardService
             ],
             [
                 'label' => 'Reward points',
-                'value' => 00,
+                'value' => $rewards['points_label'],
                 'trend' => $rewards['last_order_points_label'],
                 'up' => $rewards['last_order_points'] > 0,
                 'icon' => 'M12 15a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 0 2.5 6.5L12 20l-2.5 1.5L12 15Z',
@@ -167,7 +167,7 @@ class CustomerDashboardService
      */
     private function spotlightOrder(Collection $orders): ?Order
     {
-        $active = $orders->filter(fn(Order $order): bool => ! in_array($order->status, [
+        $active = $orders->filter(fn (Order $order): bool => ! in_array($order->status, [
             OrderStatus::Cancelled,
             OrderStatus::Returned,
             OrderStatus::Refunded,
@@ -189,7 +189,7 @@ class CustomerDashboardService
         $timelineBuilder = app(OrderTimelineBuilder::class);
 
         return [
-            'number' => '#' . $trackable->order_number,
+            'number' => '#'.$trackable->order_number,
             'order_number' => $trackable->order_number,
             'status' => $trackable->status->storefrontLabel(),
             'track_url' => route('account.orders.show', $trackable),
@@ -244,13 +244,13 @@ class CustomerDashboardService
     private function recommendedProducts(Customer $customer, Collection $orders): Collection
     {
         $purchasedProductIds = $orders
-            ->flatMap(fn(Order $order) => $order->items->pluck('product_id'))
+            ->flatMap(fn (Order $order) => $order->items->pluck('product_id'))
             ->filter()
             ->unique()
             ->values();
 
         $categoryIds = $orders
-            ->flatMap(fn(Order $order) => $order->items->map(fn($item) => $item->product?->category_id))
+            ->flatMap(fn (Order $order) => $order->items->map(fn ($item) => $item->product?->category_id))
             ->filter()
             ->unique()
             ->values();
@@ -260,7 +260,7 @@ class CustomerDashboardService
             ->with(['category', 'images'])
             ->when(
                 $purchasedProductIds->isNotEmpty(),
-                fn($builder) => $builder->whereNotIn('id', $purchasedProductIds),
+                fn ($builder) => $builder->whereNotIn('id', $purchasedProductIds),
             );
 
         if ($categoryIds->isNotEmpty()) {

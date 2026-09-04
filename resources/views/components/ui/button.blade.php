@@ -5,7 +5,7 @@
 ])
 
 @php
-    $base = 'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze-500 disabled:pointer-events-none disabled:opacity-50';
+    $base = 'inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze-500 disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50';
 
     $variants = [
         'primary' => 'bg-[var(--store-button-primary-bg,var(--color-navy-900))] text-[var(--store-button-primary-text,white)] shadow-soft hover:opacity-90 hover:shadow-card active:scale-[0.98]',

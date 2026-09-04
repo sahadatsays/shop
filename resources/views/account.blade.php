@@ -294,8 +294,8 @@
                             @foreach ($recommendedProducts as $product)
                                 @php $badge = $product->shopBadge(); @endphp
                                 <x-ui.product-card :name="$product->name" :category="$product->category?->name" :price="$product->formattedPrice()"
-                                    :old-price="$product->isOnSale() ? $product->formattedCompareAtPrice() : null" :badge="$badge['badge']" :badge-variant="$badge['variant']" :rating="$product->placeholderRating()"
-                                    :reviews="$product->placeholderReviewCount()" :image="$product->primaryImageUrl()" :href="route('product.show', $product)" :product-id="$product->id" />
+                                    :old-price="$product->isOnSale() ? $product->formattedCompareAtPrice() : null" :badge="$badge['badge']" :badge-variant="$badge['variant']" :rating="$product->displayRating()"
+                                    :reviews="$product->displayReviewCount()" :image="$product->primaryImageUrl()" :href="route('product.show', $product)" :product-id="$product->id" />
                             @endforeach
                         </div>
                     </section>

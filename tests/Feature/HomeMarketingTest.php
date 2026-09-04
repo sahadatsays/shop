@@ -26,8 +26,8 @@ test('home page renders featured collections and best sellers from database', fu
 
     $this->get(route('home'))
         ->assertSuccessful()
-        ->assertSee($collection->name)
-        ->assertSee('Best sellers');
+        ->assertSee($collection->name, false)
+        ->assertSee('Top Selling Products', false);
 });
 
 test('collection show page lists collection products', function (): void {

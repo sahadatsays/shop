@@ -29,7 +29,11 @@
             <x-admin.form-card title="Assigned users">
                 <ul class="space-y-3">
                     @forelse ($role->users as $user)
-                        <li class="text-sm admin-text">{{ $user->name }} <span class="admin-muted">· {{ $user->email }}</span></li>
+                        <li>
+                            <a href="{{ route('admin.users.show', $user) }}" class="text-sm admin-text hover:text-admin-brand">
+                                {{ $user->name }} <span class="admin-muted">· {{ $user->email }}</span>
+                            </a>
+                        </li>
                     @empty
                         <li class="text-sm admin-muted">No users assigned.</li>
                     @endforelse
