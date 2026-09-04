@@ -31,6 +31,13 @@ class NavRegistry
                 ],
             ),
             new NavItem(
+                label: 'Procurement',
+                icon: 'M16 3H5a2 2 0 0 0-2 2v14l4-2 4 2 4-2 4 2V5a2 2 0 0 0-2-2Zm0 4H8',
+                children: [
+                    new NavItem(label: 'Suppliers', route: 'admin.suppliers.index', routePrefix: 'admin.suppliers.', permission: 'suppliers.view'),
+                ],
+            ),
+            new NavItem(
                 label: 'Commerce',
                 icon: 'M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7ZM9 10V6a3 3 0 0 1 6 0v4',
                 children: [
@@ -162,6 +169,7 @@ class NavRegistry
                     ['label' => 'Products', 'href' => route('admin.products.index'), 'keywords' => 'catalog inventory sku'],
                     ['label' => 'Inventory', 'href' => route('admin.inventory.index'), 'keywords' => 'stock warehouse movement'],
                     ['label' => 'Warehouses', 'href' => route('admin.warehouses.index'), 'keywords' => 'stock fulfillment location distribution'],
+                    ['label' => 'Suppliers', 'href' => route('admin.suppliers.index'), 'keywords' => 'procurement vendor purchase vendor'],
                     ['label' => 'Stock history', 'href' => route('admin.inventory.movements'), 'keywords' => 'inventory log movement audit'],
                     ['label' => 'Customers', 'href' => route('admin.customers.index'), 'keywords' => 'users accounts profiles'],
                     ['label' => 'Orders', 'href' => route('admin.orders.index'), 'keywords' => 'commerce sales fulfillment'],
@@ -183,6 +191,7 @@ class NavRegistry
                     ['label' => 'Create category', 'href' => route('admin.categories.create'), 'keywords' => 'new catalog category'],
                     ['label' => 'Create brand', 'href' => route('admin.brands.create'), 'keywords' => 'new catalog brand'],
                     ['label' => 'Create customer', 'href' => route('admin.customers.create'), 'keywords' => 'new user account'],
+                    ['label' => 'Create supplier', 'href' => route('admin.suppliers.create'), 'keywords' => 'new procurement vendor'],
                     ['label' => 'View orders', 'href' => route('admin.orders.index'), 'keywords' => 'commerce sales'],
                     ['label' => 'Export report', 'href' => null, 'keywords' => 'download csv'],
                 ],

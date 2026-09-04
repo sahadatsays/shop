@@ -89,7 +89,7 @@ class AdminAccessSeeder extends Seeder
         }
 
         foreach (config('admin-permissions.default_users', []) as $userData) {
-            $password = app()->environment('testing')
+            $password = app()->environment('local')
                 ? 'password'
                 : Str::password(20);
 

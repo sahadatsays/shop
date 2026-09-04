@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\RefundController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SaleProductController;
 use App\Http\Controllers\Admin\StoreSettingsController;
+use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WarehouseController;
 use Illuminate\Support\Facades\Route;
@@ -97,6 +98,29 @@ Route::middleware('admin.permission:warehouses.manage')->group(function (): void
     Route::put('warehouses/{warehouse}', [WarehouseController::class, 'update'])->name('warehouses.update');
     Route::patch('warehouses/{warehouse}', [WarehouseController::class, 'update']);
     Route::delete('warehouses/{warehouse}', [WarehouseController::class, 'destroy'])->name('warehouses.destroy');
+});
+
+Route::middleware('admin.permission:suppliers.view')->group(function (): void {
+    Route::get('suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
+});
+
+Route::middleware('admin.permission:suppliers.create')->group(function (): void {
+    Route::get('suppliers/create', [SupplierController::class, 'create'])->name('suppliers.create');
+    Route::post('suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
+});
+
+Route::middleware('admin.permission:suppliers.view')->group(function (): void {
+    Route::get('suppliers/{supplier}', [SupplierController::class, 'show'])->name('suppliers.show');
+});
+
+Route::middleware('admin.permission:suppliers.edit')->group(function (): void {
+    Route::get('suppliers/{supplier}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit');
+    Route::put('suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
+    Route::patch('suppliers/{supplier}', [SupplierController::class, 'update']);
+});
+
+Route::middleware('admin.permission:suppliers.delete')->group(function (): void {
+    Route::delete('suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
 });
 
 Route::middleware('admin.permission:categories.view')->group(function (): void {
