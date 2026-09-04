@@ -5,28 +5,28 @@
             'label' => 'Home',
             'icon' => 'home',
             'default' => true,
-            'name' => 'James Mitchell',
-            'line1' => '1247 Cedar Ridge Drive',
-            'line2' => 'Unit B',
-            'city' => 'Springfield',
-            'state' => 'IL',
-            'postal' => '62704',
-            'country' => 'United States',
-            'phone' => '+1 (217) 555-0142',
+            'name' => 'Karim Hasan',
+            'line1' => 'House 12, Road 5, Dhanmondi',
+            'line2' => '',
+            'city' => 'Dhaka',
+            'state' => 'Dhaka',
+            'postal' => '1209',
+            'country' => 'Bangladesh',
+            'phone' => '+8801712345678',
         ],
         [
             'id' => 'office',
             'label' => 'Office',
             'icon' => 'office',
             'default' => false,
-            'name' => 'James Mitchell',
-            'line1' => '880 Veterans Parkway',
+            'name' => 'Karim Hasan',
+            'line1' => 'Level 5, Gulshan Avenue',
             'line2' => 'Suite 210',
-            'city' => 'Chicago',
-            'state' => 'IL',
-            'postal' => '60607',
-            'country' => 'United States',
-            'phone' => '+1 (312) 555-0198',
+            'city' => 'Dhaka',
+            'state' => 'Dhaka',
+            'postal' => '1212',
+            'country' => 'Bangladesh',
+            'phone' => '+8801812345678',
         ],
     ];
 @endphp
@@ -285,7 +285,7 @@
                                 class="block text-sm font-medium text-navy-900">Country</label>
                             <select id="address-country" name="country" required
                                 class="mt-1.5 block w-full rounded-field border border-navy-200 bg-surface px-4 py-3 text-sm text-ink shadow-soft transition-colors duration-200 hover:border-navy-300 focus:outline-2 focus:outline-offset-2 focus:outline-bronze-500">
-                                <option value="United States" selected>United States</option>
+                                <option value="Bangladesh" selected>Bangladesh</option>
                                 <option value="Canada">Canada</option>
                                 <option value="United Kingdom">United Kingdom</option>
                                 <option value="Australia">Australia</option>

@@ -28,7 +28,7 @@ class OrderTotalsCalculator
     ): OrderTotals {
         $discountCents = max(0, min($discountCents, $subtotalCents));
         $taxableCents = max(0, $subtotalCents - $discountCents);
-        $taxRate = (float) config('cart.tax_rate', 0.08);
+        $taxRate = (float) config('cart.tax_rate', 0);
         $taxCents = (int) round($taxableCents * $taxRate);
         $totalCents = $taxableCents + $shippingCents + $taxCents;
 

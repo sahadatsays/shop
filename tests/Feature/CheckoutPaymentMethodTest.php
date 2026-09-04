@@ -31,7 +31,7 @@ test('checkout accepts cash on delivery and keeps payment pending', function ():
             'postal_code' => '43215',
             'country' => 'United States',
         ],
-        'delivery_method' => 'standard',
+        'delivery_method' => 'insideDhaka',
         'payment_method' => 'cod',
         'terms_accepted' => '1',
     ])->assertRedirect();
@@ -65,7 +65,7 @@ test('checkout rejects online card payment while under construction', function (
                 'postal_code' => '43215',
                 'country' => 'United States',
             ],
-            'delivery_method' => 'standard',
+            'delivery_method' => 'insideDhaka',
             'payment_method' => 'card',
             'terms_accepted' => '1',
         ])

@@ -49,6 +49,9 @@ test('store settings can be updated', function (): void {
         'meta_keywords' => 'test, gear',
         'utility_bar_message' => 'Test announcement bar.',
         'free_shipping_threshold' => '99.00',
+        'flat_shipping' => '70.00',
+        'inside_dhaka_shipping' => '50.00',
+        'outside_dhaka_shipping' => '150.00',
         'google_analytics_id' => null,
         'theme_colors' => StoreSetting::defaultThemeColors(),
     ])->assertRedirect(route('admin.settings.edit'));
@@ -61,7 +64,10 @@ test('store settings can be updated', function (): void {
         ->and($settings->tagline)->toBe('Built to serve.')
         ->and($settings->timezone)->toBe('America/Chicago')
         ->and($settings->utility_bar_message)->toBe('Test announcement bar.')
-        ->and($settings->free_shipping_threshold_cents)->toBe(9900);
+        ->and($settings->free_shipping_threshold_cents)->toBe(9900)
+        ->and($settings->flat_shipping_cents)->toBe(7000)
+        ->and($settings->inside_dhaka_shipping_cents)->toBe(5000)
+        ->and($settings->outside_dhaka_shipping_cents)->toBe(15000);
 });
 
 test('theme css variables enforce readable header text on dark backgrounds', function (): void {

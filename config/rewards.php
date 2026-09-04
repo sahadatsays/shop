@@ -1,13 +1,14 @@
 <?php
 
 return [
-    'points_per_dollar' => 1,
+    'points_per_taka' => 1,
 
     'registration_bonus' => 250,
 
     'redemption' => [
         'points' => 100,
-        'value_cents' => 500,
+        // Whole taka amount awarded when redeeming the points package.
+        'value_amount' => 5,
     ],
 
     'tiers' => [

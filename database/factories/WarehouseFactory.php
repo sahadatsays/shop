@@ -24,7 +24,7 @@ class WarehouseFactory extends Factory
             'code' => strtoupper(fake()->unique()->lexify('WH-???')),
             'city' => $city,
             'state' => fake()->stateAbbr(),
-            'country' => 'US',
+            'country' => config('store.country_code', 'BD'),
             'address' => fake()->streetAddress(),
             'is_default' => false,
             'is_active' => true,

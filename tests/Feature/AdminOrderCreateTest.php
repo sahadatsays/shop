@@ -27,7 +27,9 @@ test('admin can open create order page', function (): void {
     $this->get(route('admin.orders.create'))
         ->assertSuccessful()
         ->assertSee('Create order')
-        ->assertSee('Products');
+        ->assertSee('Products')
+        ->assertSee('Shipping charge (BDT)')
+        ->assertSee('Initial payment (BDT)');
 });
 
 test('admin can create an order with inventory deduction payment and invoice', function (): void {
@@ -42,19 +44,19 @@ test('admin can create an order with inventory deduction payment and invoice', f
         'customer_id' => $customer->id,
         'source' => OrderSource::Phone->value,
         'shipping_method' => 'insideDhaka',
-        'shipping_cents' => 15000,
+        'shipping_amount' => 60,
         'payment_method' => PaymentMethod::Cash->value,
-        'initial_payment_cents' => 0,
+        'initial_payment_amount' => 0,
         'idempotency_key' => $idempotencyKey,
         'shipping_address' => [
             'first_name' => 'Alex',
             'last_name' => 'Rivera',
-            'line1' => '123 Main St',
-            'city' => 'Columbus',
-            'state' => 'OH',
-            'postal_code' => '43215',
-            'country' => 'United States',
-            'phone' => '555-0100',
+            'line1' => 'House 12, Road 5',
+            'city' => 'Dhaka',
+            'state' => 'Dhaka',
+            'postal_code' => '1209',
+            'country' => 'Bangladesh',
+            'phone' => '01712345678',
         ],
         'items' => [
             [
@@ -76,6 +78,7 @@ test('admin can create an order with inventory deduction payment and invoice', f
     expect($order->source)->toBe(OrderSource::Phone)
         ->and($order->status)->toBe(OrderStatus::Pending)
         ->and($order->payment_status)->toBe(PaymentStatus::Pending)
+        ->and($order->shipping_cents)->toBe(6000)
         ->and($order->items)->toHaveCount(1)
         ->and($order->items->first()->product_name)->toBe($product->name)
         ->and($product->stock_quantity)->toBe($initialStock - $qty)
@@ -97,9 +100,9 @@ test('duplicate idempotency key does not create a second order', function (): vo
         'customer_mode' => 'existing',
         'customer_id' => $customer->id,
         'source' => OrderSource::Admin->value,
-        'shipping_cents' => 0,
+        'shipping_amount' => 0,
         'payment_method' => PaymentMethod::Cash->value,
-        'initial_payment_cents' => 0,
+        'initial_payment_amount' => 0,
         'idempotency_key' => $idempotencyKey,
         'shipping_address' => [
             'first_name' => 'Alex',
@@ -130,9 +133,9 @@ test('admin cannot create an order exceeding available stock', function (): void
             'customer_mode' => 'existing',
             'customer_id' => $customer->id,
             'source' => OrderSource::Admin->value,
-            'shipping_cents' => 0,
+            'shipping_amount' => 0,
             'payment_method' => PaymentMethod::Cash->value,
-            'initial_payment_cents' => 0,
+            'initial_payment_amount' => 0,
             'idempotency_key' => (string) Str::uuid(),
             'shipping_address' => [
                 'first_name' => 'Alex',

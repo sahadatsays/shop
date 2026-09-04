@@ -1,6 +1,6 @@
 @php
     /** @var \App\DTOs\Cart\CartSummary $summary */
-    $taxRate = $taxRate ?? config('cart.tax_rate', 0.08);
+    $taxRate = $taxRate ?? config('cart.tax_rate', 0);
     $currencySymbol = $currencySymbol ?? \App\Support\MoneyFormatter::symbol();
 
     $addressFields = function (string $prefix): array {
@@ -142,7 +142,7 @@
                             <label
                                 class="group flex cursor-pointer items-center gap-4 rounded-field border border-navy-200 p-5 transition-all duration-200 hover:border-navy-300 has-checked:border-navy-900 has-checked:bg-navy-50/60 has-checked:shadow-soft">
                                 <input type="radio" name="delivery_method" value="{{ $method['value'] }}"
-                                    data-delivery-option data-cost="{{ $method['cost_cents'] / 100 }}"
+                                    data-delivery-option data-cost="{{ \App\Support\Money::toAmount((int) $method['cost_cents']) }}"
                                     @checked(old('delivery_method', $index === 0 ? $method['value'] : null) === $method['value'])
                                     class="size-4.5 border-navy-300 accent-navy-900 focus:outline-2 focus:outline-offset-2 focus:outline-bronze-500">
                                 <span class="flex-1">

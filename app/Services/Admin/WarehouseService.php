@@ -127,7 +127,7 @@ class WarehouseService
             'code' => strtoupper($data['code']),
             'city' => $data['city'] ?? null,
             'state' => $data['state'] ?? null,
-            'country' => $data['country'] ?? 'US',
+            'country' => $data['country'] ?? config('store.country_code', 'BD'),
             'address' => $data['address'] ?? null,
             'is_default' => (bool) ($data['is_default'] ?? false),
             'is_active' => (bool) ($data['is_active'] ?? true),

@@ -1,12 +1,19 @@
 @php
     $themeColors = old('theme_colors', $settings->themeColors());
     $social = $settings->socialLinks();
-    $freeShipping = old(
-        'free_shipping_threshold',
-        $settings->free_shipping_threshold_cents
-            ? number_format($settings->free_shipping_threshold_cents / 100, 2, '.', '')
-            : '',
-    );
+    $moneyField = static function (?int $cents, string $oldKey): string {
+        if (old($oldKey) !== null) {
+            return (string) old($oldKey);
+        }
+
+        return $cents !== null
+            ? number_format($cents / 100, 2, '.', '')
+            : '';
+    };
+    $freeShipping = $moneyField($settings->free_shipping_threshold_cents, 'free_shipping_threshold');
+    $flatShipping = $moneyField($settings->flat_shipping_cents, 'flat_shipping');
+    $insideDhakaShipping = $moneyField($settings->inside_dhaka_shipping_cents, 'inside_dhaka_shipping');
+    $outsideDhakaShipping = $moneyField($settings->outside_dhaka_shipping_cents, 'outside_dhaka_shipping');
 @endphp
 
 <form method="POST" action="{{ $action }}" enctype="multipart/form-data" x-data="{ tab: 'general' }" class="space-y-6">
@@ -55,9 +62,20 @@
                         <x-admin.input label="Utility bar message" name="utility_bar_message" :value="old('utility_bar_message', $settings->utility_bar_message)"
                             help="Shown in the top announcement bar across the storefront." />
                     </div>
-                    <div class="mt-5">
+                </x-admin.form-card>
+
+                <x-admin.form-card title="Shipping rates" class="lg:col-span-2">
+                    <div class="grid gap-5 sm:grid-cols-2">
                         <x-admin.input label="Free shipping threshold (BDT)" name="free_shipping_threshold"
-                            type="number" step="0.01" min="0" :value="$freeShipping" placeholder="75.00" />
+                            type="number" step="0.01" min="0" :value="$freeShipping" placeholder="2000.00"
+                            help="Used for flat-rate estimates before a delivery zone is chosen." />
+                        <x-admin.input label="Flat shipping (BDT)" name="flat_shipping"
+                            type="number" step="0.01" min="0" :value="$flatShipping" placeholder="80.00"
+                            help="Charged when the cart is below the free shipping threshold." />
+                        <x-admin.input label="Inside Dhaka (BDT)" name="inside_dhaka_shipping"
+                            type="number" step="0.01" min="0" :value="$insideDhakaShipping" placeholder="60.00" />
+                        <x-admin.input label="Outside Dhaka (BDT)" name="outside_dhaka_shipping"
+                            type="number" step="0.01" min="0" :value="$outsideDhakaShipping" placeholder="120.00" />
                     </div>
                 </x-admin.form-card>
 

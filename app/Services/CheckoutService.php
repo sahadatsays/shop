@@ -24,6 +24,7 @@ use App\Services\Admin\InventoryService;
 use App\Support\Checkout\OrderTotalsCalculator;
 use App\Support\MoneyFormatter;
 use App\Support\OrderNumberGenerator;
+use App\Support\ShippingRates;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -46,24 +47,20 @@ class CheckoutService
      */
     public function pageData(CartSummary $summary): array
     {
-        $methods = collect(config('cart.shipping_methods', []))
-            ->map(function (array $method, string $key) use ($summary): array {
-                $costCents = $this->resolveShippingCostCents($key, $summary->subtotalCents);
-
-                return [
-                    'value' => $key,
-                    'label' => $method['label'],
-                    'description' => $method['description'],
-                    'cost_cents' => $costCents,
-                    'price' => $costCents === 0 ? 'Free' : MoneyFormatter::format($costCents),
-                ];
-            })
+        $methods = collect(ShippingRates::methodsForCheckout($summary->subtotalCents))
+            ->map(fn (array $method, string $key): array => [
+                'value' => $key,
+                'label' => $method['label'],
+                'description' => $method['description'],
+                'cost_cents' => $method['cost_cents'],
+                'price' => $method['price'],
+            ])
             ->values()
             ->all();
 
         return [
             'shippingMethods' => $methods,
-            'taxRate' => (float) config('cart.tax_rate', 0.00),
+            'taxRate' => (float) config('cart.tax_rate', 0),
             'currencySymbol' => MoneyFormatter::symbol(),
         ];
     }
@@ -192,23 +189,7 @@ class CheckoutService
 
     public function resolveShippingCostCents(string $method, int $subtotalCents): int
     {
-        $config = config("cart.shipping_methods.{$method}");
-
-        if (! is_array($config)) {
-            return (int) config('cart.flat_shipping_cents', 900);
-        }
-
-        if ($config['cost_cents'] !== null) {
-            return (int) $config['cost_cents'];
-        }
-
-        $threshold = (int) config('cart.free_shipping_threshold_cents', 7500);
-
-        if ($subtotalCents === 0 || $subtotalCents >= $threshold) {
-            return 0;
-        }
-
-        return (int) config('cart.flat_shipping_cents', 900);
+        return ShippingRates::resolve($method, $subtotalCents);
     }
 
     private function resolveCustomer(PlaceOrderRequest $request): Customer

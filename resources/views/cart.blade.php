@@ -1,12 +1,12 @@
 @php
     /** @var \App\DTOs\Cart\CartSummary $summary */
-    $freeShippingThreshold = config('cart.free_shipping_threshold_cents', 7500) / 100;
-    $taxRate = config('cart.tax_rate', 0.08);
-    $flatShipping = config('cart.flat_shipping_cents', 900) / 100;
+    $freeShippingThreshold = \App\Support\Money::toAmount(\App\Support\ShippingRates::freeShippingThresholdCents());
+    $taxRate = config('cart.tax_rate', 0);
+    $flatShipping = \App\Support\Money::toAmount(\App\Support\ShippingRates::flatShippingCents());
 @endphp
 
 <x-layouts.app title="Shopping Cart"
-    description="Review your Jackpot BD LTD order — free express shipping over {{ \App\Support\MoneyFormatter::format((int) config('cart.free_shipping_threshold_cents', 7500)) }} ">
+    description="Review your Jackpot BD LTD order — free express shipping over {{ \App\Support\MoneyFormatter::format(\App\Support\ShippingRates::freeShippingThresholdCents()) }} ">
 
     <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14" data-cart
         data-free-shipping-threshold="{{ $freeShippingThreshold }}" data-tax-rate="{{ $taxRate }}"

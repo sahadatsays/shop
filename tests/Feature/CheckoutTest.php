@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\Warehouse;
 use App\Models\WarehouseStock;
+use App\Support\StoreSettings;
 use Database\Seeders\CommerceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -161,8 +162,53 @@ test('express shipping charge is applied to order total', function (): void {
 
     $order = Order::query()->latest('id')->first();
 
-    expect($order->shipping_cents)->toBe(15000)
-        ->and($order->total_cents)->toBe($order->subtotal_cents + 15000 + $order->tax_cents);
+    expect($order->shipping_cents)->toBe(12000)
+        ->and($order->total_cents)->toBe($order->subtotal_cents + 12000 + $order->tax_cents);
+});
+
+test('checkout shipping charge uses store settings rates', function (): void {
+    $settings = StoreSettings::current();
+    $settings->update([
+        'outside_dhaka_shipping_cents' => 25000,
+    ]);
+    StoreSettings::clearCache();
+
+    $product = Product::factory()->create([
+        'status' => ProductStatus::Published,
+        'stock_quantity' => 10,
+        'price_cents' => 10000,
+    ]);
+
+    $warehouse = Warehouse::query()->where('is_default', true)->firstOrFail();
+    WarehouseStock::query()->updateOrCreate(
+        ['product_id' => $product->id, 'warehouse_id' => $warehouse->id],
+        ['quantity' => 10],
+    );
+
+    $this->postJson(route('cart.items.store'), [
+        'product_id' => $product->id,
+        'quantity' => 1,
+    ])->assertSuccessful();
+
+    $this->post(route('checkout.store'), [
+        'email' => 'settings-shipping@example.com',
+        'shipping' => [
+            'first_name' => 'Jordan',
+            'last_name' => 'Reeves',
+            'line1' => '789 Pine Rd',
+            'city' => 'Denver',
+            'state' => 'CO',
+            'postal_code' => '80202',
+            'country' => 'United States',
+        ],
+        'delivery_method' => 'outsideDhaka',
+        'payment_method' => 'cod',
+        'terms_accepted' => '1',
+    ])->assertRedirect();
+
+    $order = Order::query()->latest('id')->first();
+
+    expect($order->shipping_cents)->toBe(25000);
 });
 
 test('confirmation page shows order details after checkout', function (): void {

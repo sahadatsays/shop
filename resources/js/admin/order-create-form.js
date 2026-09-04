@@ -7,10 +7,12 @@ export function registerOrderCreateForm(Alpine) {
         productQuery: '',
         productResults: [],
         items: [],
-        shippingCents: Number(config.defaultShippingCents ?? 0),
+        shippingMethod: config.defaultShippingMethod ?? '',
+        shippingRates: config.shippingRates ?? {},
+        shippingAmount: Number(config.defaultShippingAmount ?? 0),
         orderDiscountType: '',
         orderDiscountValue: '',
-        initialPaymentCents: 0,
+        initialPaymentAmount: 0,
         taxRate: Number(config.taxRate ?? 0),
         currencySymbol: config.currencySymbol ?? '',
         searchingCustomers: false,
@@ -28,6 +30,15 @@ export function registerOrderCreateForm(Alpine) {
             this.$watch('productQuery', (value) => {
                 clearTimeout(this._productTimer);
                 this._productTimer = setTimeout(() => this.searchProducts(value), 250);
+            });
+
+            this.$watch('shippingMethod', (method) => {
+                if (method && this.shippingRates[method] != null) {
+                    this.shippingAmount = Number(this.shippingRates[method]);
+                } else {
+                    // "Custom / none" selected — reset charge to 0
+                    this.shippingAmount = 0;
+                }
             });
         },
 
@@ -66,10 +77,8 @@ export function registerOrderCreateForm(Alpine) {
                 last_name: rest.join(' ') || '',
                 line1: address.line1 || '',
                 line2: address.line2 || '',
-                city: address.city || '',
-                state: address.state || '',
-                postal_code: address.postal_code || '',
-                country: address.country || 'United States',
+                district: address.district || address.city || '',
+                country: address.country || 'Bangladesh',
                 phone: address.phone || customer.phone || '',
             };
 
@@ -117,7 +126,7 @@ export function registerOrderCreateForm(Alpine) {
                     stock_quantity: product.stock_quantity,
                     unit_price_cents: product.price_cents,
                     quantity: 1,
-                    discount_cents: 0,
+                    discount_amount: 0,
                 });
             }
 
@@ -133,8 +142,20 @@ export function registerOrderCreateForm(Alpine) {
             return item.unit_price_cents * item.quantity;
         },
 
+        lineDiscountCents(item) {
+            return Math.round(Number(item.discount_amount || 0) * 100);
+        },
+
         lineNet(item) {
-            return Math.max(0, this.lineGross(item) - Number(item.discount_cents || 0));
+            return Math.max(0, this.lineGross(item) - this.lineDiscountCents(item));
+        },
+
+        get shippingCents() {
+            return Math.round(Number(this.shippingAmount || 0) * 100);
+        },
+
+        get initialPaymentCents() {
+            return Math.round(Number(this.initialPaymentAmount || 0) * 100);
         },
 
         get subtotalCents() {
@@ -160,7 +181,7 @@ export function registerOrderCreateForm(Alpine) {
         },
 
         get totalCents() {
-            return Math.max(0, this.subtotalCents - this.orderDiscountCents) + Number(this.shippingCents || 0) + this.taxCents;
+            return Math.max(0, this.subtotalCents - this.orderDiscountCents) + this.shippingCents + this.taxCents;
         },
 
         formatMoney(cents) {

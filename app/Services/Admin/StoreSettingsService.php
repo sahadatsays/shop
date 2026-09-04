@@ -3,6 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Models\StoreSetting;
+use App\Support\Money;
 use App\Support\StoreSettings;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Artisan;
@@ -23,25 +24,25 @@ class StoreSettingsService
     {
         return [
             'currencies' => [
+                'BDT' => 'BDT — Bangladeshi Taka',
                 'USD' => 'USD — US Dollar',
+                'INR' => 'INR — Indian Rupee',
+                'PKR' => 'PKR — Pakistani Rupee',
                 'EUR' => 'EUR — Euro',
                 'GBP' => 'GBP — British Pound',
                 'CAD' => 'CAD — Canadian Dollar',
                 'AUD' => 'AUD — Australian Dollar',
-                'BDT' => 'BDT — Bangladeshi Taka',
-                'INR' => 'INR — Indian Rupee',
-                'PKR' => 'PKR — Pakistani Rupee',
             ],
             // Provide a curated list of common primary timezones for quick selection.
             'timezones' => [
                 'Asia/Dhaka',
-                'Asia/Kolkata',     // India
-                'Europe/London',    // UK
+                'Asia/Kolkata',
                 'UTC',
-                'America/New_York', // USA - Eastern
-                'America/Chicago',  // USA - Central
-                'America/Denver',   // USA - Mountain
-                'America/Los_Angeles', // USA - Pacific
+                'Europe/London',
+                'America/New_York',
+                'America/Chicago',
+                'America/Denver',
+                'America/Los_Angeles',
             ],
             'themeColorFields' => [
                 'header_bg' => 'Header background',
@@ -144,7 +145,16 @@ class StoreSettingsService
             'meta_keywords' => $data['meta_keywords'] ?? null,
             'utility_bar_message' => $data['utility_bar_message'] ?? null,
             'free_shipping_threshold_cents' => filled($data['free_shipping_threshold'] ?? null)
-                ? (int) round(((float) $data['free_shipping_threshold']) * 100)
+                ? Money::toMinor($data['free_shipping_threshold'])
+                : null,
+            'flat_shipping_cents' => filled($data['flat_shipping'] ?? null)
+                ? Money::toMinor($data['flat_shipping'])
+                : null,
+            'inside_dhaka_shipping_cents' => filled($data['inside_dhaka_shipping'] ?? null)
+                ? Money::toMinor($data['inside_dhaka_shipping'])
+                : null,
+            'outside_dhaka_shipping_cents' => filled($data['outside_dhaka_shipping'] ?? null)
+                ? Money::toMinor($data['outside_dhaka_shipping'])
                 : null,
             'google_analytics_id' => $data['google_analytics_id'] ?? null,
             'theme_colors' => $themeColors,

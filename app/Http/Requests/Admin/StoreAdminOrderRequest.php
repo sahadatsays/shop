@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Enums\OrderSource;
 use App\Enums\PaymentMethod;
+use App\Support\Money;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -24,10 +25,27 @@ class StoreAdminOrderRequest extends FormRequest
 
         $items = collect($this->input('items', []))
             ->filter(fn ($item): bool => filled($item['product_id'] ?? null) && (int) ($item['quantity'] ?? 0) > 0)
+            ->map(function (array $item): array {
+                if (array_key_exists('discount_amount', $item) && ! array_key_exists('discount_cents', $item)) {
+                    $item['discount_cents'] = Money::toMinor($item['discount_amount']);
+                }
+
+                return $item;
+            })
             ->values()
             ->all();
 
-        $this->merge(['items' => $items]);
+        $merge = ['items' => $items];
+
+        if ($this->has('shipping_amount')) {
+            $merge['shipping_cents'] = Money::toMinor($this->input('shipping_amount'));
+        }
+
+        if ($this->has('initial_payment_amount')) {
+            $merge['initial_payment_cents'] = Money::toMinor($this->input('initial_payment_amount'));
+        }
+
+        $this->merge($merge);
     }
 
     /**
@@ -43,10 +61,12 @@ class StoreAdminOrderRequest extends FormRequest
             'new_customer.phone' => ['nullable', 'string', 'max:40'],
             'source' => ['required', Rule::enum(OrderSource::class)],
             'shipping_method' => ['nullable', 'string', 'max:100'],
+            'shipping_amount' => ['nullable', 'numeric', 'min:0'],
             'shipping_cents' => ['required', 'integer', 'min:0'],
             'order_discount_type' => ['nullable', Rule::in(['fixed', 'percent'])],
             'order_discount_value' => ['nullable', 'numeric', 'min:0'],
             'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
+            'initial_payment_amount' => ['nullable', 'numeric', 'min:0'],
             'initial_payment_cents' => ['nullable', 'integer', 'min:0'],
             'transaction_reference' => ['nullable', 'string', 'max:120'],
             'admin_notes' => ['nullable', 'string', 'max:2000'],
@@ -55,15 +75,14 @@ class StoreAdminOrderRequest extends FormRequest
             'shipping_address.last_name' => ['required', 'string', 'max:80'],
             'shipping_address.line1' => ['required', 'string', 'max:255'],
             'shipping_address.line2' => ['nullable', 'string', 'max:255'],
-            'shipping_address.city' => ['required', 'string', 'max:100'],
-            'shipping_address.state' => ['required', 'string', 'max:100'],
-            'shipping_address.postal_code' => ['required', 'string', 'max:30'],
+            'shipping_address.district' => ['required', 'string', 'max:100'],
             'shipping_address.country' => ['required', 'string', 'max:100'],
             'shipping_address.phone' => ['nullable', 'string', 'max:40'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'integer', 'exists:products,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1', 'max:999'],
             'items.*.unit_price_cents' => ['nullable', 'integer', 'min:0'],
+            'items.*.discount_amount' => ['nullable', 'numeric', 'min:0'],
             'items.*.discount_cents' => ['nullable', 'integer', 'min:0'],
         ];
     }

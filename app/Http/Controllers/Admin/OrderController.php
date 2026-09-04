@@ -24,6 +24,7 @@ use App\Services\Admin\InvoiceService;
 use App\Services\Admin\OrderPaymentService;
 use App\Services\Admin\OrderService;
 use App\Support\MoneyFormatter;
+use App\Support\ShippingRates;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -58,6 +59,8 @@ class OrderController extends Controller
 
     public function create(): View
     {
+        $shippingMethods = ShippingRates::methodsForCheckout();
+
         return view('admin.orders.create', [
             'title' => 'Create order',
             'breadcrumbs' => [
@@ -66,8 +69,8 @@ class OrderController extends Controller
             ],
             'sources' => OrderSource::cases(),
             'paymentMethods' => PaymentMethod::cases(),
-            'shippingMethods' => config('cart.shipping_methods', []),
-            'taxRate' => (float) config('cart.tax_rate', 0.08),
+            'shippingMethods' => $shippingMethods,
+            'taxRate' => (float) config('cart.tax_rate', 0),
             'currencySymbol' => MoneyFormatter::symbol(),
             'idempotencyKey' => (string) str()->uuid(),
         ]);
