@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\OrderStatus;
 use App\Enums\RefundReason;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\AdvanceOrderStatusRequest;
 use App\Http\Requests\Admin\StoreOrderNoteRequest;
 use App\Http\Requests\Admin\UpdateOrderStatusRequest;
 use App\Models\Order;
@@ -65,6 +66,16 @@ class OrderController extends Controller
         return redirect()
             ->route('admin.orders.show', $order)
             ->with('success', 'Order status updated.');
+    }
+
+    public function advanceStatus(AdvanceOrderStatusRequest $request, Order $order): RedirectResponse
+    {
+        $updated = $this->orders->advanceToNextStatus($order);
+
+        return back()->with(
+            'success',
+            'Order advanced to '.$updated->status->label().'.',
+        );
     }
 
     public function storeNote(StoreOrderNoteRequest $request, Order $order): RedirectResponse

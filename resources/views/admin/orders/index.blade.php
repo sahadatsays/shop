@@ -14,6 +14,14 @@
         </script>
     @endif
 
+    @if ($errors->any())
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                window.adminToast?.push({ title: @json($errors->first()), type: 'error' });
+            });
+        </script>
+    @endif
+
     <x-admin.page-header title="Orders" description="Manage order lifecycle, fulfillment status, and internal notes.">
     </x-admin.page-header>
 
@@ -89,7 +97,23 @@
                         <x-admin.badge :variant="$order->status->badgeVariant()" dot>{{ $order->status->label() }}</x-admin.badge>
                     </td>
                     <td class="px-6 py-4">
-                        <div class="flex items-center justify-end">
+                        <div class="flex items-center justify-end gap-2">
+                            @if (auth('admin')->user()?->hasPermission('orders.manage') && $order->status->canAdvanceProgress())
+                                @php($nextStatus = $order->status->nextProgressStatus())
+                                <form method="POST" action="{{ route('admin.orders.status.advance', $order) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <x-admin.button
+                                        type="submit"
+                                        variant="soft"
+                                        size="xs"
+                                        title="Advance to {{ $nextStatus->label() }}"
+                                        aria-label="Advance order {{ $order->order_number }} to {{ $nextStatus->label() }}"
+                                    >
+                                        Next: {{ $nextStatus->label() }}
+                                    </x-admin.button>
+                                </form>
+                            @endif
                             <x-admin.button variant="ghost" size="icon-sm" :href="route('admin.orders.show', $order)" title="View order" aria-label="View order {{ $order->order_number }}">
                                 <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
                             </x-admin.button>

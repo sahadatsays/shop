@@ -157,6 +157,9 @@ Route::middleware('admin.permission:orders.view')->group(function (): void {
     Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus'])
         ->middleware('admin.permission:orders.manage')
         ->name('orders.status.update');
+    Route::patch('orders/{order}/status/next', [OrderController::class, 'advanceStatus'])
+        ->middleware('admin.permission:orders.manage')
+        ->name('orders.status.advance');
     Route::post('orders/{order}/notes', [OrderController::class, 'storeNote'])
         ->middleware('admin.permission:orders.manage')
         ->name('orders.notes.store');

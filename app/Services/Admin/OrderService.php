@@ -87,6 +87,24 @@ class OrderService
         });
     }
 
+    public function advanceToNextStatus(Order $order, ?string $authorName = null): Order
+    {
+        $nextStatus = $order->status->nextProgressStatus();
+
+        if ($nextStatus === null) {
+            throw ValidationException::withMessages([
+                'status' => 'This order has no next fulfillment status.',
+            ]);
+        }
+
+        return $this->updateStatus(
+            $order,
+            $nextStatus,
+            'Status advanced to '.$nextStatus->label().'.',
+            $authorName,
+        );
+    }
+
     public function addNote(Order $order, string $body, ?string $authorName = null): OrderNote
     {
         $note = $this->orders->createNote($order, [
