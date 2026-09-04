@@ -35,6 +35,7 @@ class NavRegistry
                 icon: 'M16 3H5a2 2 0 0 0-2 2v14l4-2 4 2 4-2 4 2V5a2 2 0 0 0-2-2Zm0 4H8',
                 children: [
                     new NavItem(label: 'Suppliers', route: 'admin.suppliers.index', routePrefix: 'admin.suppliers.', permission: 'suppliers.view'),
+                    new NavItem(label: 'Purchases', route: 'admin.purchases.index', routePrefix: 'admin.purchases.', permission: 'purchases.view'),
                 ],
             ),
             new NavItem(
@@ -170,6 +171,7 @@ class NavRegistry
                     ['label' => 'Inventory', 'href' => route('admin.inventory.index'), 'keywords' => 'stock warehouse movement'],
                     ['label' => 'Warehouses', 'href' => route('admin.warehouses.index'), 'keywords' => 'stock fulfillment location distribution'],
                     ['label' => 'Suppliers', 'href' => route('admin.suppliers.index'), 'keywords' => 'procurement vendor purchase vendor'],
+                    ['label' => 'Purchases', 'href' => route('admin.purchases.index'), 'keywords' => 'procurement purchase order receiving stock'],
                     ['label' => 'Stock history', 'href' => route('admin.inventory.movements'), 'keywords' => 'inventory log movement audit'],
                     ['label' => 'Customers', 'href' => route('admin.customers.index'), 'keywords' => 'users accounts profiles'],
                     ['label' => 'Orders', 'href' => route('admin.orders.index'), 'keywords' => 'commerce sales fulfillment'],
@@ -192,6 +194,7 @@ class NavRegistry
                     ['label' => 'Create brand', 'href' => route('admin.brands.create'), 'keywords' => 'new catalog brand'],
                     ['label' => 'Create customer', 'href' => route('admin.customers.create'), 'keywords' => 'new user account'],
                     ['label' => 'Create supplier', 'href' => route('admin.suppliers.create'), 'keywords' => 'new procurement vendor'],
+                    ['label' => 'Create purchase', 'href' => route('admin.purchases.create'), 'keywords' => 'new procurement purchase order'],
                     ['label' => 'View orders', 'href' => route('admin.orders.index'), 'keywords' => 'commerce sales'],
                     ['label' => 'Export report', 'href' => null, 'keywords' => 'download csv'],
                 ],

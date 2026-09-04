@@ -306,7 +306,57 @@ class InventoryService
             ->exists();
     }
 
-    private function ensureWarehouseStockInitialized(Product $product): void
+    /**
+     * Increase warehouse stock for a purchase receipt.
+     *
+     * Does not overwrite product selling price. Optionally updates cost_cents
+     * to the latest purchase unit cost for valuation readiness.
+     */
+    public function receiveForPurchase(
+        Product $product,
+        Warehouse $warehouse,
+        int $quantity,
+        string $reference,
+        ?string $notes = null,
+        ?int $unitCostCents = null,
+    ): StockMovement {
+        if ($quantity <= 0) {
+            throw new InvalidArgumentException('Received quantity must be greater than zero.');
+        }
+
+        return DB::transaction(function () use ($product, $warehouse, $quantity, $reference, $notes, $unitCostCents): StockMovement {
+            $warehouseStock = WarehouseStock::query()
+                ->where('product_id', $product->id)
+                ->where('warehouse_id', $warehouse->id)
+                ->lockForUpdate()
+                ->first();
+
+            if ($warehouseStock === null) {
+                $warehouseStock = $this->warehouseStock($product, $warehouse);
+                $warehouseStock = WarehouseStock::query()
+                    ->whereKey($warehouseStock->id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+            }
+
+            $movement = $this->recordMovement(
+                product: $product,
+                warehouse: $warehouse,
+                type: StockMovementType::Purchase,
+                targetQuantity: $warehouseStock->quantity + $quantity,
+                reference: $reference,
+                notes: $notes ?? 'Stock received from purchase '.$reference.'.',
+            );
+
+            if ($unitCostCents !== null && $unitCostCents >= 0) {
+                $product->update(['cost_cents' => $unitCostCents]);
+            }
+
+            return $movement;
+        });
+    }
+
+    public function ensureWarehouseStockInitialized(Product $product): void
     {
         $hasRows = WarehouseStock::query()
             ->where('product_id', $product->id)

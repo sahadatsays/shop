@@ -2,7 +2,9 @@
 
 namespace App\Services\Admin;
 
+use App\Enums\PurchaseStatus;
 use App\Enums\SupplierStatus;
+use App\Models\Purchase;
 use App\Models\Supplier;
 use App\Support\Suppliers\SupplierPurchaseSummary;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -98,20 +100,66 @@ class SupplierService
 
     public function purchaseSummary(Supplier $supplier): SupplierPurchaseSummary
     {
-        // Purchase Management will populate these aggregates from purchase orders,
-        // payments, returns, and ledger balances. Soft-deleted suppliers remain
-        // resolvable so historical purchase references stay intact.
-        unset($supplier);
+        $purchases = Purchase::query()
+            ->with('items')
+            ->where('supplier_id', $supplier->id)
+            ->whereNot('status', PurchaseStatus::Cancelled)
+            ->get();
 
-        return SupplierPurchaseSummary::empty();
+        if ($purchases->isEmpty()) {
+            return SupplierPurchaseSummary::empty();
+        }
+
+        $products = [];
+
+        foreach ($purchases as $purchase) {
+            foreach ($purchase->items as $item) {
+                $key = (string) $item->product_id;
+                $products[$key] ??= [
+                    'product_id' => $item->product_id,
+                    'name' => $item->product_name_snapshot,
+                    'quantity' => 0,
+                    'total_cents' => 0,
+                ];
+                $products[$key]['quantity'] += $item->quantity_ordered;
+                $products[$key]['total_cents'] += $item->subtotal_cents;
+            }
+        }
+
+        $lastPurchase = $purchases
+            ->sortByDesc(fn (Purchase $purchase) => $purchase->purchase_date?->timestamp ?? 0)
+            ->first();
+
+        return new SupplierPurchaseSummary(
+            purchaseCount: $purchases->count(),
+            totalPurchaseValueCents: (int) $purchases->sum('grand_total_cents'),
+            outstandingPayableCents: (int) $purchases->sum(fn (Purchase $purchase): int => $purchase->dueCents()),
+            lastPurchaseAt: $lastPurchase?->purchase_date?->toDateString(),
+            productsPurchased: array_values($products),
+        );
     }
 
     public function hasPurchaseHistory(Supplier $supplier): bool
     {
-        // Reserved for Purchase Management (purchase_orders.supplier_id, etc.).
-        unset($supplier);
+        return Purchase::query()
+            ->withTrashed()
+            ->where('supplier_id', $supplier->id)
+            ->exists();
+    }
 
-        return false;
+    /**
+     * @return Collection<int, Purchase>
+     */
+    public function purchaseHistory(Supplier $supplier, int $limit = 20): Collection
+    {
+        return Purchase::query()
+            ->withSum('items as quantity_ordered_sum', 'quantity_ordered')
+            ->withSum('items as quantity_received_sum', 'quantity_received')
+            ->where('supplier_id', $supplier->id)
+            ->latest('purchase_date')
+            ->latest('id')
+            ->limit($limit)
+            ->get();
     }
 
     /**

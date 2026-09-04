@@ -24,6 +24,12 @@ enum AuditAction: string
     case CustomerDeleted = 'customer.deleted';
     case CustomerRestored = 'customer.restored';
     case CustomerNoteAdded = 'customer.note_added';
+    case PurchaseCreated = 'purchase.created';
+    case PurchaseUpdated = 'purchase.updated';
+    case PurchaseSubmitted = 'purchase.submitted';
+    case PurchaseApproved = 'purchase.approved';
+    case PurchaseReceived = 'purchase.received';
+    case PurchaseCancelled = 'purchase.cancelled';
 
     public function label(): string
     {
@@ -48,6 +54,12 @@ enum AuditAction: string
             self::CustomerDeleted => 'Customer deleted',
             self::CustomerRestored => 'Customer restored',
             self::CustomerNoteAdded => 'Customer note added',
+            self::PurchaseCreated => 'Purchase created',
+            self::PurchaseUpdated => 'Purchase updated',
+            self::PurchaseSubmitted => 'Purchase submitted',
+            self::PurchaseApproved => 'Purchase approved',
+            self::PurchaseReceived => 'Purchase stock received',
+            self::PurchaseCancelled => 'Purchase cancelled',
         };
     }
 
@@ -62,6 +74,8 @@ enum AuditAction: string
             self::OrderRefundProcessed, self::OrderNoteAdded => AuditCategory::Order,
             self::CustomerCreated, self::CustomerUpdated, self::CustomerDeleted,
             self::CustomerRestored, self::CustomerNoteAdded => AuditCategory::Customer,
+            self::PurchaseCreated, self::PurchaseUpdated, self::PurchaseSubmitted,
+            self::PurchaseApproved, self::PurchaseReceived, self::PurchaseCancelled => AuditCategory::Procurement,
         };
     }
 }

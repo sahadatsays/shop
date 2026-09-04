@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\PermissionMatrixController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\PromoBannerController;
+use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\RefundController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SaleProductController;
@@ -121,6 +122,43 @@ Route::middleware('admin.permission:suppliers.edit')->group(function (): void {
 
 Route::middleware('admin.permission:suppliers.delete')->group(function (): void {
     Route::delete('suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+});
+
+Route::middleware('admin.permission:purchases.view')->group(function (): void {
+    Route::get('purchases', [PurchaseController::class, 'index'])->name('purchases.index');
+});
+
+Route::middleware('admin.permission:purchases.create')->group(function (): void {
+    Route::get('purchases/create', [PurchaseController::class, 'create'])->name('purchases.create');
+    Route::post('purchases', [PurchaseController::class, 'store'])->name('purchases.store');
+    Route::get('purchases-products/search', [PurchaseController::class, 'searchProducts'])->name('purchases.products.search');
+});
+
+Route::middleware('admin.permission:purchases.view')->group(function (): void {
+    Route::get('purchases/{purchase}/print', [PurchaseController::class, 'print'])->name('purchases.print');
+    Route::get('purchases/{purchase}', [PurchaseController::class, 'show'])->name('purchases.show');
+});
+
+Route::middleware('admin.permission:purchases.edit')->group(function (): void {
+    Route::get('purchases/{purchase}/edit', [PurchaseController::class, 'edit'])->name('purchases.edit');
+    Route::put('purchases/{purchase}', [PurchaseController::class, 'update'])->name('purchases.update');
+    Route::patch('purchases/{purchase}', [PurchaseController::class, 'update']);
+});
+
+Route::middleware('admin.permission:purchases.create')->group(function (): void {
+    Route::post('purchases/{purchase}/submit', [PurchaseController::class, 'submit'])->name('purchases.submit');
+});
+
+Route::middleware('admin.permission:purchases.approve')->group(function (): void {
+    Route::post('purchases/{purchase}/approve', [PurchaseController::class, 'approve'])->name('purchases.approve');
+});
+
+Route::middleware('admin.permission:purchases.receive')->group(function (): void {
+    Route::post('purchases/{purchase}/receive', [PurchaseController::class, 'receive'])->name('purchases.receive');
+});
+
+Route::middleware('admin.permission:purchases.cancel')->group(function (): void {
+    Route::post('purchases/{purchase}/cancel', [PurchaseController::class, 'cancel'])->name('purchases.cancel');
 });
 
 Route::middleware('admin.permission:categories.view')->group(function (): void {

@@ -42,14 +42,45 @@
             </x-admin.form-card>
 
             @if ($canViewPurchases)
-                <x-admin.form-card title="Purchase history" description="Purchase Management will populate this list. Existing history stays linked if the supplier is inactivated.">
-                    @if (($purchaseSummary?->purchaseCount ?? 0) === 0)
+                <x-admin.form-card title="Purchase history" description="Existing history stays linked if the supplier is inactivated.">
+                    @if ($purchaseHistory->isEmpty())
                         <x-admin.empty-state
                             title="No purchases yet"
-                            description="Purchases linked to this supplier will appear here once Purchase Management is enabled."
+                            description="Purchases linked to this supplier will appear here."
                         />
                     @else
-                        <p class="text-sm admin-text-secondary">{{ $purchaseSummary->purchaseCount }} purchase(s) on record.</p>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-sm">
+                                <thead>
+                                    <tr class="border-b admin-border text-left text-xs uppercase tracking-wider admin-muted">
+                                        <th class="px-2 py-2">Purchase</th>
+                                        <th class="px-2 py-2">Date</th>
+                                        <th class="px-2 py-2">Total</th>
+                                        <th class="px-2 py-2">Received</th>
+                                        <th class="px-2 py-2">Status</th>
+                                        <th class="px-2 py-2">Payment</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-admin-border/60">
+                                    @foreach ($purchaseHistory as $purchase)
+                                        <tr>
+                                            <td class="px-2 py-3">
+                                                @if (auth('admin')->user()?->hasPermission('purchases.view'))
+                                                    <a href="{{ route('admin.purchases.show', $purchase) }}" class="font-medium hover:text-admin-brand">{{ $purchase->purchase_number }}</a>
+                                                @else
+                                                    {{ $purchase->purchase_number }}
+                                                @endif
+                                            </td>
+                                            <td class="px-2 py-3">{{ $purchase->purchase_date?->format('M j, Y') }}</td>
+                                            <td class="px-2 py-3 tabular-nums">{{ MoneyFormatter::format($purchase->grand_total_cents) }}</td>
+                                            <td class="px-2 py-3 tabular-nums">{{ (int) ($purchase->quantity_received_sum ?? 0) }} / {{ (int) ($purchase->quantity_ordered_sum ?? 0) }}</td>
+                                            <td class="px-2 py-3"><x-admin.badge :variant="$purchase->status->badgeVariant()" dot>{{ $purchase->status->label() }}</x-admin.badge></td>
+                                            <td class="px-2 py-3"><x-admin.badge :variant="$purchase->payment_status->badgeVariant()" dot>{{ $purchase->payment_status->label() }}</x-admin.badge></td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     @endif
                 </x-admin.form-card>
 

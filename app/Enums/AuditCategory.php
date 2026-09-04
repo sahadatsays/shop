@@ -11,6 +11,7 @@ enum AuditCategory: string
     case Customer = 'customer';
     case User = 'user';
     case System = 'system';
+    case Procurement = 'procurement';
 
     public function label(): string
     {
@@ -22,6 +23,7 @@ enum AuditCategory: string
             self::Customer => 'Customer changes',
             self::User => 'User activity',
             self::System => 'System',
+            self::Procurement => 'Procurement',
         };
     }
 
@@ -35,6 +37,7 @@ enum AuditCategory: string
             self::Customer => 'muted',
             self::User => 'info',
             self::System => 'danger',
+            self::Procurement => 'brand',
         };
     }
 }

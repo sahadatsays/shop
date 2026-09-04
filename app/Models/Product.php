@@ -34,6 +34,7 @@ class Product extends Model
         'description',
         'price_cents',
         'compare_at_price_cents',
+        'cost_cents',
         'stock_quantity',
         'low_stock_threshold',
         'status',
@@ -53,6 +54,7 @@ class Product extends Model
         return [
             'price_cents' => 'integer',
             'compare_at_price_cents' => 'integer',
+            'cost_cents' => 'integer',
             'stock_quantity' => 'integer',
             'low_stock_threshold' => 'integer',
             'status' => ProductStatus::class,

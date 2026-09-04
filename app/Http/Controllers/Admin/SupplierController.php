@@ -74,6 +74,9 @@ class SupplierController extends Controller
             'purchaseSummary' => $canViewPurchases
                 ? $this->suppliers->purchaseSummary($supplier)
                 : null,
+            'purchaseHistory' => $canViewPurchases
+                ? $this->suppliers->purchaseHistory($supplier)
+                : collect(),
             'canViewPurchases' => $canViewPurchases,
         ]);
     }
