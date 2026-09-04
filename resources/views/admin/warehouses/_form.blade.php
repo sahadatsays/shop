@@ -18,7 +18,7 @@
                     label="Name"
                     name="name"
                     :value="old('name', $warehouse->name ?? '')"
-                    placeholder="Fort Worth Distribution Center"
+                    placeholder="Dhaka Central Warehouse"
                     required
                     class="sm:col-span-2"
                 />
@@ -27,7 +27,7 @@
                     label="Code"
                     name="code"
                     :value="old('code', $warehouse->code ?? '')"
-                    placeholder="FTW-01"
+                    placeholder="DAC-01"
                     help="Short unique code used in inventory logs."
                     required
                 />
@@ -53,21 +53,21 @@
                     label="City"
                     name="city"
                     :value="old('city', $warehouse->city ?? '')"
-                    placeholder="Fort Worth"
+                    placeholder="Dhaka"
                 />
 
                 <x-admin.input
                     label="State"
                     name="state"
                     :value="old('state', $warehouse->state ?? '')"
-                    placeholder="TX"
+                    placeholder="Dhaka"
                 />
 
                 <x-admin.input
                     label="Country"
                     name="country"
-                    :value="old('country', $warehouse->country ?? 'US')"
-                    placeholder="US"
+                    :value="old('country', $warehouse->country ?? 'BD')"
+                    placeholder="BD"
                     help="Two-letter country code."
                     class="sm:col-span-2"
                 />

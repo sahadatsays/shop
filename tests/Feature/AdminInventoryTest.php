@@ -34,7 +34,7 @@ test('inventory show page displays warehouse stock and movements', function (): 
         ->assertSuccessful()
         ->assertSee($product->name)
         ->assertSee('Warehouse stock')
-        ->assertSee('Fort Worth Distribution Center');
+        ->assertSee('Dhaka Central Warehouse');
 });
 
 test('stock can be increased via adjustment', function (): void {

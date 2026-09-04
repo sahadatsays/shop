@@ -1,8 +1,17 @@
 @php
-    use App\Support\MoneyFormatter;
+    use App\Support\Money;
 
-    $defaultShipping = collect($shippingMethods)->first();
-    $defaultShippingCents = (int) ($defaultShipping['cost_cents'] ?? 0);
+    $defaultShippingKey = old('shipping_method', array_key_first($shippingMethods) ?: '');
+    $defaultShipping = $shippingMethods[$defaultShippingKey] ?? collect($shippingMethods)->first();
+    $defaultShippingAmount = old(
+        'shipping_amount',
+        isset($defaultShipping['cost_amount'])
+            ? number_format((float) $defaultShipping['cost_amount'], 2, '.', '')
+            : number_format(Money::toAmount((int) ($defaultShipping['cost_cents'] ?? 0)), 2, '.', ''),
+    );
+    $shippingRates = collect($shippingMethods)
+        ->mapWithKeys(fn (array $method, string $key) => [$key => (float) ($method['cost_amount'] ?? Money::toAmount((int) ($method['cost_cents'] ?? 0)))])
+        ->all();
 @endphp
 
 <x-layouts.admin :title="$title" :breadcrumbs="$breadcrumbs">
@@ -20,7 +29,9 @@
             productSearchUrl: @js(route('admin.orders.search.products')),
             taxRate: {{ $taxRate }},
             currencySymbol: @js($currencySymbol),
-            defaultShippingCents: {{ $defaultShippingCents }},
+            defaultShippingMethod: @js($defaultShippingKey),
+            defaultShippingAmount: {{ (float) $defaultShippingAmount }},
+            shippingRates: @js($shippingRates),
         })"
     >
         <x-admin.page-header title="Create order" description="Create a customer order on behalf of phone, walk-in, or social channel sales.">
@@ -125,7 +136,7 @@
                                         </td>
                                         <td class="px-3 py-3 tabular-nums" x-text="formatMoney(item.unit_price_cents)"></td>
                                         <td class="px-3 py-3">
-                                            <input type="number" min="0" x-model.number="item.discount_cents" :name="`items[${index}][discount_cents]`" class="w-24 rounded-[var(--radius-admin)] border admin-border bg-admin-surface px-2 py-1.5 text-sm" placeholder="cents">
+                                            <input type="number" min="0" step="0.01" x-model.number="item.discount_amount" :name="`items[${index}][discount_amount]`" class="w-24 rounded-[var(--radius-admin)] border admin-border bg-admin-surface px-2 py-1.5 text-sm" placeholder="0.00">
                                         </td>
                                         <td class="px-3 py-3 tabular-nums font-medium" x-text="formatMoney(lineNet(item))"></td>
                                         <td class="px-3 py-3 text-right">
@@ -148,7 +159,7 @@
                         <x-admin.input label="City" name="shipping_address[city]" x-ref="shipping_city" :value="old('shipping_address.city')" required />
                         <x-admin.input label="State" name="shipping_address[state]" x-ref="shipping_state" :value="old('shipping_address.state')" required />
                         <x-admin.input label="Postal code" name="shipping_address[postal_code]" x-ref="shipping_postal_code" :value="old('shipping_address.postal_code')" required />
-                        <x-admin.input label="Country" name="shipping_address[country]" x-ref="shipping_country" :value="old('shipping_address.country', 'United States')" required />
+                        <x-admin.input label="Country" name="shipping_address[country]" x-ref="shipping_country" :value="old('shipping_address.country', 'Bangladesh')" required />
                         <x-admin.input label="Phone" name="shipping_address[phone]" x-ref="shipping_phone" :value="old('shipping_address.phone')" class="sm:col-span-2" />
                     </div>
                 </x-admin.form-card>
@@ -163,14 +174,14 @@
                             @endforeach
                         </x-admin.select>
 
-                        <x-admin.select label="Shipping method" name="shipping_method">
+                        <x-admin.select label="Shipping method" name="shipping_method" x-model="shippingMethod">
                             <option value="">Custom / none</option>
                             @foreach ($shippingMethods as $key => $method)
-                                <option value="{{ $key }}" @selected(old('shipping_method', array_key_first($shippingMethods)) === $key)>{{ $method['label'] }}</option>
+                                <option value="{{ $key }}" @selected($defaultShippingKey === $key)>{{ $method['label'] }} ({{ $method['price'] }})</option>
                             @endforeach
                         </x-admin.select>
 
-                        <x-admin.input label="Shipping charge (cents)" name="shipping_cents" type="number" min="0" x-model.number="shippingCents" :value="old('shipping_cents', $defaultShippingCents)" required />
+                        <x-admin.input label="Shipping charge (BDT)" name="shipping_amount" type="number" min="0" step="0.01" x-model.number="shippingAmount" :value="old('shipping_amount', $defaultShippingAmount)" required />
 
                         <x-admin.select label="Order discount type" name="order_discount_type" x-model="orderDiscountType">
                             <option value="">No order discount</option>
@@ -186,7 +197,7 @@
                             @endforeach
                         </x-admin.select>
 
-                        <x-admin.input label="Initial payment (cents)" name="initial_payment_cents" type="number" min="0" x-model.number="initialPaymentCents" :value="old('initial_payment_cents', 0)" help="Leave 0 for unpaid / COD-style pending." />
+                        <x-admin.input label="Initial payment (BDT)" name="initial_payment_amount" type="number" min="0" step="0.01" x-model.number="initialPaymentAmount" :value="old('initial_payment_amount', 0)" help="Leave 0 for unpaid / COD-style pending." />
                         <x-admin.input label="Transaction reference" name="transaction_reference" :value="old('transaction_reference')" />
                         <x-admin.textarea label="Internal notes" name="admin_notes" rows="3">{{ old('admin_notes') }}</x-admin.textarea>
                     </div>

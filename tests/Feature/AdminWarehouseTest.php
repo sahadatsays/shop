@@ -19,8 +19,8 @@ test('warehouses index lists seeded warehouse', function (): void {
     $this->get(route('admin.warehouses.index'))
         ->assertSuccessful()
         ->assertSee('Warehouses')
-        ->assertSee('Fort Worth Distribution Center')
-        ->assertSee('FTW-01');
+        ->assertSee('Dhaka Central Warehouse')
+        ->assertSee('DAC-01');
 });
 
 test('warehouses index filters by active and inactive status', function (): void {
@@ -115,7 +115,7 @@ test('warehouse can be updated and default can be reassigned', function (): void
 });
 
 test('warehouse with stock history cannot be deleted', function (): void {
-    $warehouse = Warehouse::query()->where('code', 'FTW-01')->firstOrFail();
+    $warehouse = Warehouse::query()->where('code', 'DAC-01')->firstOrFail();
 
     $this->delete(route('admin.warehouses.destroy', $warehouse))
         ->assertSessionHasErrors('warehouse');
@@ -152,7 +152,7 @@ test('warehouse with on-hand stock cannot be deleted', function (): void {
 });
 
 test('warehouse show page renders inventory summary', function (): void {
-    $warehouse = Warehouse::query()->where('code', 'FTW-01')->firstOrFail();
+    $warehouse = Warehouse::query()->where('code', 'DAC-01')->firstOrFail();
 
     $this->get(route('admin.warehouses.show', $warehouse))
         ->assertSuccessful()

@@ -96,12 +96,12 @@ class CommerceSeeder extends Seeder
         });
 
         $warehouse = Warehouse::query()->create([
-            'name' => 'Fort Worth Distribution Center',
-            'code' => 'FTW-01',
-            'city' => 'Fort Worth',
-            'state' => 'TX',
-            'country' => 'US',
-            'address' => '1200 Logistics Parkway',
+            'name' => 'Dhaka Central Warehouse',
+            'code' => 'DAC-01',
+            'city' => 'Dhaka',
+            'state' => 'Dhaka',
+            'country' => 'BD',
+            'address' => 'Tejgaon Industrial Area',
             'is_default' => true,
             'is_active' => true,
             'sort_order' => 0,
@@ -128,7 +128,7 @@ class CommerceSeeder extends Seeder
                 'city' => fake()->city(),
                 'state' => fake()->stateAbbr(),
                 'postal_code' => fake()->postcode(),
-                'country' => 'US',
+                'country' => 'Bangladesh',
                 'is_default' => true,
             ]);
 

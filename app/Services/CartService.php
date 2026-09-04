@@ -13,6 +13,7 @@ use App\Models\CartItem;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Support\Checkout\OrderTotalsCalculator;
+use App\Support\ShippingRates;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -284,12 +285,7 @@ class CartService
 
         $discount = $this->coupons->resolveApplied($cart, $subtotalCents);
 
-        $freeShippingThreshold = (int) config('cart.free_shipping_threshold_cents', 7500);
-        $flatShipping = (int) config('cart.flat_shipping_cents', 900);
-
-        $shippingCents = $subtotalCents === 0 || $subtotalCents >= $freeShippingThreshold
-            ? 0
-            : $flatShipping;
+        $shippingCents = ShippingRates::estimateForSubtotal($subtotalCents);
 
         $totals = $this->totals->calculate($subtotalCents, $shippingCents, $discount);
 

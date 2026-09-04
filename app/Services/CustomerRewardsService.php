@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\OrderStatus;
 use App\Models\Order;
+use App\Support\Money;
 use App\Support\MoneyFormatter;
 use Illuminate\Support\Collection;
 
@@ -27,12 +28,13 @@ class CustomerRewardsService
     public function summary(Collection $orders): array
     {
         $deliveredOrders = $orders->where('status', OrderStatus::Delivered);
-        $orderPoints = (int) floor($deliveredOrders->sum('total_cents') / 100) * (int) config('rewards.points_per_dollar', 1);
+        $pointsPerTaka = (int) config('rewards.points_per_taka', 1);
+        $orderPoints = (int) floor($deliveredOrders->sum('total_cents') / 100) * $pointsPerTaka;
         $points = $orderPoints + (int) config('rewards.registration_bonus', 0);
 
         $lastDelivered = $deliveredOrders->sortByDesc('placed_at')->first();
         $lastOrderPoints = $lastDelivered
-            ? (int) floor($lastDelivered->total_cents / 100) * (int) config('rewards.points_per_dollar', 1)
+            ? (int) floor($lastDelivered->total_cents / 100) * $pointsPerTaka
             : 0;
 
         $tiers = collect(config('rewards.tiers', []))->sortBy('threshold')->values();
@@ -52,7 +54,7 @@ class CustomerRewardsService
         }
 
         $redemptionPoints = (int) config('rewards.redemption.points', 100);
-        $redemptionValueCents = (int) config('rewards.redemption.value_cents', 500);
+        $redemptionValueCents = Money::toMinor(config('rewards.redemption.value_amount', 5));
         $redeemableValueCents = $redemptionPoints > 0
             ? (int) floor($points / $redemptionPoints) * $redemptionValueCents
             : 0;

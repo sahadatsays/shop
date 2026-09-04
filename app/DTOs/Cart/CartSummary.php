@@ -5,6 +5,7 @@ namespace App\DTOs\Cart;
 use App\Models\Cart;
 use App\Models\Discount;
 use App\Support\MoneyFormatter;
+use App\Support\ShippingRates;
 use Illuminate\Support\Collection;
 
 class CartSummary
@@ -70,6 +71,6 @@ class CartSummary
 
     public function qualifiesForFreeShipping(): bool
     {
-        return $this->subtotalCents >= (int) config('cart.free_shipping_threshold_cents', 7500);
+        return $this->subtotalCents >= ShippingRates::freeShippingThresholdCents();
     }
 }

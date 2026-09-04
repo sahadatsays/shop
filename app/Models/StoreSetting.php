@@ -34,6 +34,9 @@ class StoreSetting extends Model
         'og_image_path',
         'utility_bar_message',
         'free_shipping_threshold_cents',
+        'flat_shipping_cents',
+        'inside_dhaka_shipping_cents',
+        'outside_dhaka_shipping_cents',
         'google_analytics_id',
         'theme_colors',
     ];
@@ -48,6 +51,9 @@ class StoreSetting extends Model
             'theme_colors' => 'array',
             'maintenance_enabled' => 'boolean',
             'free_shipping_threshold_cents' => 'integer',
+            'flat_shipping_cents' => 'integer',
+            'inside_dhaka_shipping_cents' => 'integer',
+            'outside_dhaka_shipping_cents' => 'integer',
         ];
     }
 

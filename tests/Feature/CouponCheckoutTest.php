@@ -113,7 +113,7 @@ test('checkout applies coupon discount to order total', function (): void {
             'postal_code' => '43215',
             'country' => 'United States',
         ],
-        'delivery_method' => 'standard',
+        'delivery_method' => 'insideDhaka',
         'payment_method' => 'cod',
         'terms_accepted' => '1',
     ])->assertRedirect();

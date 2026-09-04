@@ -113,7 +113,7 @@
                         min="0"
                         :value="$price"
                         placeholder="49.99"
-                        help="Retail price in USD."
+                        help="Retail price in BDT."
                         required
                     />
 

@@ -38,7 +38,7 @@ test('placing an order notifies admins and customers with a valid email', functi
             'postal_code' => '43215',
             'country' => 'United States',
         ],
-        'delivery_method' => 'standard',
+        'delivery_method' => 'insideDhaka',
         'payment_method' => 'cod',
         'terms_accepted' => '1',
     ])->assertRedirect();
@@ -80,7 +80,7 @@ test('placing an order notifies admins but skips customer when email is not noti
             'postal_code' => '43215',
             'country' => 'United States',
         ],
-        'delivery_method' => 'standard',
+        'delivery_method' => 'insideDhaka',
         'payment_method' => 'cod',
         'terms_accepted' => '1',
     ])->assertRedirect();

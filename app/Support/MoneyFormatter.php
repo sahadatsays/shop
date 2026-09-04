@@ -12,7 +12,7 @@ class MoneyFormatter
      */
     public static function format(int $cents, ?string $currency = null): string
     {
-        $currency = $currency ?? StoreSettings::current()->currency ?? 'USD';
+        $currency = $currency ?? StoreSettings::current()->currency ?? config('store.currency', 'BDT');
 
         $amount = $cents / 100;
 
@@ -43,7 +43,7 @@ class MoneyFormatter
         if ($amount >= 1000) {
             // Use compact notation and include currency symbol
             $compact = number_format($amount / 1000, 1).'k';
-            $symbol = self::symbolForCurrency($currency ?? StoreSettings::current()->currency ?? 'USD');
+            $symbol = self::symbolForCurrency($currency ?? StoreSettings::current()->currency ?? config('store.currency', 'BDT'));
 
             return $symbol.$compact;
         }
@@ -61,13 +61,13 @@ class MoneyFormatter
             'GBP' => 'en_GB',
             'CAD' => 'en_CA',
             'AUD' => 'en_AU',
-            default => 'en_US',
+            default => 'en_BD',
         };
     }
 
     public static function symbol(?string $currency = null): string
     {
-        return self::symbolForCurrency($currency ?? StoreSettings::current()->currency ?? 'USD');
+        return self::symbolForCurrency($currency ?? StoreSettings::current()->currency ?? config('store.currency', 'BDT'));
     }
 
     private static function symbolForCurrency(string $currency): string
@@ -80,7 +80,7 @@ class MoneyFormatter
             'GBP' => '£',
             'CAD' => 'CA$',
             'AUD' => 'AU$',
-            default => '$',
+            default => '৳',
         };
     }
 }
