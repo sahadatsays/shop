@@ -47,15 +47,6 @@ class NavRegistry
                 ],
             ),
             new NavItem(
-                label: 'Veterans & Impact',
-                icon: 'M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3Z',
-                disabled: true,
-                children: [
-                    new NavItem(label: 'Discount verification', disabled: true),
-                    new NavItem(label: 'Giving reports', disabled: true),
-                ],
-            ),
-            new NavItem(
                 label: 'Content',
                 icon: 'M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2Z',
                 children: [
