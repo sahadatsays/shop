@@ -76,7 +76,7 @@ class NavRegistry
                 children: [
                     new NavItem(label: 'Offers', route: 'admin.offers.index', routePrefix: 'admin.offers.', permission: 'offers.view'),
                     new NavItem(label: 'Discounts', route: 'admin.discounts.index', routePrefix: 'admin.discounts.', permission: 'discounts.view'),
-                    new NavItem(label: 'Sale products', route: 'admin.sale-products.index', routePrefix: 'admin.sale-products.', permission: 'sale-products.view'),
+                    new NavItem(label: 'Discounted products', route: 'admin.sale-products.index', routePrefix: 'admin.sale-products.', permission: 'sale-products.view'),
                     new NavItem(label: 'Collections', route: 'admin.collections.index', routePrefix: 'admin.collections.', permission: 'collections.view'),
                     new NavItem(label: 'Banner promotions', route: 'admin.banner-promotions.index', routePrefix: 'admin.banner-promotions.', permission: 'promotions.view'),
                     new NavItem(label: 'Countdown promotions', route: 'admin.countdown-promotions.index', routePrefix: 'admin.countdown-promotions.', permission: 'promotions.view'),
