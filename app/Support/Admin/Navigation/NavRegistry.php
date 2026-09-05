@@ -25,7 +25,7 @@ class NavRegistry
                     new NavItem(label: 'Products', route: 'admin.products.index', routePrefix: 'admin.products.', permission: 'products.view'),
                     new NavItem(label: 'Categories', route: 'admin.categories.index', routePrefix: 'admin.categories.', permission: 'categories.view'),
                     new NavItem(label: 'Brands', route: 'admin.brands.index', routePrefix: 'admin.brands.', permission: 'brands.view'),
-                    new NavItem(label: 'Collections', route: 'admin.collections.index', routePrefix: 'admin.collections.', permission: 'collections.view'),
+                    // new NavItem(label: 'Collections', route: 'admin.collections.index', routePrefix: 'admin.collections.', permission: 'collections.view'),
                     new NavItem(label: 'Inventory', route: 'admin.inventory.index', routePrefix: 'admin.inventory.', permission: 'inventory.view'),
                     new NavItem(label: 'Warehouses', route: 'admin.warehouses.index', routePrefix: 'admin.warehouses.', permission: 'warehouses.view'),
                 ],
