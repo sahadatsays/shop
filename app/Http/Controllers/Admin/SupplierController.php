@@ -23,7 +23,7 @@ class SupplierController extends Controller
         return view('admin.suppliers.index', [
             'title' => 'Suppliers',
             'breadcrumbs' => [
-                ['label' => 'Procurement'],
+                ['label' => 'Purchases'],
                 ['label' => 'Suppliers'],
             ],
             'suppliers' => $this->suppliers->list([
@@ -41,7 +41,7 @@ class SupplierController extends Controller
         return view('admin.suppliers.create', [
             'title' => 'Create supplier',
             'breadcrumbs' => [
-                ['label' => 'Procurement'],
+                ['label' => 'Purchases'],
                 ['label' => 'Suppliers', 'href' => route('admin.suppliers.index')],
                 ['label' => 'Create'],
             ],
@@ -66,7 +66,7 @@ class SupplierController extends Controller
         return view('admin.suppliers.show', [
             'title' => $supplier->name,
             'breadcrumbs' => [
-                ['label' => 'Procurement'],
+                ['label' => 'Purchases'],
                 ['label' => 'Suppliers', 'href' => route('admin.suppliers.index')],
                 ['label' => $supplier->name],
             ],
@@ -88,7 +88,7 @@ class SupplierController extends Controller
         return view('admin.suppliers.edit', [
             'title' => 'Edit supplier',
             'breadcrumbs' => [
-                ['label' => 'Procurement'],
+                ['label' => 'Purchases'],
                 ['label' => 'Suppliers', 'href' => route('admin.suppliers.index')],
                 ['label' => $supplier->name, 'href' => route('admin.suppliers.show', $supplier)],
                 ['label' => 'Edit'],

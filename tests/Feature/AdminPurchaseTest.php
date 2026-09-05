@@ -20,7 +20,7 @@ beforeEach(function (): void {
     actingAsAdmin();
 });
 
-function createPurchasePayload(Supplier $supplier, Product $product, int $quantity = 10, int $unitCost = 1000): array
+function createPurchasePayload(Supplier $supplier, Product $product, int $quantity = 10, float $unitCost = 10): array
 {
     return [
         'supplier_id' => $supplier->id,
@@ -28,8 +28,8 @@ function createPurchasePayload(Supplier $supplier, Product $product, int $quanti
         'expected_delivery_date' => now()->addDays(5)->toDateString(),
         'notes' => 'Test purchase',
         'discount_cents' => 0,
-        'shipping_cents' => 100,
-        'tax_cents' => 50,
+        'shipping_cents' => 1,
+        'tax_cents' => 0.5,
         'items' => [
             [
                 'product_id' => $product->id,
@@ -48,14 +48,14 @@ test('purchase can be created without increasing stock', function (): void {
     $initialStock = $product->stock_quantity;
     $sellingPrice = $product->price_cents;
 
-    $this->post(route('admin.purchases.store'), createPurchasePayload($supplier, $product, 25, 1500))
+    $this->post(route('admin.purchases.store'), createPurchasePayload($supplier, $product, 25, 15))
         ->assertRedirect();
 
     $purchase = Purchase::query()->firstOrFail();
 
     expect($purchase->status)->toBe(PurchaseStatus::Draft)
         ->and($purchase->purchase_number)->toStartWith('PUR-')
-        ->and($purchase->grand_total_cents)->toBe((25 * 1500) + 100 + 50)
+        ->and($purchase->grand_total_cents)->toBe((int) round(((25 * 15) + 1 + 0.5) * 100))
         ->and($purchase->items)->toHaveCount(1)
         ->and($purchase->items->first()->unit_cost_cents)->toBe(1500)
         ->and($product->fresh()->stock_quantity)->toBe($initialStock)

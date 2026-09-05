@@ -1,124 +1,650 @@
 @php
     use App\Support\MoneyFormatter;
+    use App\Support\StoreSettings;
 
-    $store = $snapshot['store'] ?? [];
+    $storeSettings = StoreSettings::current();
+    $store = array_merge(
+        [
+            'name' => $storeSettings->store_name,
+            'address' => $storeSettings->address,
+            'phone' => $storeSettings->phone,
+            'email' => $storeSettings->support_email ?: $storeSettings->email,
+            'website' => config('app.url'),
+            'tagline' => $storeSettings->tagline ?: 'Quality Labels. Reliable Supply. Global Reach.',
+        ],
+        $snapshot['store'] ?? [],
+    );
+
     $customer = $snapshot['customer'] ?? [];
+    $shipping = $snapshot['shipping_address'] ?? [];
     $totals = $snapshot['totals'] ?? [];
     $items = $snapshot['items'] ?? [];
     $payment = $snapshot['payment'] ?? [];
+
+    $totalCents = (int) ($totals['total_cents'] ?? 0);
+    $dueCents = (int) ($totals['due_cents'] ?? 0);
+    $paidCents = (int) ($totals['paid_cents'] ?? 0);
+
+    if (!function_exists('invoiceNumberToWords')) {
+        function invoiceNumberToWords(int $cents): string
+        {
+            $taka = (int) floor($cents / 100);
+            $poisha = $cents % 100;
+
+            if ($taka <= 0 && $poisha <= 0) {
+                return 'Zero Taka Only.';
+            }
+
+            if (class_exists(\NumberFormatter::class)) {
+                $formatter = new \NumberFormatter('en', \NumberFormatter::SPELLOUT);
+                $words = ucwords($formatter->format($taka)) . ' Taka';
+                if ($poisha > 0) {
+                    $words .= ' And ' . ucwords($formatter->format($poisha)) . ' Poisha';
+                }
+                return $words . ' Only.';
+            }
+
+            return number_format($taka) . ' Taka Only.';
+        }
+    }
+
+    $amountInWords = invoiceNumberToWords($totalCents);
+    $issuedDate = isset($invoice->issued_at) ? $invoice->issued_at->format('d F Y') : now()->format('d F Y');
+    $customerAddressFormatted = collect([
+        $shipping['line1'] ?? null,
+        $shipping['line2'] ?? null,
+        implode(
+            ', ',
+            array_filter([
+                $shipping['district'] ?? ($shipping['city'] ?? null),
+                $shipping['state'] ?? null,
+                $shipping['postal_code'] ?? null,
+            ]),
+        ),
+        $shipping['country'] ?? null,
+    ])
+        ->filter()
+        ->implode("\n");
 @endphp
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $invoice->invoice_number }} — Invoice</title>
     <style>
-        :root { color-scheme: light; }
-        * { box-sizing: border-box; }
-        body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; color: #0f172a; background: #f8fafc; }
-        .sheet { max-width: 900px; margin: 24px auto; background: #fff; padding: 40px; border: 1px solid #e2e8f0; }
-        .actions { max-width: 900px; margin: 16px auto 0; display: flex; gap: 8px; }
-        .btn { appearance: none; border: 1px solid #cbd5e1; background: #fff; padding: 8px 14px; border-radius: 8px; text-decoration: none; color: #0f172a; font-size: 14px; cursor: pointer; }
-        .btn-primary { background: #0f172a; color: #fff; border-color: #0f172a; }
-        h1 { margin: 0; font-size: 28px; }
-        .muted { color: #64748b; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 24px; }
-        th, td { padding: 10px 8px; border-bottom: 1px solid #e2e8f0; text-align: left; font-size: 14px; }
-        th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: #64748b; }
-        .totals { margin-left: auto; width: 280px; margin-top: 16px; }
-        .totals div { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
-        .totals .grand { font-weight: 700; border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 10px; }
+        :root {
+            color-scheme: light;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #1e293b;
+            background: #f1f5f9;
+            padding: 20px 0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .actions-bar {
+            max-width: 850px;
+            margin: 0 auto 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #0f172a;
+            transition: all 0.15s;
+        }
+
+        .btn:hover {
+            background: #f8fafc;
+        }
+
+        .btn-primary {
+            background: #0284c7;
+            color: #ffffff;
+            border-color: #0284c7;
+        }
+
+        .btn-primary:hover {
+            background: #0369a1;
+        }
+
+        .invoice-sheet {
+            max-width: 850px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 40px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Header Section */
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .company-brand {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f2942;
+            text-transform: uppercase;
+            letter-spacing: -0.01em;
+            margin: 0 0 4px;
+            line-height: 1.1;
+        }
+
+        .company-tagline {
+            font-size: 12px;
+            color: #64748b;
+            margin: 0 0 6px;
+            font-weight: 500;
+        }
+
+        .company-meta {
+            font-size: 12px;
+            color: #475569;
+            margin: 2px 0;
+        }
+
+        .header-right {
+            text-align: right;
+        }
+
+        .invoice-title {
+            font-size: 34px;
+            font-weight: 800;
+            color: #0284c7;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            margin: 0 0 10px;
+            line-height: 1;
+        }
+
+        .header-meta-table {
+            font-size: 12px;
+            margin-left: auto;
+            border-collapse: collapse;
+        }
+
+        .header-meta-table td {
+            padding: 2px 0 2px 10px;
+            text-align: right;
+        }
+
+        .header-meta-table td.label {
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .header-meta-table td.value {
+            color: #475569;
+        }
+
+        .header-divider {
+            border: none;
+            height: 2px;
+            background: #0284c7;
+            margin: 16px 0 24px;
+        }
+
+        /* Reference / Address Box */
+        .info-box {
+            border: 1px solid #b8c4d0;
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+
+        .info-box th {
+            background: #f0f4f8;
+            padding: 8px 14px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #475569;
+            border-bottom: 1px solid #b8c4d0;
+            text-align: left;
+            width: 50%;
+        }
+
+        .info-box td {
+            padding: 14px;
+            vertical-align: top;
+            font-size: 12px;
+            border-right: 1px solid #b8c4d0;
+            width: 50%;
+            line-height: 1.6;
+        }
+
+        .info-box td:last-child {
+            border-right: none;
+        }
+
+        .info-box th:last-child {
+            border-right: none;
+        }
+
+        .info-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 4px;
+        }
+
+        /* Items Table */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+            border: 1px solid #b8c4d0;
+        }
+
+        .items-table th {
+            background: #0f2942;
+            color: #ffffff;
+            padding: 10px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: 1px solid #0f2942;
+            text-align: left;
+        }
+
+        .items-table th.text-center {
+            text-align: center;
+        }
+
+        .items-table th.text-right {
+            text-align: right;
+        }
+
+        .items-table td {
+            padding: 12px;
+            border: 1px solid #b8c4d0;
+            font-size: 13px;
+            color: #1e293b;
+            vertical-align: middle;
+        }
+
+        .items-table td.text-center {
+            text-align: center;
+        }
+
+        .items-table td.text-right {
+            text-align: right;
+        }
+
+        .item-sku {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        /* Summary Section */
+        .summary-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 24px;
+        }
+
+        .summary-wrapper {
+            width: 340px;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+        }
+
+        .summary-table td {
+            padding: 5px 0;
+            font-size: 13px;
+        }
+
+        .summary-table td.label {
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .summary-table td.value {
+            text-align: right;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .total-due-box {
+            background: #0284c7;
+            color: #ffffff;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .total-due-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            line-height: 1.2;
+        }
+
+        .total-due-amount {
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        /* Footer Notes & Words */
+        .words-section {
+            font-size: 13px;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .notes-section {
+            font-size: 11px;
+            color: #64748b;
+            font-style: italic;
+            margin-bottom: 40px;
+            line-height: 1.4;
+        }
+
+        /* Signature Section */
+        .signature-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 60px;
+        }
+
+        .signature-block {
+            width: 240px;
+            text-align: center;
+        }
+
+        .signature-svg {
+            margin-bottom: -12px;
+        }
+
+        .signature-line {
+            border-top: 1px dashed #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        .signature-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .signature-subtitle {
+            font-size: 11px;
+            color: #64748b;
+            margin: 2px 0 0;
+        }
+
         @media print {
-            body { background: #fff; }
-            .actions { display: none !important; }
-            .sheet { border: 0; margin: 0; max-width: none; padding: 0; }
+            body {
+                background: #ffffff;
+                padding: 0;
+            }
+
+            .actions-bar {
+                display: none !important;
+            }
+
+            .invoice-sheet {
+                border: none;
+                box-shadow: none;
+                padding: 0;
+                max-width: 100%;
+            }
         }
     </style>
 </head>
+
 <body>
-    <div class="actions">
-        <button class="btn btn-primary" type="button" onclick="window.print()">Print invoice</button>
-        <a class="btn" href="{{ route('admin.orders.show', $order) }}">Back to order</a>
+
+    <div class="actions-bar">
+        <div>
+            <a class="btn" href="{{ route('admin.orders.show', $order) }}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path d="m15 18-6-6 6-6" />
+                </svg>
+                Back to Order
+            </a>
+        </div>
+        <div>
+            <button class="btn btn-primary" type="button" onclick="window.print()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <polyline points="6 9 6 2 18 2 18 9" />
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                    <rect x="6" y="14" width="12" height="8" />
+                </svg>
+                Print Invoice
+            </button>
+        </div>
     </div>
 
-    <div class="sheet">
-        <div class="grid">
+    <div class="invoice-sheet">
+        <!-- Header -->
+        <div class="invoice-header">
             <div>
-                @if (! empty($store['logo_path']))
-                    <img src="{{ asset('storage/'.$store['logo_path']) }}" alt="" style="max-height: 56px; margin-bottom: 12px;">
+                <h1 class="company-brand">{{ $store['name'] }}</h1>
+                <p class="company-tagline">{{ $store['tagline'] }}</p>
+                @if (!empty($store['address']))
+                    <p class="company-meta">Head Office: {{ $store['address'] }}</p>
                 @endif
-                <h1>{{ $store['name'] ?? config('app.name') }}</h1>
-                <p class="muted">{{ $store['address'] ?? '' }}</p>
-                <p class="muted">{{ $store['phone'] ?? '' }} · {{ $store['email'] ?? '' }}</p>
-            </div>
-            <div style="text-align: right;">
-                <h1>Invoice</h1>
-                <p><strong>{{ $invoice->invoice_number }}</strong></p>
-                <p class="muted">Order {{ $snapshot['order_number'] ?? $order->order_number }}</p>
-                <p class="muted">{{ optional($invoice->issued_at)->format('M j, Y g:i A') }}</p>
-            </div>
-        </div>
-
-        <div class="grid" style="margin-top: 32px;">
-            <div>
-                <h3 style="margin: 0 0 8px;">Customer</h3>
-                <p style="margin: 0;">{{ $customer['name'] ?? $order->customer->name }}</p>
-                <p class="muted" style="margin: 4px 0;">{{ $customer['phone'] ?? $order->customer->phone }}</p>
-                <p class="muted" style="margin: 0;">{{ $customer['email'] ?? $order->customer->email }}</p>
-            </div>
-            <div>
-                <h3 style="margin: 0 0 8px;">Ship to</h3>
-                <p class="muted" style="margin: 0; white-space: pre-line;">
-                    {{ collect($snapshot['shipping_address'] ?? [])->only(['first_name','last_name','line1','line2','city','state','postal_code','country'])->filter()->implode("\n") }}
+                <p class="company-meta">
+                    @if (!empty($store['email']))
+                        Email: {{ $store['email'] }}
+                    @endif
+                    @if (!empty($store['email']) && !empty($store['website']))
+                        |
+                    @endif
+                    @if (!empty($store['website']))
+                        Website: {{ parse_url($store['website'], PHP_URL_HOST) ?: $store['website'] }}
+                    @endif
+                    @if (!empty($store['phone']))
+                        | Phone: {{ $store['phone'] }}
+                    @endif
                 </p>
             </div>
+            <div class="header-right">
+                <h2 class="invoice-title">BILL</h2>
+                <table class="header-meta-table">
+                    <tr>
+                        <td class="label">Bill No:</td>
+                        <td class="value">{{ $invoice->invoice_number }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Bill Date:</td>
+                        <td class="value">{{ $issuedDate }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Payment Status:</td>
+                        <td class="value">{{ $payment['status_label'] ?? ucfirst($payment['status'] ?? 'Pending') }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
 
-        <table>
+        <hr class="header-divider">
+
+        <!-- Info Box (Bill To & Order Reference) -->
+        <table class="info-box">
             <thead>
                 <tr>
-                    <th>Product</th>
-                    <th>SKU</th>
-                    <th>Qty</th>
-                    <th>Unit</th>
-                    <th>Discount</th>
-                    <th>Subtotal</th>
+                    <th>BILL TO</th>
+                    <th>ORDER REFERENCE</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse ($items as $item)
+                <tr>
+                    <td>
+                        <div class="info-name">{{ $customer['name'] ?? $order->customer->name }}</div>
+                        @if (!empty($customerAddressFormatted))
+                            <div>{!! nl2br(e($customerAddressFormatted)) !!}</div>
+                        @endif
+                        @if (!empty($customer['phone'] ?? $order->customer->phone))
+                            <div>Contact: {{ $customer['phone'] ?? $order->customer->phone }}</div>
+                        @endif
+                        @if (!empty($customer['email'] ?? $order->customer->email))
+                            <div>Email: {{ $customer['email'] ?? $order->customer->email }}</div>
+                        @endif
+                    </td>
+                    <td>
+                        <div><strong>Order No:</strong> {{ $snapshot['order_number'] ?? $order->order_number }}</div>
+                        <div><strong>Payment Method:</strong> {{ $payment['method'] ?? $order->payment_method }}</div>
+                        <div><strong>Order Date:</strong> {{ optional($order->created_at)->format('d F Y') }}</div>
+                        @if (!empty($order->source))
+                            <div><strong>Source:</strong> {{ $order->source->label() }}</div>
+                        @endif
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Line Items Table -->
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th style="width: 45px;" class="text-center">SL</th>
+                    <th>DESCRIPTION</th>
+                    <th style="width: 70px;" class="text-center">QTY</th>
+                    <th style="width: 70px;" class="text-center">UNIT</th>
+                    <th style="width: 140px;" class="text-right">AMOUNT (BDT)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($items as $index => $item)
                     <tr>
-                        <td>{{ $item['product_name'] ?? 'Product' }}</td>
-                        <td>{{ $item['sku'] ?? '—' }}</td>
-                        <td>{{ $item['quantity'] ?? 0 }}</td>
-                        <td>{{ MoneyFormatter::format((int) ($item['unit_price_cents'] ?? 0)) }}</td>
-                        <td>{{ MoneyFormatter::format((int) ($item['discount_cents'] ?? 0)) }}</td>
-                        <td>{{ MoneyFormatter::format((int) ($item['line_total_cents'] ?? 0)) }}</td>
+                        <td class="text-center">{{ sprintf('%02d', $index + 1) }}</td>
+                        <td>
+                            <div style="font-weight: 600; color: #0f172a;">{{ $item['product_name'] ?? 'Product' }}
+                            </div>
+                            @if (!empty($item['sku']))
+                                <div class="item-sku">SKU: {{ $item['sku'] }}</div>
+                            @endif
+                        </td>
+                        <td class="text-center">{{ $item['quantity'] ?? 0 }}</td>
+                        <td class="text-center">Pcs</td>
+                        <td class="text-right">{{ number_format(($item['line_total_cents'] ?? 0) / 100, 2) }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="6">No line items.</td></tr>
+                    <tr>
+                        <td colspan="5" class="text-center" style="padding: 20px; color: #64748b;">No line items
+                            found.</td>
+                    </tr>
                 @endforelse
             </tbody>
         </table>
 
-        <div class="totals">
-            <div><span class="muted">Subtotal</span><span>{{ MoneyFormatter::format((int) ($totals['subtotal_cents'] ?? 0)) }}</span></div>
-            <div><span class="muted">Discount</span><span>{{ MoneyFormatter::format((int) ($totals['discount_cents'] ?? 0)) }}</span></div>
-            <div><span class="muted">Shipping</span><span>{{ MoneyFormatter::format((int) ($totals['shipping_cents'] ?? 0)) }}</span></div>
-            <div><span class="muted">Tax</span><span>{{ MoneyFormatter::format((int) ($totals['tax_cents'] ?? 0)) }}</span></div>
-            <div class="grand"><span>Grand total</span><span>{{ MoneyFormatter::format((int) ($totals['total_cents'] ?? 0)) }}</span></div>
-            <div><span class="muted">Paid</span><span>{{ MoneyFormatter::format((int) ($totals['paid_cents'] ?? 0)) }}</span></div>
-            <div><span class="muted">Due</span><span>{{ MoneyFormatter::format((int) ($totals['due_cents'] ?? 0)) }}</span></div>
-            <div><span class="muted">Payment</span><span>{{ $payment['status_label'] ?? '' }} · {{ $payment['method'] ?? '' }}</span></div>
+        <!-- Summary & Total Box -->
+        <div class="summary-container">
+            <div class="summary-wrapper">
+                <table class="summary-table">
+                    <tr>
+                        <td class="label">Subtotal</td>
+                        <td class="value">{{ number_format(($totals['subtotal_cents'] ?? 0) / 100, 2) }}</td>
+                    </tr>
+                    @if (!empty($totals['discount_cents']) && $totals['discount_cents'] > 0)
+                        <tr>
+                            <td class="label">Discount</td>
+                            <td class="value">-{{ number_format($totals['discount_cents'] / 100, 2) }}</td>
+                        </tr>
+                    @endif
+                    @if (!empty($totals['shipping_cents']) && $totals['shipping_cents'] > 0)
+                        <tr>
+                            <td class="label">Shipping</td>
+                            <td class="value">{{ number_format($totals['shipping_cents'] / 100, 2) }}</td>
+                        </tr>
+                    @endif
+                    @if (!empty($totals['tax_cents']) && $totals['tax_cents'] > 0)
+                        <tr>
+                            <td class="label">Tax</td>
+                            <td class="value">{{ number_format($totals['tax_cents'] / 100, 2) }}</td>
+                        </tr>
+                    @endif
+                    <tr>
+                        <td class="label">Paid</td>
+                        <td class="value">{{ number_format($paidCents / 100, 2) }}</td>
+                    </tr>
+                </table>
+
+                <div class="total-due-box">
+                    <div class="total-due-title">TOTAL DUE<br>(BDT)</div>
+                    <div class="total-due-amount">{{ number_format($dueCents / 100, 2) }}</div>
+                </div>
+            </div>
         </div>
 
-        @if (! empty($snapshot['notes']))
-            <p style="margin-top: 28px;"><strong>Notes</strong><br>{{ $snapshot['notes'] }}</p>
-        @endif
+        <!-- Amount in words & Notes -->
+        <div class="words-section">
+            Amount in words: <strong>{{ $amountInWords }}</strong>
+        </div>
 
-        <p class="muted" style="margin-top: 28px; font-size: 12px;">{{ $snapshot['terms'] ?? '' }}</p>
+        <div class="notes-section">
+            Note: This bill has been prepared against the supplied order reference. Please mention the bill number when
+            making payment.
+            @if (!empty($snapshot['notes']))
+                <br><strong>Admin Notes:</strong> {{ $snapshot['notes'] }}
+            @endif
+        </div>
+
+        <!-- Signatures -->
+        <div class="signature-container">
+            <div class="signature-block">
+                {{-- <div style="height: 35px; display: flex; align-items: flex-end; justify-content: center;">
+                    <svg class="signature-svg" width="120" height="35" viewBox="0 0 120 35" fill="none">
+                        <path d="M10 25C25 10 40 30 55 15C70 0 80 32 95 18C105 8 110 22 115 12" stroke="#0f2942" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div> --}}
+                <div class="signature-line"></div>
+                <div class="signature-title">Authorized Signature</div>
+                <div class="signature-subtitle">{{ $store['name'] }}</div>
+            </div>
+
+            <div class="signature-block">
+                <div style="height: 35px;"></div>
+                <div class="signature-line"></div>
+                <div class="signature-title">Received & Accepted By</div>
+                <div class="signature-subtitle">{{ $customer['name'] ?? $order->customer->name }}</div>
+            </div>
+        </div>
     </div>
+
 </body>
+
 </html>

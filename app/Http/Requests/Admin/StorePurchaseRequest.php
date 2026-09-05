@@ -39,11 +39,21 @@ class StorePurchaseRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        // Inputs are whole BDT amounts; convert to cents (×100) for backend.
         $this->merge([
             'submit' => $this->boolean('submit'),
-            'discount_cents' => (int) $this->input('discount_cents', 0),
-            'shipping_cents' => (int) $this->input('shipping_cents', 0),
-            'tax_cents' => (int) $this->input('tax_cents', 0),
+            'discount_cents' => (int) round((float) $this->input('discount_cents', 0) * 100),
+            'shipping_cents' => (int) round((float) $this->input('shipping_cents', 0) * 100),
+            'tax_cents' => (int) round((float) $this->input('tax_cents', 0) * 100),
+            'items' => collect($this->input('items', []))
+                ->map(fn (array $item): array => [
+                    'product_id' => $item['product_id'] ?? null,
+                    'quantity' => $item['quantity'] ?? 1,
+                    'unit_cost_cents' => (int) round((float) ($item['unit_cost_cents'] ?? 0) * 100),
+                    'discount_cents' => (int) round((float) ($item['discount_cents'] ?? 0) * 100),
+                    'tax_cents' => (int) round((float) ($item['tax_cents'] ?? 0) * 100),
+                ])
+                ->all(),
         ]);
     }
 

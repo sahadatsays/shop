@@ -31,11 +31,12 @@ class NavRegistry
                 ],
             ),
             new NavItem(
-                label: 'Procurement',
+                label: 'Purchases',
                 icon: 'M16 3H5a2 2 0 0 0-2 2v14l4-2 4 2 4-2 4 2V5a2 2 0 0 0-2-2Zm0 4H8',
                 children: [
                     new NavItem(label: 'Suppliers', route: 'admin.suppliers.index', routePrefix: 'admin.suppliers.', permission: 'suppliers.view'),
-                    new NavItem(label: 'Purchases', route: 'admin.purchases.index', routePrefix: 'admin.purchases.', permission: 'purchases.view'),
+                    new NavItem(label: 'Create Purchases', route: 'admin.purchases.create', routePrefix: 'admin.purchases.', permission: 'purchases.view'),
+                    new NavItem(label: 'View Purchases', route: 'admin.purchases.index', routePrefix: 'admin.purchases.', permission: 'purchases.view'),
                 ],
             ),
             new NavItem(
@@ -43,6 +44,7 @@ class NavRegistry
                 icon: 'M6 7h12l1.2 12.2a1.5 1.5 0 0 1-1.5 1.8H6.3a1.5 1.5 0 0 1-1.5-1.8L6 7ZM9 10V6a3 3 0 0 1 6 0v4',
                 children: [
                     new NavItem(label: 'Orders', route: 'admin.orders.index', routePrefix: 'admin.orders.', permission: 'orders.view'),
+                    new NavItem(label: 'Create Order', route: 'admin.orders.create', routePrefix: 'admin.orders.', permission: 'orders.view'),
                     new NavItem(label: 'Refunds', route: 'admin.refunds.index', routePrefix: 'admin.refunds.', permission: 'refunds.view'),
                 ],
             ),

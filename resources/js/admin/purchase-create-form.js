@@ -47,7 +47,7 @@ export function registerPurchaseCreateForm(Alpine) {
                     product_id: product.id,
                     name: product.name,
                     sku: product.sku,
-                    unit_cost_cents: Number(product.cost_cents || 0),
+                    unit_cost_cents: Number(product.cost_cents || 0) / 100, // store as BDT
                     quantity: 1,
                     discount_cents: 0,
                     tax_cents: 0,
@@ -84,8 +84,8 @@ export function registerPurchaseCreateForm(Alpine) {
             );
         },
 
-        formatMoney(cents) {
-            return `${this.currencySymbol}${(Number(cents || 0) / 100).toFixed(2)}`;
+        formatMoney(amount) {
+            return `${this.currencySymbol}${Number(amount || 0).toFixed(2)}`;
         },
 
         onSubmit() {

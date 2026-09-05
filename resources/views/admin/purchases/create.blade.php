@@ -15,17 +15,17 @@
         x-data="purchaseCreateForm({
             productSearchUrl: @js($productSearchUrl),
             currencySymbol: @js($currencySymbol),
-            shippingCents: {{ (int) old('shipping_cents', 0) }},
-            discountCents: {{ (int) old('discount_cents', 0) }},
-            taxCents: {{ (int) old('tax_cents', 0) }},
+            shippingCents: {{ (float) old('shipping_cents', 0) }},
+            discountCents: {{ (float) old('discount_cents', 0) }},
+            taxCents: {{ (float) old('tax_cents', 0) }},
             initialItems: @js(collect($initialItems)->map(fn ($item) => [
-                'product_id' => (int) ($item['product_id'] ?? 0),
-                'name' => $item['name'] ?? ('Product #'.($item['product_id'] ?? '')),
-                'sku' => $item['sku'] ?? '',
-                'unit_cost_cents' => (int) ($item['unit_cost_cents'] ?? 0),
-                'quantity' => (int) ($item['quantity'] ?? 1),
-                'discount_cents' => (int) ($item['discount_cents'] ?? 0),
-                'tax_cents' => (int) ($item['tax_cents'] ?? 0),
+                'product_id'      => (int) ($item['product_id'] ?? 0),
+                'name'            => $item['name'] ?? ('Product #'.($item['product_id'] ?? '')),
+                'sku'             => $item['sku'] ?? '',
+                'unit_cost_cents' => (float) ($item['unit_cost_cents'] ?? 0),
+                'quantity'        => (int) ($item['quantity'] ?? 1),
+                'discount_cents'  => (float) ($item['discount_cents'] ?? 0),
+                'tax_cents'       => (float) ($item['tax_cents'] ?? 0),
             ])->values()),
         })"
     >
@@ -83,7 +83,7 @@
                                 <tr class="border-b admin-border text-left text-xs uppercase tracking-wider admin-muted">
                                     <th class="px-2 py-2">Product</th>
                                     <th class="px-2 py-2">Qty</th>
-                                    <th class="px-2 py-2">Unit cost (cents)</th>
+                                    <th class="px-2 py-2">Unit cost</th>
                                     <th class="px-2 py-2">Disc</th>
                                     <th class="px-2 py-2">Tax</th>
                                     <th class="px-2 py-2">Line</th>
@@ -102,13 +102,13 @@
                                             <input type="number" min="1" x-model.number="item.quantity" :name="`items[${index}][quantity]`" class="w-20 rounded-[var(--radius-admin)] border admin-border bg-admin-surface px-2 py-1.5">
                                         </td>
                                         <td class="px-2 py-3">
-                                            <input type="number" min="0" x-model.number="item.unit_cost_cents" :name="`items[${index}][unit_cost_cents]`" class="w-28 rounded-[var(--radius-admin)] border admin-border bg-admin-surface px-2 py-1.5">
+                                            <input type="number" min="0" step="0.01" x-model.number="item.unit_cost_cents" :name="`items[${index}][unit_cost_cents]`" class="w-28 rounded-[var(--radius-admin)] border admin-border bg-admin-surface px-2 py-1.5">
                                         </td>
                                         <td class="px-2 py-3">
-                                            <input type="number" min="0" x-model.number="item.discount_cents" :name="`items[${index}][discount_cents]`" class="w-20 rounded-[var(--radius-admin)] border admin-border bg-admin-surface px-2 py-1.5">
+                                            <input type="number" min="0" step="0.01" x-model.number="item.discount_cents" :name="`items[${index}][discount_cents]`" class="w-20 rounded-[var(--radius-admin)] border admin-border bg-admin-surface px-2 py-1.5">
                                         </td>
                                         <td class="px-2 py-3">
-                                            <input type="number" min="0" x-model.number="item.tax_cents" :name="`items[${index}][tax_cents]`" class="w-20 rounded-[var(--radius-admin)] border admin-border bg-admin-surface px-2 py-1.5">
+                                            <input type="number" min="0" step="0.01" x-model.number="item.tax_cents" :name="`items[${index}][tax_cents]`" class="w-20 rounded-[var(--radius-admin)] border admin-border bg-admin-surface px-2 py-1.5">
                                         </td>
                                         <td class="px-2 py-3 tabular-nums" x-text="formatMoney(lineNet(item))"></td>
                                         <td class="px-2 py-3 text-right">
@@ -126,9 +126,9 @@
             <div class="space-y-6">
                 <x-admin.form-card title="Totals" description="Server recalculates on save.">
                     <div class="space-y-4">
-                        <x-admin.input label="Order discount (cents)" name="discount_cents" type="number" min="0" x-model.number="discountCents" />
-                        <x-admin.input label="Shipping (cents)" name="shipping_cents" type="number" min="0" x-model.number="shippingCents" />
-                        <x-admin.input label="Tax (cents)" name="tax_cents" type="number" min="0" x-model.number="taxCents" />
+                        <x-admin.input label="Order discount" name="discount_cents" type="number" min="0" step="0.01" x-model.number="discountCents" />
+                        <x-admin.input label="Shipping" name="shipping_cents" type="number" min="0" step="0.01" x-model.number="shippingCents" />
+                        <x-admin.input label="Tax" name="tax_cents" type="number" min="0" step="0.01" x-model.number="taxCents" />
                         <dl class="space-y-2 border-t admin-border pt-4 text-sm">
                             <div class="flex justify-between"><dt class="admin-muted">Subtotal</dt><dd class="tabular-nums" x-text="formatMoney(subtotalCents)"></dd></div>
                             <div class="flex justify-between font-medium"><dt>Grand total</dt><dd class="tabular-nums" x-text="formatMoney(grandTotalCents)"></dd></div>

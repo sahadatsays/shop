@@ -39,7 +39,6 @@ class PurchaseController extends Controller
         return view('admin.purchases.index', [
             'title' => 'Purchases',
             'breadcrumbs' => [
-                ['label' => 'Procurement'],
                 ['label' => 'Purchases'],
             ],
             'purchases' => $this->purchases->list([
@@ -59,7 +58,7 @@ class PurchaseController extends Controller
         return view('admin.purchases.create', [
             'title' => 'Create purchase',
             'breadcrumbs' => [
-                ['label' => 'Procurement'],
+                ['label' => 'Purchases'],
                 ['label' => 'Purchases', 'href' => route('admin.purchases.index')],
                 ['label' => 'Create'],
             ],
@@ -89,7 +88,7 @@ class PurchaseController extends Controller
         return view('admin.purchases.show', [
             'title' => $purchase->purchase_number,
             'breadcrumbs' => [
-                ['label' => 'Procurement'],
+                ['label' => 'Purchases'],
                 ['label' => 'Purchases', 'href' => route('admin.purchases.index')],
                 ['label' => $purchase->purchase_number],
             ],
@@ -111,7 +110,7 @@ class PurchaseController extends Controller
         return view('admin.purchases.edit', [
             'title' => 'Edit '.$purchase->purchase_number,
             'breadcrumbs' => [
-                ['label' => 'Procurement'],
+                ['label' => 'Purchases'],
                 ['label' => 'Purchases', 'href' => route('admin.purchases.index')],
                 ['label' => $purchase->purchase_number, 'href' => route('admin.purchases.show', $purchase)],
                 ['label' => 'Edit'],
